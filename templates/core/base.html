@@ -1,90 +1,103 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Green Loan</title>
-    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'Customcss/basestyle.css' %}">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'Customcss/basestyle.css' %}" />
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <div class="d-flex align-items-center">
                 <a href="{% url 'index'%}" class="navbar-brand d-flex align-items-center text-decoration-none">
                     <div class="logo-icon me-3">
-                        <i class="fas fa-mountain" style="color:white; font-size:1.25rem;">
+                        <i class="fas fa-mountain" style="color: white; font-size: 1.25rem">
                         </i>
                     </div>
-                    <div class="fw-bold" style="color: var(--primary-color); font-size: 1.1rem;">Green Loan(b.html)</div>
-                    <div style="color: var(--secondary-color); font-size: 0.8rem;">Digital Loan service(b.html)</div>
+                    <div class="fw-bold" style="color: var(--primary-color); font-size: 1.1rem">
+                        Green Loan(b.html)
+                    </div>
+                    <div style="color: var(--secondary-color); font-size: 0.8rem">
+                        Digital Loan service(b.html)
+                    </div>
                 </a>
             </div>
-            <button class="nav-toggler border-0" type="button" style="color: #556b2f;" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="color: #556b2f;">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
         </div>
 
         <button class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 {% if user.is_authenticated%}
                 <li class="nav-item">
-                    <a href="/" class="nav-link">DashBoard</a>
+                    <a href="/" class="nav-link" style="color: var(--primary-color); font-weight: 500;">DashBoard</a>
                 </li>
                 {% if user.role == 'customer' %}
                 <li class="nav-item">
-                    <a href="/" class="nav-link">Apply for loan</a>
+                    <a href="/" class="nav-link"  style="color: var(--primary-color); font-weight: 500;">Apply for loan</a>
                 </li>
-                {% endif %}
-                {% endif %}
+                {% endif %} {% endif %}
             </ul>
-
         </button>
-    <ul class="navbar-nav">
-        {% if user.is_authenticated %}
-        <li class="nav-item dropdown">
-            <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" id="navbarDropDown" role="button" data-bs-toggle="dropdown">
-            <div class="user-avatar me-2">userfirstname|upper</div>
-            userfullnameOrUsername
-        </a>
-        <ul class="dropdown-menu shadow">
-            <li><a href="#" class="dropdown-item"><i class="fas fa-user me2"></i>Profile</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-                <form action="#" method="post">
-                    {%csrf_token%}
-                    <button class="dropdown-item" type="submt"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
-                </form>
+        <ul class="navbar-nav">
+            {% if user.is_authenticated %}
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" id="navbarDropDown" role="button"
+                    data-bs-toggle="dropdown"
+                    style="color: var(--primary-color); font-weight: 500; position: relative; z-index: 1050;">
+                    <div class="user-avatar me-2">{{ user.first_name|first|default:user.username|first|upper }}</div>
+                    {{ user.get_full_name|default:user.username }}
+                </a>
+                <ul class="dropdown-menu shadow">
+                    <li>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-user me-2"></i>Profile
+                        </a>
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider" />
+                    </li>
+                    <li>
+                        <form action="#" method="post">
+                            {%csrf_token%}
+                            <button class="dropdown-item" type="submt">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
             </li>
+            {%else%}
+            <li class="nav-item">
+                <button class="btn btn-ghost me2"
+                    style="color: var(--primary-color); font-weight: 500; border: none; background: transparent;">Login</button>
+            </li>
+            <li class="nav-item">
+                <button class="btn"
+                    style="background: var(--primary-color); border-color: var(--primary-color); color: white; font-weight: 500; box-shadow: 0 4px 12px rgba(var(--primary-color-rgb, 85, 107, 47), 0.3);">Get
+                    Started</button>
+            </li>
+            {% endif %}
         </ul>
-        </li>
-        {%else%}
-        <li class="nav-item">
-            <button class="btn btn-ghost me2">Login</button>
-        </li>
-        <li class="nav-item">
-            <button class="btn">Get Started</button>
-        </li>
-        {% endif %}
-    </ul>
-
     </nav>
     <main class="container mt-4">
-        {% if messages %}
-        {% for message in messages %}
+        {% if messages %} {% for message in messages %}
         <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-        {% endfor %}
-        {% endif %}
-        {% block content %}{% endblock %}
+        {% endfor %} {% endif %} {% block content %}{% endblock %}
     </main>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'Customjs/base.js' %}"></script>
-    <footer>
-        @bibek bhandari
-    </footer>
+    <footer>@bibek bhandari</footer>
 </body>
+
 </html>

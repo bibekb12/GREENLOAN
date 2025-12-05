@@ -1,2 +1,138 @@
-{% include "core/base.html" %}
-{% load static %}
+{% extends "core/base.html" %}
+
+{% block content %}
+   <section class="hero-section position-relative overflow-hidden py-5 w-100" 
+    style="background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-color) 50%, var(--accent-color) 100%); min-height: 90vh;">
+
+    <!-- Background Pattern -->
+    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10" 
+         style="background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M30 30L0 0h60z" fill="%232563eb" fill-rule="evenodd"/%3E%3C/svg%3E'); 
+                background-size: 10vw 10vw; 
+                background-repeat: repeat;">
+    </div>
+     <div class="container position-relative py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <div class="hero-content">
+                    <!-- Trust Badge -->
+                    <div class="trust-badge d-inline-flex align-items-center bg-white rounded-pill px-4 py-2 mb-4 shadow-sm border" style="border-color: rgba(var(--primary-color-rgb, 85, 107, 47), 0.1) !important;">
+                        <i class="fas fa-award me-2" style="color: var(--primary-color);"></i>
+                        <span class="fw-medium" style="color: var(--primary-color);">नेपालमा भरपर्दो ऋण सेवा / Trusted Loan Service in Nepal</span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h1 class="display-4 fw-bold mb-3" style="color: #2d3a1a;">
+                            Nepal's Premier Loan Processing Service
+                        </h1>
+
+                        <h2 class="h1 fw-bold mb-4" style="color: var(--primary-color);">
+                            तपाईंको सपना पूरा गर्न द्रुत र सजिलो ऋण
+                        </h2>
+
+                        <p class="lead mb-4 fs-5" style="color: var(--primary-color);">
+                            {{ site_config.site_description|default:"Artha Setu provides fast, secure, and affordable loan solutions tailored for Nepali citizens. From personal loans to business financing, we support your financial journey with competitive rates and quick approval." }}
+                        </p>
+                    </div>
+
+                    <!-- CTA Buttons -->
+                    <div class="hero-actions d-flex flex-wrap gap-3 mb-4">
+                        {% if user.is_authenticated %}
+                            {% if user.role == 'applicant' %}
+                                <a href="{% url 'loans:apply_loan' %}" class="btn btn-lg px-4 py-3 shadow-lg" style="background: var(--primary-color); border-color: var(--primary-color); color: white;">
+                                    <i class="fas fa-plus-circle me-2"></i>आवेदन दिनुहोस् / Apply Now
+                                </a>
+                            {% endif %}
+                            <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary btn-lg px-4 py-3">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        {% else %}
+                            <a href="{% url 'accounts:signup' %}" class="btn btn-lg px-4 py-3 shadow-lg me-3" style="background: var(--primary-color); border-color: var(--primary-color); color: white;">
+                                <i class="fas fa-user-plus me-2"></i>सुरु गर्नुहोस् / Get Started
+                            </a>
+                            <a href="{% url 'accounts:login' %}" class="btn btn-outline-secondary btn-lg px-4 py-3">
+                                लगइन / Login
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Key Stats -->
+                    <div class="hero-stats-grid">
+                        <div class="row g-3">
+                            <div class="col-4">
+                                <div class="stat-card bg-white rounded-lg p-3 text-center shadow-sm border" style="border-color: rgba(var(--primary-color-rgb, 85, 107, 47), 0.1) !important;">
+                                    <p class="fw-bold mb-1" style="color: var(--primary-color);">NPR 50 करोड+</p>
+                                    <p class="small mb-0" style="color: var(--secondary-color);">ऋण वितरण</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-card bg-white rounded-lg p-3 text-center shadow-sm border" style="border-color: rgba(var(--primary-color-rgb, 85, 107, 47), 0.1) !important;">
+                                    <p class="fw-bold mb-1" style="color: var(--primary-color);">12% देखि</p>
+                                    <p class="small mb-0" style="color: var(--secondary-color);">ब्याजदर</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-card bg-white rounded-lg p-3 text-center shadow-sm border" style="border-color: rgba(var(--primary-color-rgb, 85, 107, 47), 0.1) !important;">
+                                    <p class="fw-bold mb-1" style="color: var(--primary-color);">२४ घण्टा</p>
+                                    <p class="small mb-0" style="color: var(--secondary-color);">स्वीकृति</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="hero-visual position-relative">
+                        <!-- Loan Details Card -->
+                        <div class="loan-details-card card shadow-2xl border-0 position-relative overflow-hidden" style="border-radius: 1.5rem;">
+                            <!-- Decorative Element -->
+                            <div class="position-absolute top-0 end-0 bg-gradient" style="width: 8rem; height: 8rem; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); opacity: 0.1; border-bottom-left-radius: 100%;"></div>
+
+                            <div class="card-body p-4">
+                                <div class="loan-detail-item d-flex align-items-center p-3 mb-3 rounded-xl" style="background: linear-gradient(90deg, var(--secondary-color-light, #eff5d2), var(--accent-color-light, #e3edc0)); border: 1px solid rgba(var(--primary-color-rgb, 85, 107, 47), 0.1);">
+                                    <div class="icon-wrapper rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 3rem; height: 3rem; background: rgba(var(--primary-color-rgb, 85, 107, 47), 0.1);">
+                                        <i class="fas fa-rupee-sign" style="color: var(--primary-color);"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <p class="small mb-1" style="color: var(--secondary-color);">ऋण रकम / Loan Amount</p>
+                                        <p class="fw-bold mb-0" style="color: #2d3a1a;">NPR 50,000 - 50,00,000</p>
+                                    </div>
+                                </div>
+
+                                <div class="loan-detail-item d-flex align-items-center p-3 mb-3 rounded-xl" style="background: linear-gradient(90deg, var(--secondary-color-light, #eff5d2), var(--accent-color-light, #e3edc0)); border: 1px solid rgba(var(--primary-color-rgb, 85, 107, 47), 0.1);">
+                                    <div class="icon-wrapper rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 3rem; height: 3rem; background: rgba(var(--primary-color-rgb, 85, 107, 47), 0.1);">
+                                        <i class="fas fa-clock" style="color: var(--primary-color);"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <p class="small mb-1" style="color: var(--secondary-color);">अवधि / Repayment Period</p>
+                                        <p class="fw-bold mb-0" style="color: #2d3a1a;">6 - 60 महिना / Months</p>
+                                    </div>
+                                </div>
+
+                                <div class="loan-detail-item d-flex align-items-center p-3 mb-3 rounded-xl" style="background: linear-gradient(90deg, var(--secondary-color-light, #eff5d2), var(--accent-color-light, #e3edc0)); border: 1px solid rgba(var(--primary-color-rgb, 85, 107, 47), 0.1);">
+                                    <div class="icon-wrapper rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 3rem; height: 3rem; background: rgba(var(--primary-color-rgb, 85, 107, 47), 0.1);">
+                                        <i class="fas fa-chart-line" style="color: var(--primary-color);"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <p class="small mb-1" style="color: var(--secondary-color);">ब्याज दर / Interest Rate</p>
+                                        <p class="fw-bold mb-0" style="color: #2d3a1a;">12% - 18% वार्षिक</p>
+                                    </div>
+                                </div>
+
+                                <div class="loan-detail-item d-flex align-items-center p-3 rounded-xl" style="background: linear-gradient(90deg, var(--secondary-color-light, #eff5d2), var(--accent-color-light, #e3edc0)); border: 1px solid rgba(var(--primary-color-rgb, 85, 107, 47), 0.1);">
+                                    <div class="icon-wrapper rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 3rem; height: 3rem; background: rgba(var(--primary-color-rgb, 85, 107, 47), 0.1);">
+                                        <i class="fas fa-landmark" style="color: var(--primary-color);"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <p class="small mb-1" style="color: var(--secondary-color);">आवेदन शुल्क / Application Fee</p>
+                                        <p class="fw-bold mb-0" style="color: #2d3a1a;">NPR 500 - 2,000</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+    {% endblock content %}

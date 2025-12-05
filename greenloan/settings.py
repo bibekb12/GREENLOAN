@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 
     #custom app installed
     'core',
+    'accounts',
 
     #third party apps for css
     'crispy_bootstrap5',
