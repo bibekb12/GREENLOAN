@@ -1,4 +1,6 @@
-Django==6.0
+Django==5.2.8
 mssql-django==1.6
 django-environ==0.12.0
 whitenoise==6.11.0
+django-crispy-forms==2.1
+crispy-bootstrap5==0.7
