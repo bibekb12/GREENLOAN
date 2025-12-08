@@ -8,6 +8,7 @@
     <title>Green Loan</title>
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" />
     <link rel="stylesheet" href="{% static 'Customcss/basestyle.css' %}" />
+    {% block extra_css %}{% endblock %}
 </head>
 
 <body>
@@ -20,10 +21,10 @@
                         </i>
                     </div>
                     <div class="fw-bold" style="color: var(--primary-color); font-size: 1.1rem">
-                        Green Loan(b.html)
+                        Green Loan
                     </div>
                     <div style="color: var(--secondary-color); font-size: 0.8rem">
-                        Digital Loan service(b.html)
+                        Digital Loan service
                     </div>
                 </a>
             </div>
@@ -37,13 +38,14 @@
             <ul class="navbar-nav me-auto">
                 {% if user.is_authenticated%}
                 <li class="nav-item">
-                    <a href="/" class="nav-link" style="color: var(--primary-color); font-weight: 500;">DashBoard</a>
+                    <a href="{% url 'core:index' %}" class="nav-link" style="color: var(--primary-color); font-weight: 500;">DashBoard</a>
                 </li>
                 {% if user.role == 'customer' %}
                 <li class="nav-item">
                     <a href="/" class="nav-link"  style="color: var(--primary-color); font-weight: 500;">Apply for loan</a>
                 </li>
-                {% endif %} {% endif %}
+                {% endif %} 
+                {% endif %}
             </ul>
         </button>
         <ul class="navbar-nav">
@@ -76,13 +78,17 @@
             </li>
             {%else%}
             <li class="nav-item">
-                <button class="btn btn-ghost me2"
+                <a href="{% url 'accounts:login' %}">
+                <button class="btn btn-ghost me2" 
                     style="color: var(--primary-color); font-weight: 500; border: none; background: transparent;">Login</button>
-            </li>
+            </a>
+                </li>
             <li class="nav-item">
+                <a href="{% url 'accounts:signup' %}">
                 <button class="btn"
                     style="background: var(--primary-color); border-color: var(--primary-color); color: white; font-weight: 500; box-shadow: 0 4px 12px rgba(var(--primary-color-rgb, 85, 107, 47), 0.3);">Get
                     Started</button>
+                    </a>
             </li>
             {% endif %}
         </ul>

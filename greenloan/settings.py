@@ -98,6 +98,11 @@ DATABASES = {
         "PASSWORD": env("DBPASSWORD"),
         "PORT": env("DBPORT"),
         "HOST": "localhost",
+        # "HOST": "host.docker.internal",
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server',
+        }
+        
         }
     }
 
