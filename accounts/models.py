@@ -4,6 +4,11 @@ from django.utils.translation import gettext_lazy as _
 
 """Preparing for the abstract class for the project"""
 class User(AbstractUser):
+
+    #email as username
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = [] 
+
     ROLE_CHOICES = [
         ('customer', 'Customer'),
         ('admin', 'Admin'),
@@ -24,6 +29,7 @@ class User(AbstractUser):
         ('female', 'Female'),
         ('other', 'Other'),
     ]
+    username = None
     first_name = models.CharField(_("applicant first name"), max_length=50)
     last_name = models.CharField(_("applicant last name"), max_length=50)
     full_name = models.CharField(_("applicant full name"), max_length=150)

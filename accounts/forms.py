@@ -5,26 +5,11 @@ from django.contrib.auth import authenticate, get_user_model
 User = get_user_model()
 
 class EmailAuthenticationForm(AuthenticationForm):
-    email = forms.EmailField(
-        label="Email",
-        widget=forms.EmailInput(attrs={'autofocus': True, 'class': 'form-control'})
-    )
+    username = forms.EmailField(label="Email", widget=forms.EmailInput(attrs={'autofocus': True, 'class': 'form-control'}))
 
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
 
-    def clean(self):
-        email = self.cleaned_data.get('email')
-        password = self.cleaned_data.get('password')
-
-        if email and password:
-            user = authenticate(self.request, email=email, password=password)
-            if user is None:
-                raise forms.ValidationError(
-                    "Invalid email or password.", code="invalid_login"
-                )
-            self.user_cache = user
-
-        return self.cleaned_data
+    # user = authenticate(request, username=username, password=password)
 
 class SimpleUserCreationForm(forms.ModelForm):
     password = forms.CharField(

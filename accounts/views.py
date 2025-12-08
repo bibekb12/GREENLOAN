@@ -22,7 +22,7 @@ class CustomLoginView(LoginView):
 
 
 class CustomLogoutView(LogoutView):
-    next_page = reverse_lazy('index')
+    next_page = reverse_lazy('core:index')
     
 class SignupView(CreateView):
     model = User
