@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     #custom app installed
     'core',
     'accounts',
+    'loans',
 
     #third party apps for css
     'crispy_bootstrap5',
@@ -86,7 +87,6 @@ WSGI_APPLICATION = 'greenloan.wsgi.application'
 
 AUTH_USER_MODEL = 'accounts.User'
 
-
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
@@ -102,7 +102,6 @@ DATABASES = {
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',
         }
-        
         }
     }
 
@@ -154,4 +153,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+LOGIN_URL = '/app/login/' 
+LOGIN_REDIRECT_URL = '/app/dashboard/' 
 

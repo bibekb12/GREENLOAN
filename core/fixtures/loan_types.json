@@ -1,0 +1,90 @@
+[
+    {
+        "model": "core.loantypes",
+        "fields": {
+            "name": "Personal Loan",
+            "description": "A general-purpose loan available to salaried and self-employed individuals.",
+            "interest_rate": "12.50",
+            "amount_limit": "500000.00",
+            "required_documents": ["ID Proof", "Address Proof", "Income Proof"],
+            "is_active": true
+        }
+    },
+    {
+        "model": "core.loantypes",
+        "fields": {
+            "name": "Home Loan",
+            "description": "A loan provided for purchasing, constructing, or renovating residential property.",
+            "interest_rate": "8.75",
+            "amount_limit": "5000000.00",
+            "required_documents": ["ID Proof", "Address Proof", "Property Documents", "Income Proof"],
+            "is_active": true
+        }
+    },
+    {
+        "model": "core.loantypes",
+        "fields": {
+            "name": "Auto Loan",
+            "description": "A loan for purchasing a new or used vehicle.",
+            "interest_rate": "9.25",
+            "amount_limit": "2000000.00",
+            "required_documents": ["ID Proof", "Address Proof", "Vehicle Quotation"],
+            "is_active": true
+        }
+    },
+    {
+        "model": "core.loantypes",
+        "fields": {
+            "name": "Education Loan",
+            "description": "A loan designed to cover tuition, accommodation, and study materials for students.",
+            "interest_rate": "7.50",
+            "amount_limit": "2500000.00",
+            "required_documents": ["ID Proof", "Address Proof", "Admission Letter", "Fee Structure"],
+            "is_active": true
+        }
+    },
+    {
+        "model": "core.loantypes",
+        "fields": {
+            "name": "Business Loan",
+            "description": "A loan aimed at supporting small and medium businesses for expansion or operations.",
+            "interest_rate": "14.00",
+            "amount_limit": "10000000.00",
+            "required_documents": ["ID Proof", "Business Registration", "Financial Statements"],
+            "is_active": true
+        }
+    },
+    {
+        "model": "core.loantypes",
+        "fields": {
+            "name": "Gold Loan",
+            "description": "A secured loan provided against pledged gold ornaments.",
+            "interest_rate": "10.00",
+            "amount_limit": "3000000.00",
+            "required_documents": ["ID Proof", "Gold Valuation Certificate"],
+            "is_active": true
+        }
+    },
+    {
+        "model": "core.loantypes",
+        "fields": {
+            "name": "Mortgage Loan",
+            "description": "A secured loan taken by pledging property as collateral.",
+            "interest_rate": "11.25",
+            "amount_limit": "15000000.00",
+            "required_documents": ["ID Proof", "Property Documents", "Income Proof"],
+            "is_active": true
+        }
+    },
+    {
+        "model": "core.loantypes",
+        "fields": {
+            "name": "Payday Loan",
+            "description": "A short-term high-interest loan designed to cover urgent financial needs until payday.",
+            "interest_rate": "18.50",
+            "amount_limit": "10000",
+            "required_documents": ["ID Proof", "Address Proof"],
+            "is_active": true
+        }
+    }
+]

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+{% include "includes/back_button.html" %}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">Create New User</h2>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    
+                    <div class="mb-3">
+                        <label for="id_role" class="form-label">User Role</label>
+                        <select name="role" class="form-control" id="id_role" required>
+                            <option value="applicant">Applicant</option>
+                            <option value="loan_officer">Loan Officer</option>
+                            <option value="senior_officer">Senior Officer</option>
+                            <option value="auditor">Auditor</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3" id="applicant_role_div" style="display: none;">
+                        <label for="id_applicant_role" class="form-label">Applicant Role</label>
+                        <select name="applicant_role" class="form-control" id="id_applicant_role">
+                            <option value="">Select Applicant Role</option>
+                            <option value="individual">Individual Borrower</option>
+                            <option value="business_owner">Business Owner</option>
+                            <option value="student">Student</option>
+                            <option value="co_applicant">Co-Applicant</option>
+                            <option value="guarantor">Guarantor</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_phone" class="form-label">Phone Number</label>
+                        <input type="tel" name="phone" class="form-control" id="id_phone" placeholder="Enter phone number">
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Create User</button>
+                        <a href="{% url 'accounts:user_list' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('id_role').addEventListener('change', function() {
+    const applicantRoleDiv = document.getElementById('applicant_role_div');
+    if (this.value === 'applicant') {
+        applicantRoleDiv.style.display = 'block';
+    } else {
+        applicantRoleDiv.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "core/base.html" %}
+
+{% block dashboardcontent %}
+    hi im dashboard inside accounts, admin dashboard
+
+<div class="d-flex">
+    <!-- Sidebar -->
+    <nav class="sidebar d-flex flex-column p-3">
+        <h4 class="text-white mb-4">Menu</h4>
+
+        <ul class="nav nav-pills flex-column mb-auto">
+
+            <!-- Menu Group 1 -->
+            <li class="nav-item">
+                <a href="#" class="nav-link active">Dashboard</a>
+            </li>
+
+            <!-- Collapsible Menu Example -->
+            <li>
+                <a class="nav-link" data-bs-toggle="collapse" href="#collapseMenu1" role="button">
+                    Management
+                </a>
+                <div class="collapse ps-3" id="collapseMenu1">
+                    <a href="#" class="nav-link">Users</a>
+                    <a href="#" class="nav-link">Roles</a>
+                    <a href="#" class="nav-link">Permissions</a>
+                </div>
+            </li>
+
+            <!-- Menu Group 2 -->
+            <li>
+                <a class="nav-link" data-bs-toggle="collapse" href="#collapseMenu2">
+                    Reports
+                </a>
+                <div class="collapse ps-3" id="collapseMenu2">
+                    <a href="#" class="nav-link">Sales</a>
+                    <a href="#" class="nav-link">Customers</a>
+                    <a href="#" class="nav-link">Traffic</a>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a href="#" class="nav-link">Settings</a>
+            </li>
+
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1 p-4">
+        <h2>Content Area</h2>
+        <p>This is where your main page content goes.</p>
+    </main>
+</div>
+
+{% endblock dashboardcontent %}
+
