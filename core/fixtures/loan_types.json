@@ -1,6 +1,6 @@
 [
     {
-        "model": "core.loantypes",
+        "model": "loans.loantypes",
         "fields": {
             "name": "Personal Loan",
             "description": "A general-purpose loan available to salaried and self-employed individuals.",
@@ -11,7 +11,7 @@
         }
     },
     {
-        "model": "core.loantypes",
+        "model": "loans.loantypes",
         "fields": {
             "name": "Home Loan",
             "description": "A loan provided for purchasing, constructing, or renovating residential property.",
@@ -22,7 +22,7 @@
         }
     },
     {
-        "model": "core.loantypes",
+        "model": "loans.loantypes",
         "fields": {
             "name": "Auto Loan",
             "description": "A loan for purchasing a new or used vehicle.",
@@ -33,7 +33,7 @@
         }
     },
     {
-        "model": "core.loantypes",
+        "model": "loans.loantypes",
         "fields": {
             "name": "Education Loan",
             "description": "A loan designed to cover tuition, accommodation, and study materials for students.",
@@ -44,7 +44,7 @@
         }
     },
     {
-        "model": "core.loantypes",
+        "model": "loans.loantypes",
         "fields": {
             "name": "Business Loan",
             "description": "A loan aimed at supporting small and medium businesses for expansion or operations.",
@@ -55,7 +55,7 @@
         }
     },
     {
-        "model": "core.loantypes",
+        "model": "loans.loantypes",
         "fields": {
             "name": "Gold Loan",
             "description": "A secured loan provided against pledged gold ornaments.",
@@ -66,7 +66,7 @@
         }
     },
     {
-        "model": "core.loantypes",
+        "model": "loans.loantypes",
         "fields": {
             "name": "Mortgage Loan",
             "description": "A secured loan taken by pledging property as collateral.",
@@ -77,7 +77,7 @@
         }
     },
     {
-        "model": "core.loantypes",
+        "model": "loans.loantypes",
         "fields": {
             "name": "Payday Loan",
             "description": "A short-term high-interest loan designed to cover urgent financial needs until payday.",

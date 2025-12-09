@@ -90,7 +90,7 @@ class Application(models.Model):
         from django.utils import timezone
         self.status_history.append({
             'status': status,
-            'user': user.username,
+            'user': user.get_username(),
             'user_id': user.id,
             'timestamp': timezone.now().isoformat(),
             'note': note
