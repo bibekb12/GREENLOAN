@@ -1,0 +1,47 @@
+{% extends "core/settings.html" %}
+{% load crispy_forms_tags %}
+
+{% block settings_content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+
+        <div class="d-flex justify-content-between mb-3">
+            <h3>Create New Admin</h3>
+            <a href="{% url 'core:admin_list' %}" class="btn btn-secondary">
+                Back to List
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+
+                    <div class="mb-3">
+                        <label for="id_role">Admin Role</label>
+                        <select name="role" id="id_role" class="form-control" required>
+                            <option value="admin">Admin</option>
+                            <option value="loan_officer">Loan Officer</option>
+                            <option value="senior_officer">Senior Officer</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary">Create Admin</button>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.getElementById('id_role').addEventListener('change', function() {
+    document.getElementById('applicant_role_div').style.display =
+        this.value === 'applicant' ? 'block' : 'none';
+});
+</script>
+
+{% endblock %}

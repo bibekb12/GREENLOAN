@@ -1,0 +1,30 @@
+{% extends "core/settings.html" %}
+
+{% block settings_content %}
+<div class="d-flex justify-content-between mb-3">
+    <h3>User List</h3>
+    <a href="{% url 'core:admin_create' %}" class="btn btn-primary">
+        Add New Admin
+    </a>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Full Name</th>
+            <th>Role</th>
+            <th>Email</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for admin in admin %}
+        <tr>
+            <td>{{ admin.full_name }}</td>
+            <td>{{ admin.role }}</td>
+            <td>{{ admin.email }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

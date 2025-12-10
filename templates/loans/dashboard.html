@@ -1,0 +1,173 @@
+{% extends "core/base.html" %}
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Loan Dashboard</h1>
+
+    <div class="table-responsive w-100">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Applicant Name</th>
+                    <th>Applicant Email</th>
+                    <th>Loan Amount</th>
+                    <th>Purpose</th>
+                    <th>Status</th>
+                    <th>Loan Officer</th>
+                    <th>Senior Officer</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                <tr>
+                    <td>{{ app.id }}</td>
+                    <td>{{ app.applicant.get_full_name }}</td>
+                    <td>{{ app.applicant.email }}</td>
+                    <td>${{ app.amount }}</td>
+                    <td>{{ app.purpose }}</td>
+                    <td>
+                        {% if app.status == "approved" %}
+                            <span class="badge bg-success">{{ app.get_status_display }}</span>
+                        {% elif app.status == "rejected" %}
+                            <span class="badge bg-danger">{{ app.get_status_display }}</span>
+                        {% elif app.status == "submitted" %}
+                            <span class="badge bg-secondary">{{ app.get_status_display }}</span>
+                        {% else %}
+                            <span class="badge bg-info">{{ app.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ app.loan_officer_status|default:"Pending" }}</td>
+                    <td>{{ app.senior_officer_status|default:"Pending" }}</td>
+                    <td>
+                        <!-- Loan Officer Actions -->
+                        <button class="btn btn-sm btn-success me-1"
+                                onclick="approve('{{ app.id }}','loan')"
+                                {% if user.role != 'loan_officer' %}disabled{% endif %}>
+                            Approve
+                        </button>
+                        <button class="btn btn-sm btn-danger me-1"
+                                onclick="reject('{{ app.id }}','loan')"
+                                {% if user.role != 'loan_officer' %}disabled{% endif %}>
+                            Reject
+                        </button>
+
+                        <!-- Senior Officer Actions -->
+                        <button class="btn btn-sm btn-warning me-1"
+                                onclick="approve('{{ app.id }}','senior')"
+                                {% if user.role != 'senior_officer' %}disabled{% endif %}>
+                            Approve
+                        </button>
+                        <button class="btn btn-sm btn-danger me-1"
+                                onclick="reject('{{ app.id }}','senior')"
+                                {% if user.role != 'senior_officer' %}disabled{% endif %}>
+                            Reject
+                        </button>
+
+                        <!-- View Application Button -->
+                        <button class="btn btn-sm btn-primary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#viewApplicationModal"
+                                data-app-id="{{ app.id }}">
+                            View
+                        </button>
+
+                        <!-- Hidden document list -->
+                        <div id="app-documents-{{ app.id }}" class="d-none">
+                            <ul>
+                                {% for doc in app.documents.all %}
+                                    {% if doc.file %}
+                                        <li>
+                                            <a href="{{ doc.file.url }}" target="_blank">{{ doc.get_document_type_display }}</a>
+                                            - <span class="badge 
+                                                {% if doc.verification_status == 'verified' %}bg-success
+                                                {% elif doc.verification_status == 'rejected' %}bg-danger
+                                                {% else %}bg-secondary{% endif %}">
+                                                {{ doc.get_verification_status_display }}
+                                              </span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center">No applications found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="viewApplicationModal" tabindex="-1" aria-labelledby="viewApplicationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewApplicationModalLabel">Application Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="applicationModalBody">
+        Loading...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function approve(id, role) {
+    alert(role.toUpperCase() + " Approved Application ID: " + id);
+    // AJAX call to update DB
+}
+
+function reject(id, role) {
+    alert(role.toUpperCase() + " Rejected Application ID: " + id);
+    // AJAX call to update DB
+}
+
+// Load modal content dynamically
+var viewModal = document.getElementById('viewApplicationModal');
+viewModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    var appId = button.getAttribute('data-app-id');
+
+    var row = button.closest('tr');
+    var applicantName = row.children[1].innerText;
+    var applicantEmail = row.children[2].innerText;
+    var amount = row.children[3].innerText;
+    var purpose = row.children[4].innerText;
+    var status = row.children[5].innerText;
+
+    var docDiv = document.getElementById('app-documents-' + appId);
+    var documentsHtml = docDiv ? docDiv.innerHTML : '<p>No documents uploaded.</p>';
+
+    var modalBody = `
+        <p><strong>ID:</strong> ${appId}</p>
+        <p><strong>Name:</strong> ${applicantName}</p>
+        <p><strong>Email:</strong> ${applicantEmail}</p>
+        <p><strong>Loan Amount:</strong> ${amount}</p>
+        <p><strong>Purpose:</strong> ${purpose}</p>
+        <p><strong>Status:</strong> ${status}</p>
+        <hr>
+        <h6>Uploaded Documents:</h6>
+        ${documentsHtml}
+    `;
+
+    document.getElementById('applicationModalBody').innerHTML = modalBody;
+});
+
+// Optional: double-click row to open modal
+document.querySelectorAll('tbody tr').forEach(row => {
+    row.addEventListener('dblclick', () => {
+        var button = row.querySelector('button[data-bs-toggle="modal"]');
+        if(button) button.click();
+    });
+});
+</script>
+{% endblock content %}
