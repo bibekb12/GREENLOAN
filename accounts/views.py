@@ -70,7 +70,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        if user.role == "admin":
+        if user.role in ["officer", "senior_officer", "admin"]:
             context.update(
                 {
                     "applications": Application.objects.all()[:10],
@@ -96,7 +96,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                     "applications": Application.objects.filter(applicant=user),
                 }
             )
-
         return context
 
 

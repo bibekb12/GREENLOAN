@@ -1,7 +1,7 @@
 import os
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import CreateView, DetailView
+from django.views.generic import CreateView, DetailView, ListView
 from loans.forms import ApplicationForm, DocumentUploadForm
 from loans.models import Application, Document
 from django.contrib import messages
@@ -10,7 +10,7 @@ from django.core.files.base import ContentFile
 
 
 # Create your views here.
-class ApplyLoanView(LoginRequiredMixin, CreateView):
+class ApplyLoanView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Application
     form_class = ApplicationForm
     template_name = "loans/apply_loan.html"
@@ -43,7 +43,7 @@ class ApplicationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
         return (
             user == application.applicant
             or user == application.officer
-            or user.role == "admin"
+            or user.role in ["admin", "officer", "senior_officer"]
         )
 
     def handle_no_permission(self):
@@ -51,6 +51,23 @@ class ApplicationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
             self.request, "You dont have permission to view this application"
         )
         return redirect("accounts:dashboard")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        application = self.get_object()
+
+        context["can_upload_docs"] = (
+            self.request.user == application.applicant
+            and application.status in ["submitted", "info_requested"]
+        )
+
+        context["can_view_docs"] = (
+            self.request.user == application.applicant
+            or self.request.user == application.officer
+            or self.request.user.role in ["officer", "senior_officer"]
+        )
+
+        return context
 
 
 class UploadDocumentsView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
@@ -103,3 +120,31 @@ class UploadDocumentsView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
         messages.success(self.request, "Document uploaded successfully!")
         return redirect("loans:application_detail", pk=application.pk)
+
+
+class ApplicationDocumentsView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Document
+    template_name = "loans/application_documents.html"
+    context_object_name = "documents"
+
+    def get_queryset(self):
+        application = get_object_or_404(Application, pk=self.kwargs["pk"])
+        return Document.objects.filter(application=application)
+
+    def test_func(self):
+        application = get_object_or_404(Application, pk=self.kwargs["pk"])
+        user = self.request.user
+        return (
+            user == application.applicant
+            or user == application.officer
+            or user.role in ["officer", "senior_officer"]
+        )
+
+    def handle_no_permission(self):
+        messages.error(self.request, "You dont have permission to view documents.")
+        return redirect("accounts:dashboard")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["documents"] = get_object_or_404(Application, pk=self.kwargs["pk"])
+        return context
