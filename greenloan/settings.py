@@ -95,25 +95,26 @@ DATABASES = {
     #     "USER": env("DBUSERNAME"),
     #     "PASSWORD": env("DBPASSWORD"),
     #     "PORT": env("DBPORT"),
-    #     "HOST": "localhost",
+    #     "HOST": "bibekb12.mysql.pythonanywhere-services.com",
     #     # "HOST": "host.docker.internal",
     #     "OPTIONS": {
     #         "driver": "ODBC Driver 17 for SQL Server",
     #     },
     # }
-    "default": {
-        "ENGINE": env("DBENGINE"),
-        "NAME": env("DBNAME"),
-        "USER": env("DBUSERNAME"),
-        "PASSWORD": env("DBPASSWORD"),
-        "PORT": env("DBPORT"),
-        "HOST": "bibekb12.mysql.pythonanywhere-services.com",
-        # "HOST": "host.docker.internal",
-        "OPTIONS": {
-            "driver": "ODBC Driver 17 for SQL Server",
-        },
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME": "greenloan",
+#         "USER": "bibekb12",
+#         "PASSWORD": "@greenloan",
+#         "HOST": "bibekb12.mysql.pythonanywhere-services.com",
+#         "PORT": "3306",
+#     }
+# }
+ "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "mydatabase",
     }
-}
+    }
 
 
 # Password validation
