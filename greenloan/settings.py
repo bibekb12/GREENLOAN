@@ -28,9 +28,10 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = "django-insecure-fj^!sv%ypkg#ww)^(*08b6hy!1!7w5r-o1f5bxl=c4h#m+s%+p"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DEBUG")
+# DEBUG = env("DEBUG")
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["bibekb12.pythonanywhere.com"]
 
 
 # Application definition
@@ -88,13 +89,25 @@ AUTH_USER_MODEL = "accounts.User"
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
+    # "default": {
+    #     "ENGINE": env("DBENGINE"),
+    #     "NAME": env("DBNAME"),
+    #     "USER": env("DBUSERNAME"),
+    #     "PASSWORD": env("DBPASSWORD"),
+    #     "PORT": env("DBPORT"),
+    #     "HOST": "localhost",
+    #     # "HOST": "host.docker.internal",
+    #     "OPTIONS": {
+    #         "driver": "ODBC Driver 17 for SQL Server",
+    #     },
+    # }
     "default": {
         "ENGINE": env("DBENGINE"),
         "NAME": env("DBNAME"),
         "USER": env("DBUSERNAME"),
         "PASSWORD": env("DBPASSWORD"),
         "PORT": env("DBPORT"),
-        "HOST": "localhost",
+        "HOST": "bibekb12.mysql.pythonanywhere-services.com",
         # "HOST": "host.docker.internal",
         "OPTIONS": {
             "driver": "ODBC Driver 17 for SQL Server",
@@ -165,4 +178,4 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = "GreenLoan <no-reply@gmail.com>"
 
 SITE_ID = 1
-DEFAULT_DOMAIN = "greenloan.bibekbhandari.com.np"
+DEFAULT_DOMAIN = "bibekb12.pythonanywhere.com"
