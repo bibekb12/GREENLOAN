@@ -1,0 +1,90 @@
+{% extends "core/base.html" %}
+
+{% block settings_content %}
+<div class="container mt-4">
+
+    <div class="row mb-3">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h4>Loan Type Setup</h4>
+            <a href="{% url 'loans:loan_type_list' %}" class="btn btn-secondary btn-sm">
+                Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <strong>Create / Update Loan Type</strong>
+        </div>
+
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="row g-3">
+
+                    <!-- Loan Name -->
+                    <div class="col-md-6">
+                        <label class="form-label">Loan Name</label>
+                        <input type="text" name="name" class="form-control" value="{{ form.name.value|default:'' }}"
+                            required>
+                    </div>
+
+                    <!-- Interest Rate -->
+                    <div class="col-md-3">
+                        <label class="form-label">Interest Rate (%)</label>
+                        <input type="number" step="0.01" name="interest_rate" class="form-control" required>
+                    </div>
+
+                    <!-- Allowed Income Percentage -->
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            Allowed Income %
+                        </label>
+                        <input type="number" step="0.01" name="allowed_income_percent" class="form-control"
+                            placeholder="e.g. 60" required>
+                        <small class="text-muted">
+                            Max loan = income × %
+                        </small>
+                    </div>
+
+                    <!-- Amount Limit -->
+                    <div class="col-md-6">
+                        <label class="form-label">Maximum Loan Amount</label>
+                        <input type="number" step="0.01" name="amount_limit" class="form-control" required>
+                    </div>
+
+                    <!-- Active -->
+                    <div class="col-md-6">
+                        <label class="form-label">Status</label>
+                        <select name="is_active" class="form-select">
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                        </select>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="3"></textarea>
+                    </div>
+
+                </div>
+
+                <hr class="mt-4">
+
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="reset" class="btn btn-outline-secondary">
+                        Reset
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        Save Loan Type
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

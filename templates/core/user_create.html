@@ -8,7 +8,7 @@
 
         <div class="d-flex justify-content-between mb-3">
             <h3>Create New User</h3>
-            <a href="{% url 'accounts:user_list' %}" class="btn btn-secondary">
+            <a href="{% url 'core:user_list' %}" class="btn btn-secondary">
                 Back to List
             </a>
         </div>
@@ -20,7 +20,7 @@
                     {% csrf_token %}
                     {{ form|crispy }}
 
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label for="id_role">User Role</label>
                         <select name="role" id="id_role" class="form-control" required>
                             <option value="applicant">Applicant</option>
@@ -29,7 +29,7 @@
                             <option value="auditor">Auditor</option>
                             <option value="admin">Admin</option>
                         </select>
-                    </div>
+                    </div> -->
 
                     <div class="mb-3" id="applicant_role_div" style="display: none;">
                         <label for="id_applicant_role">Applicant Role</label>
@@ -43,11 +43,6 @@
                         </select>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="id_phone">Phone</label>
-                        <input type="tel" name="phone" class="form-control">
-                    </div>
-
                     <button class="btn btn-primary">Create User</button>
                 </form>
 
@@ -58,10 +53,10 @@
 </div>
 
 <script>
-document.getElementById('id_role').addEventListener('change', function() {
-    document.getElementById('applicant_role_div').style.display =
-        this.value === 'applicant' ? 'block' : 'none';
-});
+    document.getElementById('id_role').addEventListener('change', function () {
+        document.getElementById('applicant_role_div').style.display =
+            this.value === 'applicant' ? 'block' : 'none';
+    });
 </script>
 
 {% endblock %}

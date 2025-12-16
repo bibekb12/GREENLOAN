@@ -4,8 +4,9 @@ from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.shortcuts import redirect
 
-from accounts.forms import SimpleUserCreationForm, UserProfileForm
-from .models import SitePage
+from accounts.forms import SimpleUserCreationForm
+from core.models import SitePage
+from core.forms import SimpleAdminCreationForm
 from loans.models import LoanTypes
 
 User = get_user_model()
@@ -43,14 +44,31 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return self.request.user.role == "admin"
 
     def get_queryset(self):
-        queryset = User.objects.all()
+        queryset = User.objects.filter(role="customer")
         role = self.request.GET.get("role")
         if role:
             queryset = queryset.filter(role=role)
         return queryset
 
 
-class AdminUserCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+class AdminListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = User
+    template_name = "core/admin_list.html"
+    context_object_name = "admin"
+    paginate_by = 10
+
+    def test_func(self):
+        return self.request.user.role == "admin"
+
+    def get_queryset(self):
+        queryset = User.objects.exclude(role="customer")
+        role = self.request.GET.get("role")
+        if role:
+            queryset = queryset.filter(role=role)
+        return queryset
+
+
+class UserCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = User
     form_class = SimpleUserCreationForm
     template_name = "core/user_create.html"
@@ -72,4 +90,46 @@ class AdminUserCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
             self.request,
             f"User {user.get_full_name() or user.username} created successfully.",
         )
-        return redirect("accounts:user_list")
+        return redirect("core:user_list")
+
+
+class AdminCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = User
+    form_class = SimpleAdminCreationForm
+    template_name = "core/admin_create.html"
+
+    def test_func(self):
+        return self.request.user.role == "admin"
+
+    def handle_no_permission(self):
+        messages.error(self.request, "You dont have permission.")
+        return redirect("accounts:dashboard")
+
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        user.role = self.request.POST.get("role")
+        user.phone = self.request.POST.get("phone", "")
+        user.save()
+
+        messages.success(
+            self.request,
+            f"User {user.get_full_name() or user.username} created successfully.",
+        )
+        return redirect("core:admin_list")
+
+
+class SitePageSettingsView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = SitePage
+    fields = "__all__"
+    template_name = "core/site_setting.html"
+    context_object_name = "sitesettings"
+
+    def get_queryset(self):
+        return SitePage.objects.first()
+
+    def test_func(self):
+        return self.request.user.role == "admin"
+
+    def handle_no_permission(self):
+        messages.error(self.request, "You dont have permission to settings site.")
+        return redirect("core:settings")
