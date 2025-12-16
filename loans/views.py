@@ -56,6 +56,8 @@ class ApplicationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
         context = super().get_context_data(**kwargs)
         application = self.get_object()
 
+        context["documents"] = application.documents.all()
+
         context["can_upload_docs"] = (
             self.request.user == application.applicant
             and application.status in ["submitted", "info_requested"]
@@ -64,7 +66,7 @@ class ApplicationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
         context["can_view_docs"] = (
             self.request.user == application.applicant
             or self.request.user == application.officer
-            or self.request.user.role in ["officer", "senior_officer"]
+            or self.request.user.role in ["customer", "officer", "senior_officer"]
         )
 
         return context
@@ -101,12 +103,7 @@ class UploadDocumentsView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         file_name = (
             f"{application.id}_{form.instance.document_type}_{uploaded_file.name}"
         )
-        file_path = os.path.join("documents", file_name)
-
-        saved_path = default_storage.save(file_path, ContentFile(uploaded_file.read()))
-        form.instance.file_url = default_storage.url(saved_path)
-        form.instance.file_name = uploaded_file.name
-        form.instance.file_size = uploaded_file.size
+        form.instance.file.save(file_name, uploaded_file)
 
         form.save()
         if application.status == "info_requested":
@@ -122,29 +119,29 @@ class UploadDocumentsView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return redirect("loans:application_detail", pk=application.pk)
 
 
-class ApplicationDocumentsView(LoginRequiredMixin, UserPassesTestMixin, ListView):
-    model = Document
-    template_name = "loans/application_documents.html"
-    context_object_name = "documents"
+# class ApplicationDocumentsView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+#     model = Document
+#     template_name = "loans/application_detail.html"
+#     context_object_name = "documents"
 
-    def get_queryset(self):
-        application = get_object_or_404(Application, pk=self.kwargs["pk"])
-        return Document.objects.filter(application=application)
+#     def get_queryset(self):
+#         application = get_object_or_404(Application, pk=self.kwargs["pk"])
+#         return Document.objects.filter(application=application)
 
-    def test_func(self):
-        application = get_object_or_404(Application, pk=self.kwargs["pk"])
-        user = self.request.user
-        return (
-            user == application.applicant
-            or user == application.officer
-            or user.role in ["officer", "senior_officer"]
-        )
+#     def test_func(self):
+#         application = get_object_or_404(Application, pk=self.kwargs["pk"])
+#         user = self.request.user
+#         return (
+#             user == application.applicant
+#             or user == application.officer
+#             or user.role in ["officer", "senior_officer"]
+#         )
 
-    def handle_no_permission(self):
-        messages.error(self.request, "You dont have permission to view documents.")
-        return redirect("accounts:dashboard")
+#     def handle_no_permission(self):
+#         messages.error(self.request, "You dont have permission to view documents.")
+#         return redirect("accounts:dashboard")
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["documents"] = get_object_or_404(Application, pk=self.kwargs["pk"])
-        return context
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context["application"] = get_object_or_404(Application, pk=self.kwargs["pk"])
+#         return context

@@ -1,6 +1,5 @@
 from django.urls import path
 from .views import (
-    ApplicationDocumentsView,
     ApplyLoanView,
     UploadDocumentsView,
     ApplicationDetailView,
@@ -19,10 +18,5 @@ urlpatterns = [
         "application/<int:pk>/documents/",
         UploadDocumentsView.as_view(),
         name="upload_documents",
-    ),
-    path(
-        "application/<int:pk>/documents/view/",
-        ApplicationDocumentsView.as_view(),
-        name="view_documents",
     ),
 ]
