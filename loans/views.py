@@ -1,6 +1,7 @@
-import os
+from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views import View
 from django.views.generic import CreateView, DetailView, ListView
 from loans.forms import ApplicationForm, DocumentUploadForm
 from loans.models import Application, Document
@@ -55,6 +56,7 @@ class ApplicationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         application = self.get_object()
+        user = self.request.user
 
         context["documents"] = application.documents.all()
 
@@ -68,6 +70,31 @@ class ApplicationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
             or self.request.user == application.officer
             or self.request.user.role in ["customer", "officer", "senior_officer"]
         )
+
+        # Applicant allowed actions
+        applicant_actions = []
+        if user == application.applicant:
+            if application.status in ["info_requested"]:
+                applicant_actions.append("upload_documents")
+
+        # Officer allowed actions
+        officer_actions = []
+        if user.role in ["officer", "senior_officer"]:
+            if application.status in ["submitted", "under_review"]:
+                officer_actions.extend(["review", "request_info"])
+            elif application.status == "info_provided":
+                officer_actions.append("verify_documents")
+            elif application.status == "documents_verified":
+                officer_actions.append("verify_salary")
+            elif application.status == "salary_verified":
+                officer_actions.append("approve_proposal")
+            elif application.status == "proposal_approved":
+                officer_actions.append("final_review")
+            elif application.status == "final_review":
+                officer_actions.extend(["approve_application", "reject_application"])
+
+        context["applicant_actions"] = applicant_actions
+        context["officer_actions"] = officer_actions
 
         return context
 
@@ -117,6 +144,99 @@ class UploadDocumentsView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
         messages.success(self.request, "Document uploaded successfully!")
         return redirect("loans:application_detail", pk=application.pk)
+
+
+class DocumentApproveReject(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Here documents are approved or rejected by officer and senior officer"""
+
+    def test_func(self):
+        return self.request.user.role in ["officer", "senior_officer"]
+
+    def handle_no_permission(self):
+        messages.error(
+            self.request, "You dont have permission to approve or reject documents."
+        )
+        return redirect("accounts:dashboard")
+
+    def post(self, request, *args, **kwargs):
+        document_id = request.POST.get("document_id")
+        action = request.POST.get("action")
+
+        document = get_object_or_404(Document, id=document_id)
+        application = document.application
+
+        if action not in ["approve", "reject"]:
+            messages.error(request, "Invalid action.")
+            return redirect("loans:application_detail", pk=application.pk)
+
+        if action == "approve":
+            document.verification_status = "verified"
+            messages.success(
+                request, f"Document '{document.document_type}' approved successfully."
+            )
+        else:
+            document.verification_status = "rejected"
+            messages.warning(request, f"Document '{document.document_type}' rejected.")
+
+        document.save(update_fields=["verification_status"])
+
+        if hasattr(application, "add_status_history"):
+            application.add_status_history(
+                status=document.verification_status,
+                user=request.user,
+                note=f"Document '{document}' {document.verification_status} by {request.user.username}",
+            )
+            application.save()
+
+        return redirect("loans:application_detail", pk=application.pk)
+
+
+class ApplicationStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """
+    Change the status of an application based on POST 'action'.
+    Only accessible to officers and senior officers.
+    """
+
+    def test_func(self):
+        return self.request.user.role in ["officer", "senior_officer"]
+
+    def post(self, request, *args, **kwargs):
+        application_id = kwargs.get("pk")
+        application = get_object_or_404(Application, pk=application_id)
+        action = request.POST.get("action")
+
+        if not action:
+            messages.error(request, "No action provided.")
+            return redirect(
+                request.META.get("HTTP_REFERER", reverse("accounts:dashboard"))
+            )
+
+        # Map actions to status
+        status_map = {
+            "approve": "approved",
+            "reject": "rejected",
+            "documents_verified": "documents_verified",
+            "request_info": "info_requested",
+            "info_provided": "info_provided",
+            "salary_verified": "salary_verified",
+            "proposal_approved": "proposal_approved",
+            "final_review": "final_review",
+        }
+
+        new_status = status_map.get(action)
+        if not new_status:
+            messages.error(request, "Invalid action.")
+            return redirect(
+                request.META.get("HTTP_REFERER", reverse("accounts:dashboard"))
+            )
+
+        application.status = new_status
+        application.save()
+        messages.success(
+            request,
+            f"Application status changed to '{application.get_status_display()}'.",
+        )
+        return redirect(request.META.get("HTTP_REFERER", reverse("accounts:dashboard")))
 
 
 # class ApplicationDocumentsView(LoginRequiredMixin, UserPassesTestMixin, ListView):

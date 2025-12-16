@@ -3,6 +3,8 @@ from .views import (
     ApplyLoanView,
     UploadDocumentsView,
     ApplicationDetailView,
+    DocumentApproveReject,
+    ApplicationStatusUpdateView,
 )
 
 app_name = "loans"
@@ -18,5 +20,15 @@ urlpatterns = [
         "application/<int:pk>/documents/",
         UploadDocumentsView.as_view(),
         name="upload_documents",
+    ),
+    path(
+        "application/<int:pk>/documents/approvereject",
+        DocumentApproveReject.as_view(),
+        name="document_approve_reject",
+    ),
+    path(
+        "application/<int:pk>/status-update/",
+        ApplicationStatusUpdateView.as_view(),
+        name="application_status_update",
     ),
 ]
