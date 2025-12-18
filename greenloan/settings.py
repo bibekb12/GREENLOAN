@@ -86,37 +86,35 @@ WSGI_APPLICATION = "greenloan.wsgi.application"
 AUTH_USER_MODEL = "accounts.User"
 
 # Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+# https://docs.djangoproject.com/en/6.0/ref/settings/#
+DJANGO_ENV = os.getenv("DJANGO_ENV", "development")
 
-DATABASES = {
-    # "default": {
-    #     "ENGINE": env("DBENGINE"),
-    #     "NAME": env("DBNAME"),
-    #     "USER": env("DBUSERNAME"),
-    #     "PASSWORD": env("DBPASSWORD"),
-    #     "PORT": env("DBPORT"),
-    #     "HOST": "bibekb12.mysql.pythonanywhere-services.com",
-    #     # "HOST": "host.docker.internal",
-    #     "OPTIONS": {
-    #         "driver": "ODBC Driver 17 for SQL Server",
-    #     },
-    # }
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "bibekb12$greenloan",
-        "USER": "bibekb12",
-        "PASSWORD": "@greenloan",
-        "HOST": "bibekb12.mysql.pythonanywhere-services.com",
-        # "HOST": "localhost",
-        "PORT": "3306",
+if DJANGO_ENV == "production":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": "bibekb12$greenloan",
+            "USER": "bibekb12",
+            "PASSWORD": "@greenloan",
+            "HOST": "bibekb12.mysql.pythonanywhere-services.com",
+            "PORT": "3306",
+        }
     }
-}
-# "default": {
-#     "ENGINE": "django.db.backends.sqlite3",
-#     "NAME": "mydatabase",
-# }
-# }
-
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": env("DBENGINE"),
+            "NAME": env("DBNAME"),
+            "USER": env("DBUSERNAME"),
+            "PASSWORD": env("DBPASSWORD"),
+            "PORT": env("DBPORT"),
+            "HOST": "localhost",
+            # "HOST": "host.docker.internal",
+            "OPTIONS": {
+                "driver": "ODBC Driver 17 for SQL Server",
+            },
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
