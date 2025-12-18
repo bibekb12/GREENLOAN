@@ -104,10 +104,10 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "greenloan",
-        "USER": "root",  # "bibekb12",
-        "PASSWORD": "",  # "@greenloan",
-        # "HOST": "bibekb12.mysql.pythonanywhere-services.com",
-        "HOST": "localhost",
+        "USER": "bibekb12",
+        "PASSWORD": "@greenloan",
+        "HOST": "bibekb12.mysql.pythonanywhere-services.com",
+        # "HOST": "localhost",
         "PORT": "3306",
     }
 }
