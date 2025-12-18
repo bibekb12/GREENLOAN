@@ -31,7 +31,7 @@ SECRET_KEY = "django-insecure-fj^!sv%ypkg#ww)^(*08b6hy!1!7w5r-o1f5bxl=c4h#m+s%+p
 # DEBUG = env("DEBUG")
 DEBUG = False
 
-ALLOWED_HOSTS = ["bibekb12.pythonanywhere.com"]
+ALLOWED_HOSTS = ["bibekb12.pythonanywhere.com", "*"]
 
 
 # Application definition
@@ -101,20 +101,20 @@ DATABASES = {
     #         "driver": "ODBC Driver 17 for SQL Server",
     #     },
     # }
-#     "default": {
-#         "ENGINE": "django.db.backends.mysql",
-#         "NAME": "greenloan",
-#         "USER": "bibekb12",
-#         "PASSWORD": "@greenloan",
-#         "HOST": "bibekb12.mysql.pythonanywhere-services.com",
-#         "PORT": "3306",
-#     }
-# }
- "default": {
+    #     "default": {
+    #         "ENGINE": "django.db.backends.mysql",
+    #         "NAME": "greenloan",
+    #         "USER": "bibekb12",
+    #         "PASSWORD": "@greenloan",
+    #         "HOST": "bibekb12.mysql.pythonanywhere-services.com",
+    #         "PORT": "3306",
+    #     }
+    # }
+    "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": "mydatabase",
     }
-    }
+}
 
 
 # Password validation

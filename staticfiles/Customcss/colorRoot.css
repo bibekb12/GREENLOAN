@@ -1,0 +1,13 @@
+:root {
+    /* Global colors */
+    --primary-color: #556b2f;
+    --primary-hover: #6d8838;
+    --primary-light: #f3f7e6;
+    --primary-dark: #3b4a1f;
+    --secondary-color: #6d8838;
+    --accent-color: #8fa31e;
+    --success-color: #8fa31e;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --info-color: #06b6d4;
+}
