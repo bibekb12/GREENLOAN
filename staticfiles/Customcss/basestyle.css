@@ -1,0 +1,131 @@
+@import url('colorRoot.css');
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: bold;
+
+}
+
+/* added from here */
+.logo {
+    border-radius: 50%;
+}
+
+.nav-container {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.footer-content-services,
+.footer-content-legal,
+.footer-content-company {
+    text-align: center;
+
+    p {
+        font-weight: bold;
+    }
+}
+
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.card {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.border-primary {
+    border-color: var(--primary-color) !important;
+}
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.status-submitted {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-under_review {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.status-approved {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-rejected {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.status-info_requested {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-documents_verified {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.status-salary_verified {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.status-proposal_approved {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-final_review {
+    background-color: #e0e7ff;
+    color: #3730a3;
+}
+
+.status-info_provided {
+    background-color: #fef3c7;
+    color: #92400e;
+}
