@@ -101,20 +101,21 @@ DATABASES = {
     #         "driver": "ODBC Driver 17 for SQL Server",
     #     },
     # }
-    #     "default": {
-    #         "ENGINE": "django.db.backends.mysql",
-    #         "NAME": "greenloan",
-    #         "USER": "bibekb12",
-    #         "PASSWORD": "@greenloan",
-    #         "HOST": "bibekb12.mysql.pythonanywhere-services.com",
-    #         "PORT": "3306",
-    #     }
-    # }
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "mydatabase",
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "greenloan",
+        "USER": "root",  # "bibekb12",
+        "PASSWORD": "",  # "@greenloan",
+        # "HOST": "bibekb12.mysql.pythonanywhere-services.com",
+        "HOST": "localhost",
+        "PORT": "3306",
     }
 }
+# "default": {
+#     "ENGINE": "django.db.backends.sqlite3",
+#     "NAME": "mydatabase",
+# }
+# }
 
 
 # Password validation
