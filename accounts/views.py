@@ -115,12 +115,18 @@ class ProfileView(LoginRequiredMixin, UpdateView):
         return context
 
     def post(self, request, *args, **kwargs):
+        user = request.user
         if "update_profile" in request.POST:
             form = UserProfileForm(request.POST, instance=request.user)
+
             if form.is_valid():
                 form.save()
+                return redirect(self.success_url)
+
         elif "update_kyc" in request.POST:
-            kyc_form = KYCUpdateForm(request.POST, request.FILES, instance=request.user)
+            kyc_form = KYCUpdateForm(request.POST, request.FILES, instance=user)
             if kyc_form.is_valid():
+                user.kyc_status = "submitted"
+                user.kyc_verified_at = None
                 kyc_form.save()
         return self.get(request, *args, **kwargs)

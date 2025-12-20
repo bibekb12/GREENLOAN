@@ -8,6 +8,7 @@ from loans.models import Application, Document
 from django.contrib import messages
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from accounts.models import User
 
 
 # Create your views here.
@@ -17,11 +18,24 @@ class ApplyLoanView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     template_name = "loans/apply_loan.html"
 
     def test_func(self):
-        return self.request.user.role == "customer"
+        user = self.request.user
+        if user.role != "customer":
+            return False
+
+        # kyc check
+        if user.kyc_status != "verified":
+            return False
+
+        return True
 
     def handle_no_permission(self):
-        messages.error(self.request, "Only customer can apply for loan.")
-        return redirect("accounts:dashboard")
+        if self.request.user.role != "customer":
+            messages.error(self.request, "Only customer can apply for loan.")
+            return redirect("accounts:dashboard")
+
+        if self.request.user.kyc_status != "verified":
+            messages.error(self.request, "Kyc should be verified for loan apply.")
+            return redirect("accounts:profile")
 
     def form_valid(self, form):
         form.instance.applicant = self.request.user
