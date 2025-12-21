@@ -5,7 +5,6 @@
 
     <h2 class="mb-4">KYC Applications</h2>
 
-    <!-- Filter Tabs -->
     <ul class="nav nav-tabs mb-3">
         <li class="nav-item">
             <a class="nav-link {% if status == 'pending' %}active{% endif %}" href="?status=pending">Pending</a>
@@ -18,12 +17,11 @@
         </li>
     </ul>
 
-    <!-- KYC Table -->
     <div class="table-responsive">
         <table class="table table-bordered table-hover align-middle">
             <thead class="table-dark">
                 <tr>
-                    <th>#</th>
+                    <th>
                     <th>User</th>
                     <th>Email</th>
                     <th>Status</th>
@@ -52,19 +50,19 @@
 
                     <td>
                         {% if app.citizenship_front_url %}
-                        <a href="{{ app.citizenship_front_url }}" target="_blank"
+                        <a href="{{ app.citizenship_front_url.url }}" target="_blank"
                             class="btn btn-sm btn-outline-primary"> Citizen Front</a>
                         {% else %}
                         <p class="text-muted">Citizenship front document not uploaded.</p>
                         {% endif %}
                         {% if app.citizenship_back_url %}
-                        <a href="{{ app.citizenship_back_url }}" target="_blank"
+                        <a href="{{ app.citizenship_back_url.url }}" target="_blank"
                             class="btn btn-sm btn-outline-primary">Citizen Back</a>
                         {% else %}
                         <p class="text-muted">Citizenship back document not uploaded.</p>
                         {% endif %}
                         {% if app.passport_photo_url %}
-                        <a href="{{ app.passport_photo_url }}" target="_blank"
+                        <a href="{{ app.passport_photo_url.url }}" target="_blank"
                             class="btn btn-sm btn-outline-primary">Passport Photo</a>
                         {% else %}
                         <p class="text-muted">Passport photo not uploaded.</p>
@@ -80,7 +78,8 @@
                         {% if app.kyc_status != 'verified' %}
                         <form method="post" action="{% url 'accounts:verify_kyc' app.id %}" class="d-inline">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-success">
+                            <button type="submit" class="btn btn-sm btn-success" {% if app.kyc_status != 'submitted' %}disabled{% endif %}
+                                title="{% if app.kyc_status == 'pending' %}KYC not submitted yet{% elif app.kyc_status == 'verified' %}Already verified{% endif %}">
                                 Verify
                             </button>
                         </form>
@@ -88,7 +87,6 @@
                     </td>
                 </tr>
 
-                <!-- Profile Modal -->
                 <div class="modal fade" id="profileModal{{ app.id }}" tabindex="-1">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">

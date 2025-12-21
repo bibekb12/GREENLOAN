@@ -1,11 +1,13 @@
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views import View
-from django.views.generic import CreateView, DetailView, ListView
+from django.views.generic import CreateView, DetailView, ListView, UpdateView, View
 from loans.forms import ApplicationForm, DocumentUploadForm
-from loans.models import Application, Document
+from loans.models import Application, ApprovedLoans, Document, Repayment
 from django.contrib import messages
+from django.utils import timezone
+
+from loans.utils import create_repayments, update_credit_score
 
 
 # Create your views here.
@@ -247,4 +249,66 @@ class ApplicationStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, View)
             request,
             f"Application status changed to '{application.get_status_display()}'.",
         )
+        if new_status == "approved":
+            approved_loan = ApprovedLoans.objects.create(
+                application=application,
+                principle=application.amount,
+                interest_rate=application.loan_type.interest_rate,
+                tenure_months=application.duration_months,
+                status="active"
+            )
+            # generate repayments
+            create_repayments(approved_loan)
+
         return redirect(request.META.get("HTTP_REFERER", reverse("accounts:dashboard")))
+    
+
+class RepaymentPayView(LoginRequiredMixin, UpdateView):
+    model = Repayment
+    template_name = "loans/repayment_confirm.html"
+    fields = []  # no form fields
+    success_url = reverse_lazy("loans:repayment_list")
+
+    def get_queryset(self):
+        # Security: user can pay only own repayments
+        return Repayment.objects.filter(loan__user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["today"] = timezone.now().date()
+        return context
+
+    def form_valid(self, form):
+        repayment = form.instance
+        today = timezone.now().date()
+
+        repayment.amount_paid = repayment.amount_due
+        repayment.paid_date = today
+
+        if today > repayment.due_date:
+            repayment.status = "late"
+        else:
+            repayment.status = "paid"
+
+        repayment.save()
+
+        # Update credit score
+        update_credit_score(self.request.user, repayment)
+
+        return super().form_valid(form)
+
+
+class RepaymentListView(ListView):
+    model = Repayment
+    template_name = "loans/repayment_list.html"
+    context_object_name = "repayments"
+
+    def get_queryset(self):
+        return (
+            Repayment.objects
+            .filter(loan__application__applicant=self.request.user)
+            .select_related("loan")
+            .order_by("due_date")
+        )
+
+

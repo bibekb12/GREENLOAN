@@ -73,6 +73,13 @@
               onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
               onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">Profile</a>
           </li>
+          <li class="nav-item">
+            <a href="{% url 'loans:repayment_list' %}" class="nav-link border border-success rounded px-3 mx-1"
+              style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
+              onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
+              onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">
+              Credit Repayment </a>
+          </li>
           {% endif %}
           {% if user.role != 'customer' %}
           <li class="nav-item">
@@ -109,6 +116,7 @@
             </div>
             {{ user.get_full_name|default:user.username }}
           </a>
+
           <ul class="dropdown-menu shadow">
             <li>
               <a href="accounts:profile" class="dropdown-item">

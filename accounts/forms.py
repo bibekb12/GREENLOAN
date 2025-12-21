@@ -70,18 +70,8 @@ class UserProfileForm(forms.ModelForm):  # <-- inherit from forms.ModelForm
             "last_name",
             "full_name",
             "email",
-            "phone",
-            "date_of_birth",
-            "gender",
-            "nationality",
+            "phone"
         ]
-        widgets = {
-            "date_of_birth": forms.DateInput(
-                attrs={"type": "date", "class": "form-control"}
-            ),
-            "gender": forms.Select(attrs={"class": "form-control"}),
-            "nationality": forms.TextInput(attrs={"class": "form-control"}),
-        }
 
 
 class KYCUpdateForm(forms.ModelForm):
