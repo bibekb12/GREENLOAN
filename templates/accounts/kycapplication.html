@@ -1,0 +1,122 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2 class="mb-4">KYC Applications</h2>
+
+    <!-- Filter Tabs -->
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+            <a class="nav-link {% if status == 'pending' %}active{% endif %}" href="?status=pending">Pending</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if status == 'submitted' %}active{% endif %}" href="?status=submitted">Submitted</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if status == 'verified' %}active{% endif %}" href="?status=verified">Verified</a>
+        </li>
+    </ul>
+
+    <!-- KYC Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Documents</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in kyc_applications %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+
+                    <td>{{ app.full_name }}</td>
+
+                    <td>{{ app.email }}</td>
+
+                    <td>
+                        <span class="badge
+                        {% if app.kyc_status == 'pending' %}bg-warning
+                        {% elif app.kyc_status == 'submitted' %}bg-info
+                        {% elif app.kyc_status == 'verified' %}bg-success
+                        {% else %}bg-danger{% endif %}">
+                            {{ app.kyc_status|title }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {% if app.citizenship_front_url %}
+                        <a href="{{ app.citizenship_front_url }}" target="_blank"
+                            class="btn btn-sm btn-outline-primary"> Citizen Front</a>
+                        {% else %}
+                        <p class="text-muted">Citizenship front document not uploaded.</p>
+                        {% endif %}
+                        {% if app.citizenship_back_url %}
+                        <a href="{{ app.citizenship_back_url }}" target="_blank"
+                            class="btn btn-sm btn-outline-primary">Citizen Back</a>
+                        {% else %}
+                        <p class="text-muted">Citizenship back document not uploaded.</p>
+                        {% endif %}
+                        {% if app.passport_photo_url %}
+                        <a href="{{ app.passport_photo_url }}" target="_blank"
+                            class="btn btn-sm btn-outline-primary">Passport Photo</a>
+                        {% else %}
+                        <p class="text-muted">Passport photo not uploaded.</p>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <button class="btn btn-sm btn-secondary" data-bs-toggle="modal"
+                            data-bs-target="#profileModal{{ app.id }}">
+                            Preview
+                        </button>
+
+                        {% if app.kyc_status != 'verified' %}
+                        <form method="post" action="{% url 'accounts:verify_kyc' app.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-success">
+                                Verify
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <!-- Profile Modal -->
+                <div class="modal fade" id="profileModal{{ app.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">KYC Profile</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Name:</strong> {{ app.full_name }}</p>
+                                <p><strong>Email:</strong> {{ app.email }}</p>
+                                <p><strong>Phone:</strong> {{ app.phone }}</p>
+                                <p><strong>Status:</strong> {{ app.kyc_status|title }}</p>
+
+                                <hr>
+                                <iframe src="{{ app.citizenship_front_url }}" width="100%" height="300"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">No applications found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

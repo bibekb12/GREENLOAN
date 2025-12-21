@@ -1,7 +1,8 @@
+from datetime import timezone
 from django.shortcuts import redirect, render
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, ListView, UpdateView, TemplateView
+from django.views.generic import CreateView, ListView, UpdateView, TemplateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from accounts.models import User
 from loans.models import Application
@@ -12,7 +13,7 @@ from .forms import (
     UserProfileForm,
 )
 from django.contrib import messages
-
+from django.shortcuts import get_object_or_404
 
 """this is class based view for the users """
 
@@ -128,5 +129,53 @@ class ProfileView(LoginRequiredMixin, UpdateView):
             if kyc_form.is_valid():
                 user.kyc_status = "submitted"
                 user.kyc_verified_at = None
+                # Save uploaded files manually
+                if request.FILES.get("citizenship_front"):
+                    user.citizenship_front_url = request.FILES["citizenship_front"]
+                if request.FILES.get("citizenship_back"):
+                    user.citizenship_back_url = request.FILES["citizenship_back"]
+                if request.FILES.get("passport_photo"):
+                    user.passport_photo_url = request.FILES["passport_photo"]
+
+                user.save()
                 kyc_form.save()
+                messages.success(request, "KYC updated successfully.")
+                return redirect(self.success_url)
         return self.get(request, *args, **kwargs)
+
+
+class KYCListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = User
+    template_name = "accounts/kycapplication.html"
+    context_object_name = "kyc_applications"
+
+    def test_func(self):
+        return self.request.user.role != "customer"
+
+    def handle_no_permission(self):
+        messages.error(
+            self.request, "You don't have permission to view KYC applications."
+        )
+        return redirect("accounts:dashboard")
+
+    def get_queryset(self):
+        status = self.request.GET.get("status", "pending")
+        return User.objects.filter(kyc_status=status)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["status"] = self.request.GET.get("status", "pending")
+        return context
+
+
+class VerifyKYCView(View):
+    def test_func(self):
+        return self.request.user.role != "customer"
+
+    def post(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        user.kyc_status = "verified"
+        user.kyc_verified_at = timezone.now()
+        user.kyc_verified_by = request.user
+        user.save()
+        return redirect("accounts:kycapplication")

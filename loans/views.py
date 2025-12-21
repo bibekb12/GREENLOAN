@@ -6,9 +6,6 @@ from django.views.generic import CreateView, DetailView, ListView
 from loans.forms import ApplicationForm, DocumentUploadForm
 from loans.models import Application, Document
 from django.contrib import messages
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-from accounts.models import User
 
 
 # Create your views here.
@@ -251,31 +248,3 @@ class ApplicationStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, View)
             f"Application status changed to '{application.get_status_display()}'.",
         )
         return redirect(request.META.get("HTTP_REFERER", reverse("accounts:dashboard")))
-
-
-# class ApplicationDocumentsView(LoginRequiredMixin, UserPassesTestMixin, ListView):
-#     model = Document
-#     template_name = "loans/application_detail.html"
-#     context_object_name = "documents"
-
-#     def get_queryset(self):
-#         application = get_object_or_404(Application, pk=self.kwargs["pk"])
-#         return Document.objects.filter(application=application)
-
-#     def test_func(self):
-#         application = get_object_or_404(Application, pk=self.kwargs["pk"])
-#         user = self.request.user
-#         return (
-#             user == application.applicant
-#             or user == application.officer
-#             or user.role in ["officer", "senior_officer"]
-#         )
-
-#     def handle_no_permission(self):
-#         messages.error(self.request, "You dont have permission to view documents.")
-#         return redirect("accounts:dashboard")
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["application"] = get_object_or_404(Application, pk=self.kwargs["pk"])
-#         return context

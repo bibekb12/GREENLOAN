@@ -10,4 +10,6 @@ urlpatterns = [
     path("signup/", views.SignupView.as_view(), name="signup"),
     path("dashboard/", views.DashboardView.as_view(), name="dashboard"),
     path("profile/", views.ProfileView.as_view(), name="profile"),
+    path("kyc/", views.KYCListView.as_view(), name="kycapplication"),
+    path("kyc/verify/<int:pk>/", views.VerifyKYCView.as_view(), name="verify_kyc"),
 ]
