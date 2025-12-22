@@ -135,3 +135,47 @@ class Document(models.Model):
         max_length=10, choices=VERIFICATION_STATUS, default="pending"
     )
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
+class ApprovedLoans(models.Model):
+    application = models.ForeignKey(Application, on_delete=models.CASCADE)
+    principle = models.DecimalField(max_digits=12, decimal_places=2)
+    interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
+    tenure_months = models.IntegerField()
+    approved_at = models.DateField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=[
+        ("active", "Active"),
+        ("closed","Closed"),
+        ("defaulted","Defaulted"),
+    ])
+
+    def __str__(self):
+        return f"Loan #{self.id}- {self.user.full_name}"
+    
+class Repayment(models.Model):
+    loan = models.ForeignKey(ApprovedLoans, on_delete=models.CASCADE, related_name="repayments")
+    due_date = models.DateField()
+    paid_date = models.DateField(null=True, blank=True)
+    amount_due = models.DecimalField(max_digits=12, decimal_places=2)
+    amount_paid = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ("pending", "Pending"),
+            ("paid", "Paid"),
+            ("late", "Late"),
+        ],
+        default="pending",
+    )
+
+    def is_late(self):
+        return self.paid_date and self.paid_date > self.due_date
+
+class CreditScore(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    score = models.IntegerField(default=300)  # start from 300
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.full_name} - {self.score}"
+    
+

@@ -1,13 +1,13 @@
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views import View
-from django.views.generic import CreateView, DetailView, ListView
+from django.views.generic import CreateView, DetailView, ListView, UpdateView, View
 from loans.forms import ApplicationForm, DocumentUploadForm
-from loans.models import Application, Document
+from loans.models import Application, ApprovedLoans, Document, Repayment
 from django.contrib import messages
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
+from django.utils import timezone
+
+from loans.utils import create_repayments, update_credit_score
 
 
 # Create your views here.
@@ -17,11 +17,24 @@ class ApplyLoanView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     template_name = "loans/apply_loan.html"
 
     def test_func(self):
-        return self.request.user.role == "customer"
+        user = self.request.user
+        if user.role != "customer":
+            return False
+
+        # kyc check
+        if user.kyc_status != "verified":
+            return False
+
+        return True
 
     def handle_no_permission(self):
-        messages.error(self.request, "Only customer can apply for loan.")
-        return redirect("accounts:dashboard")
+        if self.request.user.role != "customer":
+            messages.error(self.request, "Only customer can apply for loan.")
+            return redirect("accounts:dashboard")
+
+        if self.request.user.kyc_status != "verified":
+            messages.error(self.request, "Kyc should be verified for loan apply.")
+            return redirect("accounts:profile")
 
     def form_valid(self, form):
         form.instance.applicant = self.request.user
@@ -236,32 +249,66 @@ class ApplicationStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, View)
             request,
             f"Application status changed to '{application.get_status_display()}'.",
         )
+        if new_status == "approved":
+            approved_loan = ApprovedLoans.objects.create(
+                application=application,
+                principle=application.amount,
+                interest_rate=application.loan_type.interest_rate,
+                tenure_months=application.duration_months,
+                status="active"
+            )
+            # generate repayments
+            create_repayments(approved_loan)
+
         return redirect(request.META.get("HTTP_REFERER", reverse("accounts:dashboard")))
+    
+
+class RepaymentPayView(LoginRequiredMixin, UpdateView):
+    model = Repayment
+    template_name = "loans/repayment_confirm.html"
+    fields = []  # no form fields
+    success_url = reverse_lazy("loans:repayment_list")
+
+    def get_queryset(self):
+        # Security: user can pay only own repayments
+        return Repayment.objects.filter(loan__user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["today"] = timezone.now().date()
+        return context
+
+    def form_valid(self, form):
+        repayment = form.instance
+        today = timezone.now().date()
+
+        repayment.amount_paid = repayment.amount_due
+        repayment.paid_date = today
+
+        if today > repayment.due_date:
+            repayment.status = "late"
+        else:
+            repayment.status = "paid"
+
+        repayment.save()
+
+        # Update credit score
+        update_credit_score(self.request.user, repayment)
+
+        return super().form_valid(form)
 
 
-# class ApplicationDocumentsView(LoginRequiredMixin, UserPassesTestMixin, ListView):
-#     model = Document
-#     template_name = "loans/application_detail.html"
-#     context_object_name = "documents"
+class RepaymentListView(ListView):
+    model = Repayment
+    template_name = "loans/repayment_list.html"
+    context_object_name = "repayments"
 
-#     def get_queryset(self):
-#         application = get_object_or_404(Application, pk=self.kwargs["pk"])
-#         return Document.objects.filter(application=application)
+    def get_queryset(self):
+        return (
+            Repayment.objects
+            .filter(loan__application__applicant=self.request.user)
+            .select_related("loan")
+            .order_by("due_date")
+        )
 
-#     def test_func(self):
-#         application = get_object_or_404(Application, pk=self.kwargs["pk"])
-#         user = self.request.user
-#         return (
-#             user == application.applicant
-#             or user == application.officer
-#             or user.role in ["officer", "senior_officer"]
-#         )
 
-#     def handle_no_permission(self):
-#         messages.error(self.request, "You dont have permission to view documents.")
-#         return redirect("accounts:dashboard")
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["application"] = get_object_or_404(Application, pk=self.kwargs["pk"])
-#         return context

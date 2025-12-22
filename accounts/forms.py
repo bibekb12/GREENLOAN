@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import  get_user_model
+from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
@@ -14,6 +14,7 @@ class EmailAuthenticationForm(AuthenticationForm):
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={"class": "form-control"})
     )
+
 
 class SimpleUserCreationForm(forms.ModelForm):
     password = forms.CharField(
@@ -69,51 +70,21 @@ class UserProfileForm(forms.ModelForm):  # <-- inherit from forms.ModelForm
             "last_name",
             "full_name",
             "email",
-            "phone",
-            "date_of_birth",
-            "gender",
-            "nationality",
-            "permanent_address",
-            "temporary_address",
-            "occupation",
-            "monthly_income",
-            "citizenship_number",
-            "pan_number",
+            "phone"
         ]
-        widgets = {
-            "date_of_birth": forms.DateInput(
-                attrs={"type": "date", "class": "form-control"}
-            ),
-            "gender": forms.Select(attrs={"class": "form-control"}),
-            "nationality": forms.TextInput(attrs={"class": "form-control"}),
-            "permanent_address": forms.Textarea(
-                attrs={"class": "form-control", "rows": 3}
-            ),
-            "temporary_address": forms.Textarea(
-                attrs={"class": "form-control", "rows": 3}
-            ),
-            "occupation": forms.TextInput(attrs={"class": "form-control"}),
-            "monthly_income": forms.NumberInput(attrs={"class": "form-control"}),
-            "citizenship_number": forms.TextInput(attrs={"class": "form-control"}),
-            "pan_number": forms.TextInput(attrs={"class": "form-control"}),
-            "first_name": forms.TextInput(attrs={"class": "form-control"}),
-            "last_name": forms.TextInput(attrs={"class": "form-control"}),
-            "email": forms.EmailInput(attrs={"class": "form-control"}),
-            "phone": forms.TextInput(attrs={"class": "form-control"}),
-        }
 
 
 class KYCUpdateForm(forms.ModelForm):
     citizenship_front = forms.FileField(
-        required=False,
+        required=True,
         widget=forms.FileInput(attrs={"class": "form-control", "accept": "image/*"}),
     )
     citizenship_back = forms.FileField(
-        required=False,
+        required=True,
         widget=forms.FileInput(attrs={"class": "form-control", "accept": "image/*"}),
     )
     passport_photo = forms.FileField(
-        required=False,
+        required=True,
         widget=forms.FileInput(attrs={"class": "form-control", "accept": "image/*"}),
     )
 

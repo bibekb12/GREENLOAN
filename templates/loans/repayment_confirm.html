@@ -1,0 +1,40 @@
+{% extends "core/base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Confirm EMI Payment</h5>
+                </div>
+
+                <div class="card-body">
+                    <p><strong>Due Date:</strong> {{ object.due_date }}</p>
+                    <p><strong>Amount:</strong> Rs. {{ object.amount_due }}</p>
+
+                    {% if object.due_date < today %} <div class="alert alert-warning">
+                        This payment is overdue. Late payment may reduce your credit score.
+                </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'loans:repayment_list' %}" class="btn btn-secondary">
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            Confirm Payment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>
+
+{% endblock %}

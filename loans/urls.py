@@ -1,6 +1,8 @@
 from django.urls import path
 from .views import (
     ApplyLoanView,
+    RepaymentListView,
+    RepaymentPayView,
     UploadDocumentsView,
     ApplicationDetailView,
     DocumentApproveReject,
@@ -31,4 +33,6 @@ urlpatterns = [
         ApplicationStatusUpdateView.as_view(),
         name="application_status_update",
     ),
+    path("repayments/", RepaymentListView.as_view(), name="repayment_list"),
+    path("repayments/pay/<int:pk>/", RepaymentPayView.as_view(), name="repay"),
 ]
