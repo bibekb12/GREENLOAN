@@ -1,27 +1,41 @@
 {% extends 'core/base.html' %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'Customcss/kycapplication.css' %}" />
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
 
-    <h2 class="mb-4">KYC Applications</h2>
+    <h2 class="mb-4" style="color: var(--primary-dark);">
+        KYC Applications
+    </h2>
 
+    <!-- Tabs -->
     <ul class="nav nav-tabs mb-3">
         <li class="nav-item">
-            <a class="nav-link {% if status == 'pending' %}active{% endif %}" href="?status=pending">Pending</a>
+            <a class="nav-link {% if status == 'pending' %}active{% endif %}" href="?status=pending">
+                Pending
+            </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if status == 'submitted' %}active{% endif %}" href="?status=submitted">Submitted</a>
+            <a class="nav-link {% if status == 'submitted' %}active{% endif %}" href="?status=submitted">
+                Submitted
+            </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if status == 'verified' %}active{% endif %}" href="?status=verified">Verified</a>
+            <a class="nav-link {% if status == 'verified' %}active{% endif %}" href="?status=verified">
+                Verified
+            </a>
         </li>
     </ul>
 
+    <!-- Table -->
     <div class="table-responsive">
         <table class="table table-bordered table-hover align-middle">
-            <thead class="table-dark">
+            <thead>
                 <tr>
-                    <th>
+                    <th>#</th>
                     <th>User</th>
                     <th>Email</th>
                     <th>Status</th>
@@ -29,21 +43,20 @@
                     <th>Actions</th>
                 </tr>
             </thead>
+
             <tbody>
                 {% for app in kyc_applications %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-
                     <td>{{ app.full_name }}</td>
-
                     <td>{{ app.email }}</td>
 
                     <td>
                         <span class="badge
-                        {% if app.kyc_status == 'pending' %}bg-warning
-                        {% elif app.kyc_status == 'submitted' %}bg-info
-                        {% elif app.kyc_status == 'verified' %}bg-success
-                        {% else %}bg-danger{% endif %}">
+                            {% if app.kyc_status == 'pending' %}bg-warning
+                            {% elif app.kyc_status == 'submitted' %}bg-info
+                            {% elif app.kyc_status == 'verified' %}bg-success
+                            {% else %}bg-danger{% endif %}">
                             {{ app.kyc_status|title }}
                         </span>
                     </td>
@@ -51,21 +64,23 @@
                     <td>
                         {% if app.citizenship_front_url %}
                         <a href="{{ app.citizenship_front_url.url }}" target="_blank"
-                            class="btn btn-sm btn-outline-primary"> Citizen Front</a>
-                        {% else %}
-                        <p class="text-muted">Citizenship front document not uploaded.</p>
+                            class="btn btn-sm btn-outline-primary mb-1">
+                            Citizen Front
+                        </a>
                         {% endif %}
+
                         {% if app.citizenship_back_url %}
                         <a href="{{ app.citizenship_back_url.url }}" target="_blank"
-                            class="btn btn-sm btn-outline-primary">Citizen Back</a>
-                        {% else %}
-                        <p class="text-muted">Citizenship back document not uploaded.</p>
+                            class="btn btn-sm btn-outline-primary mb-1">
+                            Citizen Back
+                        </a>
                         {% endif %}
+
                         {% if app.passport_photo_url %}
                         <a href="{{ app.passport_photo_url.url }}" target="_blank"
-                            class="btn btn-sm btn-outline-primary">Passport Photo</a>
-                        {% else %}
-                        <p class="text-muted">Passport photo not uploaded.</p>
+                            class="btn btn-sm btn-outline-primary mb-1">
+                            Passport Photo
+                        </a>
                         {% endif %}
                     </td>
 
@@ -75,18 +90,20 @@
                             Preview
                         </button>
 
-                        {% if app.kyc_status != 'verified' %}
-                        <form method="post" action="{% url 'accounts:verify_kyc' app.id %}" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-success" {% if app.kyc_status != 'submitted' %}disabled{% endif %}
-                                title="{% if app.kyc_status == 'pending' %}KYC not submitted yet{% elif app.kyc_status == 'verified' %}Already verified{% endif %}">
-                                Verify
-                            </button>
-                        </form>
+                        {% if app.kyc_status == 'submitted' %}
+                        <button type="submit" class="btn btn-sm btn-success">
+                            Verify
+                        </button>
+                        {% else %}
+                        <button type="button" class="btn btn-sm btn-success" disabled>
+                            Verify
+                        </button>
                         {% endif %}
+
                     </td>
                 </tr>
 
+                <!-- Modal -->
                 <div class="modal fade" id="profileModal{{ app.id }}" tabindex="-1">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
@@ -99,7 +116,6 @@
                                 <p><strong>Email:</strong> {{ app.email }}</p>
                                 <p><strong>Phone:</strong> {{ app.phone }}</p>
                                 <p><strong>Status:</strong> {{ app.kyc_status|title }}</p>
-
                                 <hr>
                                 <iframe src="{{ app.citizenship_front_url }}" width="100%" height="300"></iframe>
                             </div>
@@ -109,7 +125,9 @@
 
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="text-center">No applications found</td>
+                    <td colspan="6" class="text-center text-muted">
+                        No applications found
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -1,12 +1,11 @@
 from django.urls import reverse, reverse_lazy
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import CreateView, DetailView, ListView, UpdateView, View
+from django.views.generic import CreateView, DetailView, ListView, UpdateView, View, TemplateView
 from loans.forms import ApplicationForm, DocumentUploadForm
 from loans.models import Application, ApprovedLoans, Document, Repayment
 from django.contrib import messages
 from django.utils import timezone
-
 from loans.utils import create_repayments, update_credit_score
 
 
@@ -57,7 +56,7 @@ class ApplicationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
         return (
             user == application.applicant
             or user == application.officer
-            or user.role in ["admin", "officer", "senior_officer"]
+            or user.role in ["admin", "officer", "senior_officer","customer"]
         )
 
     def handle_no_permission(self):
@@ -312,3 +311,263 @@ class RepaymentListView(ListView):
         )
 
 
+# from django.views.generic import TemplateView
+# from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+# from django.shortcuts import redirect
+# from django.db.models import Count, Sum
+
+# from accounts.models import User
+# from loans.models import Application, ApprovedLoans, Repayment
+
+
+# class LandingPageView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+#     template_name = "core/landing.html"
+#     context_object_name = "staticdata"
+
+#     def test_func(self):
+#         return self.request.user.role != "customer"
+
+#     def handle_no_permission(self):
+#         return redirect("accounts:dashboard")
+
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+
+#         # ---------------- KPI ----------------
+#         total_users = User.objects.exclude(role="customer").count()
+#         total_applications = Application.objects.count()
+#         approved_loans = ApprovedLoans.objects.filter(status="active").count()
+
+#         total_revenue = (
+#             Repayment.objects
+#             .filter(status="paid")
+#             .aggregate(total=Sum("amount_paid"))
+#             .get("total") or 0
+#         )
+
+#         # ---------------- Application Status ----------------
+#         application_qs = (
+#             Application.objects
+#             .order_by()  # 🔥 CRITICAL for SQL Server
+#             .values("status")
+#             .annotate(count=Count("id"))
+#         )
+
+#         status_map = {
+#             "submitted": ("Submitted", "primary"),
+#             "under_review": ("Under Review", "warning"),
+#             "approved": ("Approved", "success"),
+#             "rejected": ("Rejected", "danger"),
+#         }
+
+#         application_status = [
+#             {
+#                 "label": status_map[row["status"]][0],
+#                 "count": row["count"],
+#                 "color": status_map[row["status"]][1],
+#             }
+#             for row in application_qs
+#             if row["status"] in status_map
+#         ]
+
+#         # ---------------- KYC ----------------
+#         kyc_qs = (
+#             User.objects
+#             .order_by()
+#             .values("kyc_status")
+#             .annotate(count=Count("id"))
+#         )
+
+#         kyc = {"pending": 0, "verified": 0, "rejected": 0}
+#         for row in kyc_qs:
+#             if row["kyc_status"] in kyc:
+#                 kyc[row["kyc_status"]] = row["count"]
+
+#         # ---------------- Loan Health ----------------
+#         loan_qs = (
+#             ApprovedLoans.objects
+#             .order_by()
+#             .values("status")
+#             .annotate(count=Count("id"))
+#         )
+
+#         loan_map = {
+#             "active": "Active Loans",
+#             "closed": "Closed Loans",
+#             "defaulted": "Defaulted Loans",
+#         }
+
+#         loan_health = [
+#             {"title": loan_map[row["status"]], "value": row["count"]}
+#             for row in loan_qs
+#             if row["status"] in loan_map
+#         ]
+
+#         # ---------------- Context ----------------
+#         context["staticdata"] = {
+#             "total_users": total_users,
+#             "total_applications": total_applications,
+#             "approved_loans": approved_loans,
+#             "total_revenue": round(total_revenue, 2),
+#             "application_status": application_status,
+#             "kyc": kyc,
+#             "loan_health": loan_health,
+#         }
+
+#         return context
+
+from datetime import date, datetime
+from calendar import monthrange
+
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.shortcuts import redirect
+from django.db.models import Count, Sum, Q
+from django.utils.timezone import make_aware
+
+from accounts.models import User
+from loans.models import Application, ApprovedLoans, Repayment
+
+
+class LandingPageView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    template_name = "core/landing.html"
+    context_object_name = "staticdata"
+
+    def test_func(self):
+        return self.request.user.role != "customer"
+
+    def handle_no_permission(self):
+        return redirect("accounts:dashboard")
+
+    # -----------------------
+    # DATE RANGE HANDLER
+    # -----------------------
+    def get_date_range(self):
+        today = date.today()
+        range_type = self.request.GET.get("range", "month")
+
+        if range_type == "today":
+            start = end = today
+
+        elif range_type == "custom":
+            try:
+                start = datetime.strptime(
+                    self.request.GET.get("start"), "%Y-%m-%d"
+                ).date()
+                end = datetime.strptime(
+                    self.request.GET.get("end"), "%Y-%m-%d"
+                ).date()
+            except Exception:
+                start = today.replace(day=1)
+                end = today
+
+        else:  # this month (default)
+            start = today.replace(day=1)
+            end = today.replace(day=monthrange(today.year, today.month)[1])
+
+        return start, end, range_type
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        start_date, end_date, range_type = self.get_date_range()
+
+        # ---------------- KPI ----------------
+        total_users = User.objects.exclude(role="customer").count()
+
+        total_applications = Application.objects.filter(
+            created_at__date__range=(start_date, end_date)
+        ).count()
+
+        approved_loans = ApprovedLoans.objects.filter(
+            approved_at__range=(start_date, end_date),
+            status="active"
+        ).count()
+
+        total_revenue = (
+            Repayment.objects.filter(
+                status="paid",
+                paid_date__range=(start_date, end_date)
+            )
+            .aggregate(total=Sum("amount_paid"))
+            .get("total") or 0
+        )
+
+        # ---------------- Application Status ----------------
+        application_qs = (
+            Application.objects
+            .filter(created_at__date__range=(start_date, end_date))
+            .order_by()  # SQL Server safe
+            .values("status")
+            .annotate(count=Count("id"))
+        )
+
+        status_map = {
+            "submitted": ("Submitted", "primary"),
+            "under_review": ("Under Review", "warning"),
+            "approved": ("Approved", "success"),
+            "rejected": ("Rejected", "danger"),
+        }
+
+        application_status = [
+            {
+                "label": status_map[row["status"]][0],
+                "count": row["count"],
+                "color": status_map[row["status"]][1],
+            }
+            for row in application_qs
+            if row["status"] in status_map
+        ]
+
+        # ---------------- KYC ----------------
+        kyc_qs = (
+            User.objects
+            .order_by()
+            .values("kyc_status")
+            .annotate(count=Count("id"))
+        )
+
+        kyc = {"pending": 0, "verified": 0, "rejected": 0}
+        for row in kyc_qs:
+            if row["kyc_status"] in kyc:
+                kyc[row["kyc_status"]] = row["count"]
+
+        # ---------------- Loan Health ----------------
+        loan_qs = (
+            ApprovedLoans.objects
+            .filter(approved_at__range=(start_date, end_date))
+            .order_by()
+            .values("status")
+            .annotate(count=Count("id"))
+        )
+
+        loan_map = {
+            "active": "Active Loans",
+            "closed": "Closed Loans",
+            "defaulted": "Defaulted Loans",
+        }
+
+        loan_health = [
+            {"title": loan_map[row["status"]], "value": row["count"]}
+            for row in loan_qs
+            if row["status"] in loan_map
+        ]
+
+        # ---------------- Context ----------------
+        context["staticdata"] = {
+            "total_users": total_users,
+            "total_applications": total_applications,
+            "approved_loans": approved_loans,
+            "total_revenue": round(total_revenue, 2),
+            "application_status": application_status,
+            "kyc": kyc,
+            "loan_health": loan_health,
+        }
+
+        context["filters"] = {
+            "range": range_type,
+            "start": start_date,
+            "end": end_date,
+        }
+
+        return context

@@ -51,6 +51,7 @@ urlpatterns = [
         ),
         name="password_reset_complete",
     ),
+    # main urls here
     path("admin/", admin.site.urls),
     path("", include("core.urls")),
     path("app/", include("accounts.urls")),

@@ -7,11 +7,13 @@ from .views import (
     ApplicationDetailView,
     DocumentApproveReject,
     ApplicationStatusUpdateView,
+    LandingPageView,
 )
 
 app_name = "loans"
 
 urlpatterns = [
+    path("landing",LandingPageView.as_view(), name="landing"),
     path("apply_loan", ApplyLoanView.as_view(), name="apply_loan"),
     path(
         "application/<int:pk>/",

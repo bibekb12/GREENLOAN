@@ -1,0 +1,273 @@
+{% extends 'core/base.html' %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .card {
+        border: none;
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, .06);
+    }
+
+    .value {
+        font-size: 1.9rem;
+        font-weight: 700;
+    }
+
+    .primary {
+        color: var(--primary-color);
+    }
+
+    .success {
+        color: var(--success-color);
+    }
+
+    .warning {
+        color: var(--warning-color);
+    }
+
+    .danger {
+        color: var(--danger-color);
+    }
+
+    .status-card {
+        background: var(--primary-light);
+        border-radius: 12px;
+        padding: 14px 18px;
+        display: flex;
+        justify-content: space-between;
+        font-weight: 600;
+    }
+
+    /* Chart sizing */
+    .chart-wrapper {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+
+    @media (max-width: 992px) {
+        .chart-wrapper {
+            height: 260px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .chart-wrapper {
+            height: 220px;
+        }
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="container-fluid py-4">
+ <form method="get" class="row g-2 mb-4 align-items-end">
+    <div class="col-auto">
+        <select name="range" class="form-select align-items-end" onchange="this.form.submit()">
+            <option value="today" {% if filters.range == 'today' %}selected{% endif %}>
+                Today
+            </option>
+            <option value="month" {% if filters.range == 'month' %}selected{% endif %}>
+                This Month
+            </option>
+            <option value="custom" {% if filters.range == 'custom' %}selected{% endif %}>
+                Custom
+            </option>
+        </select>
+    </div>
+
+    {% if filters.range == "custom" %}
+    <div class="col-auto">
+        <input type="date" name="start" class="form-control"
+               value="{{ filters.start }}">
+    </div>
+
+    <div class="col-auto">
+        <input type="date" name="end" class="form-control"
+               value="{{ filters.end }}">
+    </div>
+
+    <div class="col-auto">
+        <button class="btn btn-primary">Apply</button>
+    </div>
+    {% endif %}
+</form>
+
+
+
+    <!-- KPI CARDS -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card p-3">
+                <h6>Total Users</h6>
+                <div class="value primary">{{ staticdata.total_users }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card p-3">
+                <h6>Total Applications</h6>
+                <div class="value warning">{{ staticdata.total_applications }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card p-3">
+                <h6>Approved Loans</h6>
+                <div class="value success">{{ staticdata.approved_loans }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card p-3">
+                <h6>Total Revenue</h6>
+                <div class="value primary">${{ staticdata.total_revenue }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- APPLICATION STATUS -->
+    <div class="row g-4 mb-4">
+        {% for status in staticdata.application_status %}
+        <div class="col-md-3">
+            <div class="status-card">
+                <span>{{ status.label }}</span>
+                <span class="{{ status.color }}">{{ status.count }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- CHARTS -->
+    <div class="row g-4">
+
+        <div class="col-md-6">
+            <div class="card p-4">
+                <h6>Application Status Overview</h6>
+                <div class="chart-wrapper">
+                    <canvas id="applicationStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card p-4">
+                <h6>KYC Distribution</h6>
+                <div class="chart-wrapper">
+                    <canvas id="kycChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card p-4">
+                <h6>Loan Health</h6>
+                <div class="chart-wrapper">
+                    <canvas id="loanHealthChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card p-4">
+                <h6>Revenue Trend</h6>
+                <div class="chart-wrapper">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const css = getComputedStyle(document.documentElement);
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false
+    };
+
+    /* Chart 1 */
+    new Chart(document.getElementById('applicationStatusChart'), {
+        type: 'bar',
+        data: {
+            labels: [{% for s in staticdata.application_status %}'{{ s.label }}',{% endfor %}],
+        datasets: [{
+            label: 'Applications',
+            data: [{% for s in staticdata.application_status %}{{ s.count }}, {% endfor %}],
+        backgroundColor: [
+        css.getPropertyValue('--primary-color'),
+        css.getPropertyValue('--warning-color'),
+        css.getPropertyValue('--success-color'),
+        css.getPropertyValue('--danger-color')
+    ]
+        }]
+    },
+        options
+});
+
+    /* Chart 2 */
+    new Chart(document.getElementById('kycChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Pending', 'Verified', 'Rejected'],
+            datasets: [{
+                data: [
+                    {{ staticdata.kyc.pending }},
+            {{ staticdata.kyc.verified }},
+                {{ staticdata.kyc.rejected }}
+            ],
+        backgroundColor: [
+        css.getPropertyValue('--warning-color'),
+        css.getPropertyValue('--success-color'),
+        css.getPropertyValue('--danger-color')
+    ]
+        }]
+    },
+        options
+});
+
+    /* Chart 3 */
+    new Chart(document.getElementById('loanHealthChart'), {
+        type: 'pie',
+        data: {
+            labels: [{% for l in staticdata.loan_health %}'{{ l.title }}',{% endfor %}],
+        datasets: [{
+            data: [{% for l in staticdata.loan_health %}{{ l.value }}, {% endfor %}],
+        backgroundColor: [
+        css.getPropertyValue('--primary-color'),
+        css.getPropertyValue('--accent-color'),
+        css.getPropertyValue('--danger-color')
+    ]
+        }]
+    },
+        options
+});
+
+    /* Chart 4 */
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Revenue',
+                data: [12000, 15000, 14000, 18000, 21000, {{ staticdata.total_revenue }}],
+            borderColor: css.getPropertyValue('--primary-color'),
+            backgroundColor: css.getPropertyValue('--primary-light'),
+            fill: true,
+            tension: 0.4
+        }]
+    },
+        options
+});
+</script>
+
+{% endblock content %}
