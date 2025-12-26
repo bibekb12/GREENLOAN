@@ -23,7 +23,7 @@ class LoanTypes(models.Model):
         ordering = ["name"]
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - Interest rate({self.interest_rate})" 
 
     def clean(self):
         """Validate required documents"""

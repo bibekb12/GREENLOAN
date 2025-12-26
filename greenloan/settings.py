@@ -45,8 +45,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # custom app installed
     "core",
-    "accounts",
+    # "accounts",
     "loans",
+     'accounts.apps.AccountsConfig', #this is for the email signal
     # third party apps for css
     "crispy_bootstrap5",
     "crispy_forms",

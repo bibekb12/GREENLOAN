@@ -1,6 +1,7 @@
 from decimal import Decimal
 from django import forms
-from .models import Application, Document
+from loans.models import Application, Document
+from core.models import SitePage
 
 
 class ApplicationForm(forms.ModelForm):
@@ -34,13 +35,15 @@ class ApplicationForm(forms.ModelForm):
         cleaned_data = super().clean()
         amount = cleaned_data.get("amount")
         monthly_income = cleaned_data.get("monthly_income")
+        site = SitePage.objects.first()
 
         if amount is not None and monthly_income is not None:
             # Use Decimal for safe comparison
-            max_allowed = monthly_income * Decimal("0.70")
+            allow_percent = Decimal(site.allowed_income_percent)/Decimal("100")
+            max_allowed = monthly_income * allow_percent 
             if amount > max_allowed:
                 raise forms.ValidationError(
-                    "Requested loan amount cannot exceed 70% of your monthly salary."
+                    f"Requested loan amount cannot exceed {site.allowed_income_percent}% of your monthly salary."
                 )
 
         return cleaned_data
