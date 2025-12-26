@@ -9,5 +9,9 @@ class SitePage(models.Model):
         help_text="Maximum loan amount as % of applicant monthly income",
         default=50,
     )
+    
+    def __int__(self):
+        return self.allowed_income_percent
+
 
     history = HistoricalRecords()

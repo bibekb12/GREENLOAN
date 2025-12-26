@@ -133,3 +133,9 @@ class SitePageSettingsView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def handle_no_permission(self):
         messages.error(self.request, "You dont have permission to settings site.")
         return redirect("core:settings")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["allowed_precent"] = SitePage.objects.first()
+        context["loan_types"] = LoanTypes.objects.all()
+        return context
