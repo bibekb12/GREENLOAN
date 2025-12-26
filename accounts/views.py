@@ -24,7 +24,7 @@ class CustomLoginView(LoginView):
     form_class = EmailAuthenticationForm
 
     def get_success_url(self):
-        return reverse("accounts:dashboard")
+        return reverse("loans:landing")
 
     def form_invalid(self, form):
         return super().form_invalid(form)
@@ -77,9 +77,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                     "applications": Application.objects.all()[:10],
                     "users": User.objects.all()[:10],
                     "total_applications": Application.objects.count(),
-                    "pending_applications": Application.objects.filter(
-                        status="submitted"
-                    ).count(),
+                    "pending_applications": Application.objects.filter(status="submitted").count(),
                 }
             )
         elif user.role in ["loan_officer", "senior_officer"]:
