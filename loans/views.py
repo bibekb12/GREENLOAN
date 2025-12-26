@@ -7,6 +7,7 @@ from loans.models import Application, ApprovedLoans, Document, Repayment
 from django.contrib import messages
 from django.utils import timezone
 from loans.utils import create_repayments, update_credit_score
+from loans.signals import loan_approved_signal
 
 
 # Create your views here.
@@ -254,6 +255,12 @@ class ApplicationStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, View)
                 tenure_months=application.duration_months,
                 status="active"
             )
+            loan_approved_signal.send(
+                sender=None,
+                loan_type = application.loan_type.name,
+                to_user = application.applicant
+            )
+
             # generate repayments
             create_repayments(approved_loan)
 

@@ -47,7 +47,10 @@ INSTALLED_APPS = [
     "core",
     # "accounts",
     "loans",
-     'accounts.apps.AccountsConfig', #this is for the email signal
+    'accounts.apps.AccountsConfig', #this is for the email signal
+    'simple_history', # for the history records
+
+
     # third party apps for css
     "crispy_bootstrap5",
     "crispy_forms",
@@ -63,6 +66,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # added middleware
     "whitenoise.middleware.WhiteNoiseMiddleware",
+     'simple_history.middleware.HistoryRequestMiddleware', # for the history records
 ]
 
 ROOT_URLCONF = "greenloan.urls"

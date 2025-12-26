@@ -1,4 +1,5 @@
 from django.db import models
+from simple_history.models import HistoricalRecords
 
 
 class SitePage(models.Model):
@@ -8,3 +9,5 @@ class SitePage(models.Model):
         help_text="Maximum loan amount as % of applicant monthly income",
         default=50,
     )
+
+    history = HistoricalRecords()
