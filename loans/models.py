@@ -3,6 +3,8 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from simple_history.models import HistoricalRecords
 
+from accounts.models import User
+
 
 class LoanTypes(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -148,6 +150,7 @@ class ApprovedLoans(models.Model):
     principle = models.DecimalField(max_digits=12, decimal_places=2)
     interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
     tenure_months = models.IntegerField()
+    approved_by = models.ForeignKey(User, on_delete= models.PROTECT)
     approved_at = models.DateField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=[
         ("active", "Active"),

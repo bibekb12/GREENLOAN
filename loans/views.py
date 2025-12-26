@@ -253,6 +253,7 @@ class ApplicationStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, View)
                 principle=application.amount,
                 interest_rate=application.loan_type.interest_rate,
                 tenure_months=application.duration_months,
+                approved_by = self.request.user,
                 status="active"
             )
             loan_approved_signal.send(
