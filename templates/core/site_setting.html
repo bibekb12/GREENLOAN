@@ -1,90 +1,189 @@
-{% extends "core/base.html" %}
+
+{% extends 'core/settings.html' %}
+{% load static %}
 
 {% block settings_content %}
-<div class="container mt-4">
+<div class="container-fluid">
+  <div class="row">
 
-    <div class="row mb-3">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4>Loan Type Setup</h4>
-            <a href="{% url 'loans:loan_type_list' %}" class="btn btn-secondary btn-sm">
-                Back to List
+    <!-- Sidebar -->
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse" style="background: var(--primary-light);">
+      <div class="position-sticky pt-3">
+
+        <h6 class="sidebar-heading px-3 mt-4 mb-1 text-muted" style="height: 10vh">
+          Settings
+        </h6>
+
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link active border border-success rounded px-3 mx-1" href="#"
+               onclick="showPage('siteColor')">
+               Site color
             </a>
-        </div>
-    </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link border border-success rounded px-3 mx-1" href="#"
+               onclick="showPage('loanTypes')">
+               Loan Types
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link border border-success rounded px-3 mx-1" href="#"
+               onclick="showPage('incomePercent')">
+               Income Percent Setup
+            </a>
+          </li>
+        </ul>
 
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <strong>Create / Update Loan Type</strong>
-        </div>
+      </div>
+    </nav>
 
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
+    <!-- Main content -->
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 
-                <div class="row g-3">
-
-                    <!-- Loan Name -->
-                    <div class="col-md-6">
-                        <label class="form-label">Loan Name</label>
-                        <input type="text" name="name" class="form-control" value="{{ form.name.value|default:'' }}"
-                            required>
-                    </div>
-
-                    <!-- Interest Rate -->
-                    <div class="col-md-3">
-                        <label class="form-label">Interest Rate (%)</label>
-                        <input type="number" step="0.01" name="interest_rate" class="form-control" required>
-                    </div>
-
-                    <!-- Allowed Income Percentage -->
-                    <div class="col-md-3">
-                        <label class="form-label">
-                            Allowed Income %
-                        </label>
-                        <input type="number" step="0.01" name="allowed_income_percent" class="form-control"
-                            placeholder="e.g. 60" required>
-                        <small class="text-muted">
-                            Max loan = income × %
-                        </small>
-                    </div>
-
-                    <!-- Amount Limit -->
-                    <div class="col-md-6">
-                        <label class="form-label">Maximum Loan Amount</label>
-                        <input type="number" step="0.01" name="amount_limit" class="form-control" required>
-                    </div>
-
-                    <!-- Active -->
-                    <div class="col-md-6">
-                        <label class="form-label">Status</label>
-                        <select name="is_active" class="form-select">
-                            <option value="true">Active</option>
-                            <option value="false">Inactive</option>
-                        </select>
-                    </div>
-
-                    <!-- Description -->
-                    <div class="col-12">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="3"></textarea>
-                    </div>
-
-                </div>
-
-                <hr class="mt-4">
-
-                <div class="d-flex justify-content-end gap-2">
-                    <button type="reset" class="btn btn-outline-secondary">
-                        Reset
-                    </button>
-                    <button type="submit" class="btn btn-success">
-                        Save Loan Type
-                    </button>
-                </div>
+      <!-- Site Color Page -->
+      <div id="siteColor" class="settings-page">
+        <h4 class="mt-4">Site Color Settings</h4>
+        <div class="card shadow-sm mt-3">
+          <div class="card-body">
+            <p>Here you can configure your site colors.</p>
+            <!-- Add color picker or form here -->
+            <form action="">
 
             </form>
+          </div>
         </div>
+      </div>
+<!-- Loan Types Page -->
+<div id="loanTypes" class="settings-page d-none">
+  <h4 class="mt-4">Loan Type Setup</h4>
+  <div class="card shadow-sm mt-3">
+    <div class="card-header bg-primary text-white">
+      <strong>Create / Update Loan Type</strong>
     </div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
 
+        <!-- Dropdown for existing loan types -->
+        <div class="mb-3">
+          <label class="form-label">Select Loan Type to Update</label>
+          <select id="loanTypeSelect" class="form-select">
+            <option value="" selected>-- New Loan Type --</option>
+            {% for loan in loan_types %}
+              <option 
+                value="{{ loan.id }}"
+                data-name="{{ loan.name }}"
+                data-interest="{{ loan.interest_rate }}"
+                data-amount="{{ loan.amount_limit }}"
+                data-status="{{ loan.is_active }}"
+                data-description="{{ loan.description }}"
+              >
+                {{ loan.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="row g-3">
+          <!-- Loan Name -->
+          <div class="col-md-6">
+            <label class="form-label">Loan Name</label>
+            <input type="text" name="name" id="loanName" class="form-control" required />
+          </div>
+
+          <!-- Interest Rate -->
+          <div class="col-md-3">
+            <label class="form-label">Interest Rate (%)</label>
+            <input type="number" step="0.01" name="interest_rate" id="interestRate" class="form-control" required />
+          </div>
+          <!-- Maximum Loan Amount -->
+          <div class="col-md-6">
+            <label class="form-label">Maximum Loan Amount</label>
+            <input type="number" step="0.01" name="amount_limit" id="amountLimit" class="form-control" required />
+          </div>
+
+          <!-- Status -->
+          <div class="col-md-6">
+            <label class="form-label">Status</label>
+            <select name="is_active" id="statusSelect" class="form-select">
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
+            </select>
+          </div>
+
+          <!-- Description -->
+          <div class="col-12">
+            <label class="form-label">Description</label>
+            <textarea name="description" id="descriptionField" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+
+        <hr class="mt-4" />
+        <div class="d-flex justify-content-end gap-2">
+          <button type="reset" class="btn btn-outline-secondary">Reset</button>
+          <button type="submit" class="btn btn-success">Save Loan Type</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
+      <!-- Income Percent Page -->
+      <div id="incomePercent" class="settings-page d-none">
+        <h4 class="mt-4">Income Percent Setup</h4>
+        <div class="card shadow-sm mt-3">
+   <div class="card-body">
+     <form action="" method="post">
+       {% csrf_token %}
+       {% if allowed_precent %}
+    <div class="mb-3">
+      Allowed Percent :
+      <input type="text" id="allowedPercent" name="allowed_percent" class="form-control" placeholder="e.g. 60" value="{{ allowed_precent.allowed_income_percent|default:'' }}" required>
+    </div>
+    {% endif %}
+    <div class="d-flex justify-content-end gap-2">
+      <button type="submit" class="btn btn-success">Save</button>
+    </div>
+  </form>
+</div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- JS to toggle pages -->
+<script>
+function showPage(pageId) {
+  // Hide all pages
+  document.querySelectorAll('.settings-page').forEach(function(el){
+    el.classList.add('d-none');
+  });
+
+  // Show selected page
+  document.getElementById(pageId).classList.remove('d-none');
+}
+  const loanSelect = document.getElementById('loanTypeSelect');
+  loanSelect.addEventListener('change', function() {
+    const selected = loanSelect.selectedOptions[0];
+    if(selected.value === "") {
+      // Clear fields for new loan
+      document.getElementById('loanName').value = '';
+      document.getElementById('interestRate').value = '';
+      document.getElementById('amountLimit').value = '';
+      document.getElementById('statusSelect').value = 'true';
+      document.getElementById('descriptionField').value = '';
+    } else {
+      // Fill fields with selected loan data
+      document.getElementById('loanName').value = selected.dataset.name;
+      document.getElementById('interestRate').value = selected.dataset.interest;
+      document.getElementById('amountLimit').value = selected.dataset.amount;
+      document.getElementById('statusSelect').value = selected.dataset.status === "True" ? 'true' : 'false';
+      document.getElementById('descriptionField').value = selected.dataset.description;
+    }
+  });
+</script>
 {% endblock %}
+

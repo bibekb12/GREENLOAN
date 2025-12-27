@@ -1,6 +1,9 @@
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from simple_history.models import HistoricalRecords
+
+from accounts.models import User
 
 
 class LoanTypes(models.Model):
@@ -23,7 +26,7 @@ class LoanTypes(models.Model):
         ordering = ["name"]
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - Interest rate({self.interest_rate})" 
 
     def clean(self):
         """Validate required documents"""
@@ -34,6 +37,8 @@ class LoanTypes(models.Model):
         for doc in self.required_documents:
             if doc not in valid_docs:
                 raise ValidationError(f"Invalid document type: {doc}")
+    
+    history = HistoricalRecords()
 
 
 class Application(models.Model):
@@ -105,6 +110,8 @@ class Application(models.Model):
             }
         )
         self.save(update_fields=["status_history"])
+    
+    history = HistoricalRecords()
 
 
 class Document(models.Model):
@@ -136,11 +143,14 @@ class Document(models.Model):
     )
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
+    history = HistoricalRecords()
+
 class ApprovedLoans(models.Model):
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     principle = models.DecimalField(max_digits=12, decimal_places=2)
     interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
     tenure_months = models.IntegerField()
+    approved_by = models.ForeignKey(User, on_delete= models.PROTECT)
     approved_at = models.DateField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=[
         ("active", "Active"),
@@ -150,6 +160,8 @@ class ApprovedLoans(models.Model):
 
     def __str__(self):
         return f"Loan #{self.id}- {self.user.full_name}"
+    
+    history = HistoricalRecords()
     
 class Repayment(models.Model):
     loan = models.ForeignKey(ApprovedLoans, on_delete=models.CASCADE, related_name="repayments")
@@ -169,6 +181,8 @@ class Repayment(models.Model):
 
     def is_late(self):
         return self.paid_date and self.paid_date > self.due_date
+    
+    history = HistoricalRecords()
 
 class CreditScore(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -177,5 +191,7 @@ class CreditScore(models.Model):
 
     def __str__(self):
         return f"{self.user.full_name} - {self.score}"
+    
+    history = HistoricalRecords()
     
 

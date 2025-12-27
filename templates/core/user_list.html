@@ -1,30 +1,26 @@
-{% extends "core/settings.html" %}
+{% extends 'core/settings.html' %}
 {% block settings_content %}
-
-<div class="d-flex justify-content-between mb-3">
+  <div class="d-flex justify-content-between mb-3">
     <h3>User List</h3>
-    <a href="{% url 'core:user_create' %}" class="btn btn-primary">
-        Add New User
-    </a>
-</div>
+    <a href="{% url 'core:user_create' %}" class="btn btn-primary">Add New User</a>
+  </div>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Username</th>
-            <th>Role</th>
-            <th>Email</th>
-        </tr>
+  <table class="table table-bordered" style="">
+    <thead style="background-color: var(--primary-dark); color: var(--primary-light);">
+      <tr style="">
+        <th>Full Name</th>
+        <th>Role</th>
+        <th>Email</th>
+      </tr>
     </thead>
     <tbody>
-        {% for user in users %}
+      {% for user in users %}
         <tr>
-            <td>{{ user.full_name }}</td>
-            <td>{{ user.role }}</td>
-            <td>{{ user.email }}</td>
+          <td>{{ user.full_name }}</td>
+          <td>{{ user.role }}</td>
+          <td>{{ user.email }}</td>
         </tr>
-        {% endfor %}
+      {% endfor %}
     </tbody>
-</table>
-
+  </table>
 {% endblock %}

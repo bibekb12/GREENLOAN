@@ -114,6 +114,15 @@
           {% endif %}
         </ul>
       </div>
+      <ul class="navbar-nav me-auto">
+       <li class="nav-item">
+            <a href="{% url 'core:tourplan'%}" class="nav-link border border-success rounded px-3 mx-1"
+            style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
+            onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
+            onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">Danfe
+            Tour Plan</a>
+          </li>
+          </ul>
       <ul class="navbar-nav">
         {% if user.is_authenticated %}
         <li class="nav-item dropdown">
@@ -139,11 +148,13 @@
           </a>
 
           <ul class="dropdown-menu shadow">
+            {% if user.role == "customer"  %}
             <li>
               <a href="accounts:profile" class="dropdown-item">
                 <i class="fas fa-user me-2"></i>Profile
               </a>
             </li>
+            {% endif %}
             <li>
               <hr class="dropdown-divider" />
             </li>
@@ -208,9 +219,36 @@
   {% endblock %}
 
 </main>
+
+<div class="container my-5">
+
+  <footer class="text-center text-lg-start" style="background-color: var(--primary-color)">
+    <div class="container d-flex justify-content-center py-5">
+      <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
+        <i class="fab fa-facebook-f"></i>
+      </button>
+      <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
+        <i class="fab fa-youtube"></i>
+      </button>
+      <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
+        <i class="fab fa-instagram"></i>
+      </button>
+      <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
+        <i class="fab fa-twitter"></i>
+      </button>
+    </div>
+
+    <div class="text-center text-white p-3" style="background-color: var(--primary-dark);">
+      © 2020 Copyright:
+      <a class="text-white" href="https://bibekbhandari.com.np">www.bibekbhandari.com.np</a>
+    </div>
+
+  </footer>
+  
+</div>
+
   <script src="{% static 'js/bootstrap.min.js' %}"></script>
   <script src="{% static 'Customjs/base.js' %}"></script>
-  <footer>@bibek bhandari</footer>
 </body>
 
 </html>

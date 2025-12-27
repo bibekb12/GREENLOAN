@@ -1,48 +1,56 @@
-{% extends "core/base.html" %}
+{% extends 'core/base.html' %}
 {% load static %}
 
 {% block content %}
+  <!-- SETTINGS NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-light" style="background-color: var(--primary-light);">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="">Settings</a>
 
-<!-- SETTINGS NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="">Settings</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav jusify-content-betweeen">
+          <li class="nav-item">
+            <a class="nav-link border border-success rounded px-3 mx-1" href="{% url 'core:site_settings' %}" style="
+                color: var(--primary-color);
+                font-weight: 500;
+                background: transparent;
+              " onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';" onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">Site Setting</a>
+          </li>
 
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link border border-success rounded px-3 mx-1" href="{% url 'core:user_list' %}" style="
+                color: var(--primary-color);
+                font-weight: 500;
+                background: transparent;
+              " onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';" onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">User Setup</a>
+          </li>
 
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'core:site_settings' %}">Site Setting</a>
-        </li>
+          <li class="nav-item">
+            <a class="nav-link border border-success rounded px-3 mx-1" href="{% url 'core:admin_list' %}" style="
+                color: var(--primary-color);
+                font-weight: 500;
+                background: transparent;
+              " onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';" onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">Admin Settings</a>
+          </li>
 
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'core:user_list' %}">
-            User Setup
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'core:admin_list' %}">Admin Settings</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link disabled" href="/admin/">Super Admin</a>
-        </li>
-
-      </ul>
+          <li class="nav-item">
+            <a class="nav-link disabled border border-success rounded px-3 mx-1" href="/admin/" style="
+                color: var(--primary-color);
+                font-weight: 500;
+                background: transparent;
+              " onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';" onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">Super Admin</a>
+          </li>
+        </ul>
+      </div>
     </div>
+  </nav>
+
+  <!-- PAGE CONTENT WILL BE INJECTED HERE -->
+  <div class="container mt-3">
+    {% block settings_content %}
+
+    {% endblock %}
   </div>
-</nav>
-
-<!-- PAGE CONTENT WILL BE INJECTED HERE -->
-<div class="container mt-3">
-  {% block settings_content %}
-  {% endblock %}
-</div>
-
 {% endblock %}
