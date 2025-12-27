@@ -9,6 +9,7 @@ from core.views import (
     UserListView,
     SitePageSettingsView,
 )
+from tourplan.views import TourStudentList
 
 app_name = "core"
 
@@ -21,4 +22,5 @@ urlpatterns = [
     path("settings/users/create/", UserCreateView.as_view(), name="user_create"),
     path("settings/admin/create/", AdminCreateView.as_view(), name="admin_create"),
     path("settings/sitesetting", SitePageSettingsView.as_view(), name="site_settings"),
+    path("tourplan/",TourStudentList.as_view(), name="tourplan")
 ]

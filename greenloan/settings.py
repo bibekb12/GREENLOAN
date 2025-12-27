@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "loans",
     'accounts.apps.AccountsConfig', #this is for the email signal
     'simple_history', # for the history records
+    'tourplan',
 
 
     # third party apps for css

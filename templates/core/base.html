@@ -114,6 +114,15 @@
           {% endif %}
         </ul>
       </div>
+      <ul class="navbar-nav me-auto">
+       <li class="nav-item">
+            <a href="{% url 'core:tourplan'%}" class="nav-link border border-success rounded px-3 mx-1"
+            style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
+            onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
+            onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">Danfe
+            Tour Plan</a>
+          </li>
+          </ul>
       <ul class="navbar-nav">
         {% if user.is_authenticated %}
         <li class="nav-item dropdown">
