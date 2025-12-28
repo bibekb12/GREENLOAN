@@ -20,20 +20,28 @@ class TourStudentList(TemplateView):
         full_name = request.POST.get('fullname')
         participation = request.POST.get('participation') == 'true'
 
-        if semester and rollno and full_name:
-            try:
-                Student.objects.create(
-                    student_semester = int(semester),
-                    serial_number = int(rollno),
-                    student_name = full_name,
-                    participation=participation
-                )
-                messages.success(request,"Participation recorded")
-            except Exception as e :
-                return messages.error(self,e)
+        
+        if not ( semester and rollno and full_name):
+            messages.error(request, "Please all fields.")
+            return redirect('core:tourplan')
+
+        studentCount = Student.objects.filter(student_semester=semester).count()
+        
+        if studentCount >= 35:
+            messages.error(request,"Student quota excedded 35 for the semester.")
+            return redirect('core:tourplan')
         else:
-            messages.warning(request, "Please all fields.")
-        return redirect('core:tourplan')
+                try:
+                    Student.objects.create(
+                        student_semester = int(semester),
+                        serial_number = int(rollno),
+                        student_name = full_name,
+                        participation=participation
+                    )
+                    messages.success(request,"Participation recorded")
+                except Exception as e :
+                    return messages.error(request,e)
+
 
 
 
