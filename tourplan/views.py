@@ -40,7 +40,8 @@ class TourStudentList(TemplateView):
                     )
                     messages.success(request,"Participation recorded")
                 except Exception as e :
-                    return messages.error(request,e)
+                    messages.error(request,f"Error: {e}")
+                return redirect('core:tourplan')
 
 
 
