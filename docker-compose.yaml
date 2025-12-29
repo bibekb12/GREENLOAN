@@ -7,3 +7,7 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
+    environment:
+      - DEBUG=1
+    stdin_open: true
+    tty: true

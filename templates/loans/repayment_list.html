@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% block content %}
 
-<div class="container mt-4">
+<div class="repayment container py-4">
 
     <div class="row mb-3">
         <div class="col-md-8">
@@ -10,60 +10,115 @@
         <div class="col-md-4 text-end">
             <div class="card text-center shadow-sm">
                 <h6 class="text-muted">Credit Score</h6>
-
                 {% if request.user.creditscore.score >= 700 %}
-                <h3 class="text-success">{{ request.user.creditscore.score }}</h3>
-                <small class="text-success">Excellent</small>
+                    <h3 class="text-success">{{ request.user.creditscore.score }}</h3>
+                    <small class="text-success">Excellent</small>
                 {% elif request.user.creditscore.score >= 650 %}
-                <h3 class="text-primary">{{ request.user.creditscore.score }}</h3>
-                <small class="text-primary">Good</small>
+                    <h3 class="text-primary">{{ request.user.creditscore.score }}</h3>
+                    <small class="text-primary">Good</small>
                 {% else %}
-                <h3 class="text-danger">{{ request.user.creditscore.score }}</h3>
-                <small class="text-danger">Needs Improvement</small>
+                    <h3 class="text-danger">{{ request.user.creditscore.score }}</h3>
+                    <small class="text-danger">Needs Improvement</small>
                 {% endif %}
-
-
             </div>
-
         </div>
     </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body table-responsive">
-            <table class="table table-bordered align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Due Date</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for r in object_list %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ r.due_date }}</td>
-                        <td>Rs. {{ r.amount_due }}</td>
-                        <td>
-                            {% if r.status == "paid" %}
-                            <span class="badge bg-success">Paid</span>
-                            {% elif r.status == "late" %}
-                            <span class="badge bg-danger">Late</span>
-                            {% else %}
-                            <span class="badge bg-warning text-dark">Pending</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if r.status == "pending" %}
-                            <a href="{% url 'loans:repay' r.id %}" class="btn btn-sm btn-primary">Pay Now</a>
-                            {% else %}
-                            <span class="text-muted">No action</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
+    <!-- Loan Selection Dropdown -->
+    <form method="get" class="mb-3">
+        <select name="loan_id" class="form-select w-auto d-inline-block" onchange="this.form.submit()">
+            <option value="">Select Loan</option>
+            {% for loan in loans %}
+                <option value="{{ loan.id }}" {% if selected_loan and loan.id == selected_loan.id %}selected{% endif %}>
+                    {{ loan.application.loan_type.name }} - Rs. {{ loan.principle }} ({{ loan.approved_at }})
+                </option>
+            {% endfor %}
+        </select>
+    </form>
 
-                {% endblock %}
+    {% if selected_loan %}
+ <div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <h5>Loan Details</h5>
+        <div class="row">
+            <div class="col-md-4 mb-2">
+                <strong>Type:</strong> {{ selected_loan.application.loan_type.name }}
+            </div>
+            <div class="col-md-4 mb-2">
+                <strong>Amount:</strong> Rs. {{ selected_loan.principle }}
+            </div>
+            <div class="col-md-4 mb-2">
+                <strong>Approved On:</strong> {{ selected_loan.approved_at }}
+            </div>
+            <div class="col-md-4 mb-2">
+                <strong>Interest Rate:</strong> {{ selected_loan.interest_rate }}%
+            </div>
+            <div class="col-md-4 mb-2">
+                <strong>Tenure:</strong> {{ selected_loan.tenure_months }} months
+            </div>
+            <div class="col-md-4 mb-2">
+                <strong>Applicant:</strong> {{ selected_loan.application.applicant.full_name }}
+            </div>
+            <div class="col-md-4 mb-2">
+                <strong>Status:</strong> {{ selected_loan.status }}
+            </div>
+            <div class="col-md-4 mb-2">
+                <strong>Loan ID:</strong> {{ selected_loan.id }}
+            </div>
+            <div class="col-md-4 mb-2">
+                <strong>Approved By:</strong> {{ selected_loan.approved_by.full_name }}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+        <div class="card shadow-sm">
+            <div class="card-body table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Due Date</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in repayments %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ r.due_date }}</td>
+                            <td>Rs. {{ r.amount_due }}</td>
+                            <td>
+                                {% if r.status == "paid" %}
+                                    <span class="badge bg-success">Paid</span>
+                                {% elif r.status == "late" %}
+                                    <span class="badge bg-danger">Late</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if r.status == "pending" %}
+                                    <a href="{% url 'loans:repay' r.id %}" class="btn btn-sm btn-primary">Pay Now</a>
+                                {% else %}
+                                    <span class="text-muted">No action</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No loan selected.
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

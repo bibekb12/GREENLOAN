@@ -1,6 +1,7 @@
 from django.utils import timezone
 from django.shortcuts import redirect, render
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
+from django.contrib.auth import update_session_auth_hash 
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView, TemplateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -12,6 +13,7 @@ from .forms import (
     EmailAuthenticationForm,
     UserProfileForm,
 )
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 
@@ -53,6 +55,13 @@ class SignupView(CreateView):
 
         messages.success(self.request, "Account created succesfully.")
         return super().form_valid(form)
+    
+class ChangePasswordView(PasswordChangeView):
+    
+    form_class = PasswordChangeForm
+    template_name = 'resetpassword/change_password.html'
+    success_url = reverse_lazy("accounts:dashboard")    
+
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -124,6 +133,16 @@ class ProfileView(LoginRequiredMixin, UpdateView):
 
         elif "update_kyc" in request.POST:
             kyc_form = KYCUpdateForm(request.POST, request.FILES, instance=user)
+            has_existing_kyc = (user.citizenship_front_url and user.citizenship_back_url and user.passport_photo_url )
+
+            if getattr(user,"kyc_status","pending") == "verified":
+                messages.success(request,"Accounts already verified.")
+                return redirect('accounts:profile') 
+
+            if not request.FILES and not has_existing_kyc:
+                messages.error(request,"Please upload required KYC documents.")
+                return redirect('accounts:profile')
+
             if kyc_form.is_valid():
                 user.kyc_status = "submitted"
                 user.kyc_verified_at = None
