@@ -208,3 +208,6 @@ __marimo__/
 
 #ignoring the media in git
 media
+
+#ignoring collected staticfiles
+staticfiles
