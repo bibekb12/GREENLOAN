@@ -26,6 +26,11 @@ class TourStudentList(TemplateView):
             return redirect('core:tourplan')
 
         studentCount = Student.objects.filter(student_semester=semester).count()
+        student_record = Student.objects.get(id = request.user.id)
+
+        if student_record:
+             messages.error(request, "Students records already found.")
+             return redirect('core:tourplan')
         
         if studentCount >= 35:
             messages.error(request,"Student quota excedded 35 for the semester.")

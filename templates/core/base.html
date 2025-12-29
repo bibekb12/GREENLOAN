@@ -140,6 +140,13 @@
         Pending KYC
       </span>
     </div>
+  {% elif user.kyc_status == "submitted" and user.role == "customer" %}
+    <div class="mb-1">
+      <span class="badge bg-danger"
+            style="font-size: 0.75rem;">
+        Submitted KYC
+      </span>
+    </div>
   {% endif %}
             <div class="user-avatar me-2">
               {{ user.first_name|first|default:user.username|first|upper }}
@@ -150,11 +157,16 @@
           <ul class="dropdown-menu shadow">
             {% if user.role == "customer"  %}
             <li>
-              <a href="accounts:profile" class="dropdown-item">
+              <a href="{% url 'accounts:profile' %}" class="dropdown-item">
                 <i class="fas fa-user me-2"></i>Profile
               </a>
             </li>
             {% endif %}
+            <li>
+              <a href="{% url 'accounts:changepassword' %}" class="dropdown-item">
+                <i class="fas fa-user me-2"></i>Change Password
+              </a>
+            </li>
             <li>
               <hr class="dropdown-divider" />
             </li>
@@ -215,10 +227,10 @@
     {% endfor %}
   {% endif %}
 
-  {% block content %}
-  {% endblock %}
-
+  
 </main>
+{% block content %}
+{% endblock %}
 
 <div class="container my-5">
 

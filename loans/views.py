@@ -8,6 +8,10 @@ from django.contrib import messages
 from django.utils import timezone
 from loans.utils import create_repayments, update_credit_score
 from loans.signals import loan_approved_signal
+from datetime import date, datetime
+from calendar import monthrange
+from django.db.models import Count, Sum, Q
+from django.db.models import Case, When, Value, IntegerField
 
 
 # Create your views here.
@@ -276,7 +280,7 @@ class RepaymentPayView(LoginRequiredMixin, UpdateView):
 
     def get_queryset(self):
         # Security: user can pay only own repayments
-        return Repayment.objects.filter(loan__user=self.request.user)
+        return Repayment.objects.filter(loan__application__applicant=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -309,20 +313,46 @@ class RepaymentListView(ListView):
     context_object_name = "repayments"
 
     def get_queryset(self):
-        return (
-            Repayment.objects
-            .filter(loan__application__applicant=self.request.user)
-            .select_related("loan")
-            .order_by("due_date")
-        )
+        loan_id = self.request.GET.get("loan_id")
+        
+        # Get latest loan per application
+        loans_qs = ApprovedLoans.objects.filter(application__applicant=self.request.user).order_by("-approved_at")
+        latest_loans_dict = {}
+        for loan in loans_qs:
+            if loan.application_id not in latest_loans_dict:
+                latest_loans_dict[loan.application_id] = loan
+        loans = list(latest_loans_dict.values())
 
-from datetime import date, datetime
-from calendar import monthrange
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.shortcuts import redirect
-from django.db.models import Count, Sum, Q
-from accounts.models import User
-from loans.models import Application, ApprovedLoans, Repayment
+        self.selected_loan = None
+        if loan_id:
+            for loan in loans:
+                if str(loan.id) == str(loan_id):
+                    self.selected_loan = loan
+                    break
+
+        if self.selected_loan:
+            repayments = self.selected_loan.repayments.annotate(
+                status_order=Case(
+                    When(status='pending', then=Value(0)),
+                    When(status='late', then=Value(1)),
+                    When(status='paid', then=Value(2)),
+                    default=Value(3),
+                    output_field=IntegerField()
+                )
+            ).order_by('status_order', 'due_date')
+        else:
+            repayments = Repayment.objects.none()
+
+        self.loans = loans
+        return repayments
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["loans"] = getattr(self, "loans", [])
+        context["selected_loan"] = getattr(self, "selected_loan", None)
+        return context
+
 
 
 class LandingPageView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
