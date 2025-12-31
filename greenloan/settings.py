@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # custom app installed
     "core",
+    "rest_framework",
+    'corsheaders',
     # "accounts",
     "loans",
     'accounts.apps.AccountsConfig', #this is for the email signal
@@ -67,7 +69,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # added middleware
     "whitenoise.middleware.WhiteNoiseMiddleware",
-     'simple_history.middleware.HistoryRequestMiddleware', # for the history records
+    'simple_history.middleware.HistoryRequestMiddleware', # for the history records
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = "greenloan.urls"
@@ -185,3 +189,5 @@ DEFAULT_FROM_EMAIL = "GreenLoan <no-reply@gmail.com>"
 
 SITE_ID = 1
 DEFAULT_DOMAIN = "bibekb12.pythonanywhere.com"
+
+CORS_ALLOW_ALL_ORIGINS = False #CORS testing

@@ -1,5 +1,7 @@
+from django.http import FileResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
+from django.views import View
 from tourplan.models import Student
 from django.views.generic import TemplateView, CreateView
 from django.contrib import messages
@@ -48,7 +50,10 @@ class TourStudentList(TemplateView):
                     messages.error(request,f"Error: {e}")
                 return redirect('core:tourplan')
 
-
+class PdfLink(View):
+    def get(self, request):
+        pdf_path = r"A:\GREENLOAN\media\BCA_Syllabus-compressed_compre_2024_01_30_18_33_22.pdf"
+        return FileResponse(open(pdf_path, 'rb'), content_type='application/pdf')
 
 
 

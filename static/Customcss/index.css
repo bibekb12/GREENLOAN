@@ -31,7 +31,7 @@
 }
 
 .commitment-item:hover {
-    transform: translateX(5px);
+    transform: translateX(1px);
 }
 
 /* Stats cards in benefits section */
