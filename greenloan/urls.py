@@ -67,7 +67,7 @@ urlpatterns = [
     path("", include("core.urls")),
     path("app/", include("accounts.urls")),
     path("app/", include("loans.urls")),
-    path('api/pdf', PdfLinkAPI.as_view(), name='pdf-api'),
+    path('api/pdf/demo.pdf', PdfLinkAPI.as_view(), name='pdf-api'),
 ]
 
 
