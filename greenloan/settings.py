@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # custom app installed
     "core",
+    "rest_framework",
     # "accounts",
     "loans",
     'accounts.apps.AccountsConfig', #this is for the email signal
@@ -67,7 +68,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # added middleware
     "whitenoise.middleware.WhiteNoiseMiddleware",
-     'simple_history.middleware.HistoryRequestMiddleware', # for the history records
+    'simple_history.middleware.HistoryRequestMiddleware', # for the history records
 ]
 
 ROOT_URLCONF = "greenloan.urls"
