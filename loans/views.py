@@ -12,6 +12,10 @@ from datetime import date, datetime
 from calendar import monthrange
 from django.db.models import Count, Sum, Q
 from django.db.models import Case, When, Value, IntegerField
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
 
 
 # Create your views here.
