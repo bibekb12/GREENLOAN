@@ -4,28 +4,76 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.shortcuts import redirect
-
+from django.core.mail import send_mail
 from accounts.forms import SimpleUserCreationForm
 from core.models import SitePage
 from core.forms import SimpleAdminCreationForm
+from greenloan import settings
 from loans.models import LoanTypes, Document
 
 User = get_user_model()
 
 
-class IndexView(ListView):
+class IndexView(TemplateView):
     """This views return the index page for the application"""
 
     model = SitePage
-    context_object_name = "LoanTypes"
+    # context_name = "LoanTypes"
     template_name = "core/index.html"
 
-    def get_queryset(self):
-        return LoanTypes.objects.filter(is_active=True)
+    # def get(self, request, *args, **kwargs):
+    #     return LoanTypes.objects.filter(is_active = True)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["LoanTypes"] = LoanTypes.objects.filter(is_active = True)
+        context["loan_detail"] = ['Loan Amount', 'Repayment Period', 'Interest Rate', 'Application Fee']
+        context["features"] = ['Secure', 'Fast', 'Low Interest', 'Trusted']
+        return context
 
 
 class ContactView(TemplateView):
     template_name = "core/contact.html"
+
+    def post(self, request, *args, **kwargs):
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+
+        # Construct the message for admin
+        admin_subject = f"New Contact Form Submission: {subject}"
+        admin_message = f"""
+        Name: {name}
+        Email: {email}
+        Subject: {subject}
+        Message:
+        {message}
+        """
+
+        # Send email to company/admin
+        send_mail(
+            subject=admin_subject,
+            message=admin_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[settings.EMAIL_HOST_USER],  # your company email
+            fail_silently=False,
+        )
+
+        # Optional: Send confirmation email to sender
+        sender_subject = "Thank you for contacting GreenLoan"
+        sender_message = f"Hi {name},\n\nThank you for reaching out. We received your message and will respond soon.\n\nYour message:\n{message}\n\nBest regards,\nGreenLoan Team"
+
+        send_mail(
+            subject=sender_subject,
+            message=sender_message,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[email],
+            fail_silently=False,
+        )
+
+        messages.success(request, "Your message has been sent successfully!")
+        return redirect('core:contact')  # replace with your url name
 
 
 class SystemSettingsListView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):

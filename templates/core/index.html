@@ -12,10 +12,9 @@
     style="background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-color) 50%, var(--accent-color) 100%); min-height: 90vh;">
 
     <!-- Background Pattern -->
-    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10"
-        style="background-image: url('data:image/svg+xml,%3Csvg width=" 60" height="60" viewBox="0 0 60 60"
-        xmlns="http://www.w3.org/2000/svg" %3E%3Cpath d="M30 30L0 0h60z" fill="%232563eb" fill-rule="evenodd"
-        /%3E%3C/svg%3E'); background-size: 10vw 10vw; background-repeat: repeat;">
+    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath d=%22M30 30L0 0h60z%22 fill=%232563eb fill-rule=%22evenodd%22/%3E%3C/svg%3E');
+               background-size: 80px 80px;
+               background-repeat: repeat;">
     </div>
     <div class="container position-relative py-5">
         <div class="row align-items-center">
@@ -232,9 +231,9 @@
 </section>
 
 <!-- Benefits/Commitment Section -->
-<section class="benefits-section py-5"
+<section class="commitment-section py-5"
     style="background: linear-gradient(135deg, var(--primary-light, #f8fafc) 0%, var(--secondary-color, #e0e7ff) 50%, var(--accent-color, #d1fae5) 100%);">
-    <div class="container">
+    <div class="container-fluid">
         <div class="row align-items-center">
             <div class="col-lg-6 mb-5 mb-lg-0">
                 <div class="commitment-content">
@@ -372,7 +371,7 @@
     </div>
 </section>
 <!-- Loan Types Section -->
-<section class="loan-types-section py-5 bg-white">
+<section class="loan-types-section py-5 bg-white mb-5">
     <div class="container">
         <div class="row text-center mb-5">
             <div class="col-12">
@@ -447,10 +446,10 @@
 <!-- CTA Section -->
 <section class="cta-section py-5 position-relative overflow-hidden"
     style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);">
-    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10"
-        style="background-image: url('data:image/svg+xml,%3Csvg width=" 100" height="100" viewBox="0 0 100 100"
-        xmlns="http://www.w3.org/2000/svg" %3E%3Cpath d="M50 0L100 50L50 100L0 50Z" fill="%23ffffff" /%3E%3C/svg%3E');
-        background-size: 100px 100px;"></div>
+    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=%22100%22 height=%22100%22 viewBox=%220 0 100 100%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath d=%22M50 0L100 50L50 100L0 50Z%22 fill=%23ffffff/%3E%3C/svg%3E');
+               background-size: 100px 100px;">
+    </div>
+
 
     <div class="container position-relative text-center py-5">
         <h2 class="display-6 fw-bold mb-4 text-white">तयार हुनुहुन्छ? / Ready to Get Started?</h2>
@@ -470,12 +469,13 @@
                 style="background: white; color: var(--primary-color); border: none;">
                 <i class="fas fa-user-plus me-2"></i>सुरु गर्नुहोस् / Get Started
             </a>
+            {% endif %}
             <a href="{% url 'core:contact'%}" class="btn btn-outline-light btn-lg px-5 py-3 shadow-lg">
                 सम्पर्क गर्नुहोस् / Contact Us
             </a>
-            {% endif %}
         </div>
     </div>
+    
 </section>
 
 {% endblock content %}

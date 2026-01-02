@@ -17,8 +17,8 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg"
-    style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);border-bottom: 1px solid rgba(85, 107, 47, 0.2);box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); z-index: 9999;position: sticky; top: 0; ">
+  <nav class="navbar navbar-expand-lg bg-transparent"
+    style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);border-bottom: 1px solid rgba(85, 107, 47, 0.2);box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); z-index: 9999;position: sticky; top: 0;">
     <div class="container">
       <div class="d-flex align-items-center">
         <a href="{% url 'core:index'%}" class="navbar-brand d-flex align-items-center text-decoration-none">
@@ -113,16 +113,15 @@
           {% endif %}
           {% endif %}
         </ul>
+        <ul class="navbar-nav">
+         <li class="nav-item">
+              <a href="{% url 'core:contact'%}" class="nav-link border border-success rounded px-3 mx-1"
+              style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
+              onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
+              onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">Contact US</a>
+            </li>
+            </ul>
       </div>
-      <!-- <ul class="navbar-nav me-auto">
-       <li class="nav-item">
-            <a href="{% url 'core:tourplan'%}" class="nav-link border border-success rounded px-3 mx-1"
-            style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
-            onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
-            onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">Danfe
-            Tour Plan</a>
-          </li>
-          </ul> -->
       <ul class="navbar-nav">
         {% if user.is_authenticated %}
         <li class="nav-item dropdown">
@@ -212,7 +211,7 @@
   </nav>
 
 
-  <main class="container mt-4">
+  <main class="container mt-4 flex-grow-1">
 
   {% if messages %}
     {% for message in messages %}
@@ -228,12 +227,11 @@
   {% endif %}
 
   
+  {% block content %}
+  {% endblock %}
 </main>
-{% block content %}
-{% endblock %}
 
-<section class="cta-section py-5 position-relative overflow-hidden">
-  <footer class="text-center text-lg-start" style="background-color: var(--primary-color)">
+  <footer class="text-center text-lg-start mt-2" style="background-color: var(--primary-color)">
     <div class="container d-flex justify-content-center py-5">
       <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
         <i class="fab fa-facebook-f"></i>
@@ -255,7 +253,7 @@
     </div>
 
   </footer>
-</section>
+
 
   <script src="{% static 'js/bootstrap.min.js' %}"></script>
   <script src="{% static 'Customjs/base.js' %}"></script>
