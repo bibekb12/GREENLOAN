@@ -1,3 +1,4 @@
+import json
 from django.views.generic import ListView, CreateView, UpdateView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth import get_user_model
@@ -7,7 +8,7 @@ from django.shortcuts import redirect
 from accounts.forms import SimpleUserCreationForm
 from core.models import SitePage
 from core.forms import SimpleAdminCreationForm
-from loans.models import LoanTypes
+from loans.models import LoanTypes, Document
 
 User = get_user_model()
 
@@ -132,10 +133,69 @@ class SitePageSettingsView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
     def handle_no_permission(self):
         messages.error(self.request, "You dont have permission to settings site.")
-        return redirect("core:settings")
+        return redirect("core:dashboard")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["allowed_precent"] = SitePage.objects.first()
-        context["loan_types"] = LoanTypes.objects.all()
+        loan_types = LoanTypes.objects.all()
+        for loan in loan_types:
+            loan.documents_json = json.dumps(loan.required_documents)
+        context["loan_types"] = loan_types
+        context["document_choices"] = Document.DOCUMENT_TYPES
         return context
+    
+    def post(self, request, *args, **kwargs):
+
+        if "loan_types_save" in request.POST and "interest_rate" in request.POST:
+            loan_id = request.POST.get("loan_id")
+            name = request.POST.get("name").strip()
+            docs = request.POST.getlist("required_documents")
+
+            # 🔒 unique name check (exclude self on update)
+            qs = LoanTypes.objects.filter(name__iexact=name)
+            if loan_id:
+                qs = qs.exclude(id=loan_id)
+
+            if qs.exists():
+                messages.error(request, "Loan Type with this name already exists.")
+                return redirect("core:site_settings")
+
+            # 🎯 CORE LOGIC
+            if loan_id:
+                # UPDATE
+                loan = LoanTypes.objects.get(id=loan_id)
+                msg = "Loan Type updated successfully"
+            else:
+                # INSERT
+                loan = LoanTypes()
+                msg = "Loan Type created successfully"
+
+            loan.name = name
+            loan.interest_rate = request.POST.get("interest_rate")
+            loan.amount_limit = request.POST.get("amount_limit")
+            loan.is_active = request.POST.get("is_active") == "true"
+            loan.description = request.POST.get("description")
+            loan.required_documents = docs
+
+            loan.full_clean()
+            loan.save()
+
+            messages.success(request, msg)
+            return redirect("core:site_settings")
+        
+        if "allowed_percent_save" in request.POST:
+            allowed = request.POST.get("allowed_percent")
+
+            site = SitePage.objects.first()
+            if not site:
+                site = SitePage()
+
+            site.allowed_income_percent = allowed
+            site.save()
+
+            messages.success(request, "Allowed income percent saved successfully.")
+            return redirect("core:site_settings")
+
+
+        return super().post(request, *args, **kwargs)

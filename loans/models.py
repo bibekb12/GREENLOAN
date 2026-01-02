@@ -123,7 +123,7 @@ class Document(models.Model):
         ("business_registration", "Business Registration"),
         ("property_document", "Property Documents"),
         ("admission_letter", "Admission Letter"),
-        ("guarantor_document", "Guarantor Documents"),
+        ("id_proof", "ID Proof"),
     ]
 
     VERIFICATION_STATUS = [
