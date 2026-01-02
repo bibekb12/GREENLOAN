@@ -211,8 +211,8 @@
   </nav>
 
 
-  <main class="container mt-4 flex-grow-1">
-
+<main class="flex-grow-1">
+  <div class="container my-4">
   {% if messages %}
     {% for message in messages %}
  <div class="alert 
@@ -222,13 +222,14 @@
       alert-dismissible fade show" role="alert">
         {{ message }}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        {% endfor %}
+        {% endif %}
       </div>
-    {% endfor %}
-  {% endif %}
 
   
   {% block content %}
   {% endblock %}
+  </div>
 </main>
 
   <footer class="text-center text-lg-start mt-2" style="background-color: var(--primary-color)">
