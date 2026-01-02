@@ -1,39 +1,64 @@
-
 {% extends 'core/settings.html' %}
 {% load static %}
 
 {% block settings_content %}
+<style>
+  .nav-link {
+    color: var(--primary-color);
+    font-weight: 500;
+    background-color: var(--primary-light);
+    border-color: var(--primary-dark);
+    transition: all 0.3s;
+  }
+
+  .nav-link:hover {
+    background-color: var(--primary-color);
+    color: var(--primary-light);
+    border-color: var(--primary-dark);
+  }
+
+  /* Active link stays highlighted */
+  .nav-link.active-link {
+    background-color: var(--primary-color);
+    color: var(--primary-light) !important;
+    border-color: var(--primary-dark);
+    transition: all 0.2s ease;
+    transform: scale(1.03);
+    /* optional subtle click effect */
+  }
+</style>
 <div class="container-fluid">
   <div class="row">
 
     <!-- Sidebar -->
-    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse" style="background: var(--primary-light);">
-      <div class="position-sticky pt-3">
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse"
+      style="background: var(--primary-light);">
+      <div class="position-relative pt-3">
 
-        <h6 class="sidebar-heading px-3 mt-4 mb-1 text-muted" style="height: 10vh">
+        <h6 class="sidebar-heading px-3 mt-4 mb-3 text-muted" >
           Settings
         </h6>
-
         <ul class="nav flex-column">
-          <li class="nav-item">
-            <a class="nav-link active border border-success rounded px-3 mx-1" href="#"
-               onclick="showPage('siteColor')">
-               Site color
+          <li class="nav-item mb-2">
+            <a class="nav-link sidebar-link border border-success rounded px-3 mx-1" href="#"
+              onclick="showPage('siteColor', this)">
+              Site color
             </a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link border border-success rounded px-3 mx-1" href="#"
-               onclick="showPage('loanTypes')">
-               Loan Types
+          <li class="nav-item mb-2">
+            <a class="nav-link sidebar-link border border-success rounded px-3 mx-1" href="#"
+              onclick="showPage('loanTypes', this)">
+              Loan Types
             </a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link border border-success rounded px-3 mx-1" href="#"
-               onclick="showPage('incomePercent')">
-               Income Percent Setup
+          <li class="nav-item mb-2">
+            <a class="nav-link sidebar-link border border-success rounded px-3 mx-1" href="#"
+              onclick="showPage('incomePercent', this)">
+              Income % Setup
             </a>
           </li>
         </ul>
+
 
       </div>
     </nav>
@@ -46,7 +71,7 @@
         <h4 class="mt-4">Site Color Settings</h4>
         <div class="card shadow-sm mt-3">
           <div class="card-body">
-            <p>Here you can configure your site colors.</p>
+            <p>This color configuration arko release ma la.</p>
             <!-- Add color picker or form here -->
             <form action="">
 
@@ -54,98 +79,116 @@
           </div>
         </div>
       </div>
-<!-- Loan Types Page -->
-<div id="loanTypes" class="settings-page d-none">
-  <h4 class="mt-4">Loan Type Setup</h4>
-  <div class="card shadow-sm mt-3">
-    <div class="card-header bg-primary text-white">
-      <strong>Create / Update Loan Type</strong>
-    </div>
-    <div class="card-body">
-      <form method="post">
-        {% csrf_token %}
+      <!-- Loan Types Page -->
+      <div id="loanTypes" class="settings-page d-none">
+        <h4 class="mt-4">Loan Type Setup</h4>
+        <div class="card shadow-sm mt-3">
+          <div class="card-header bg-primary text-white">
+            <strong>Create / Update Loan Type</strong>
+          </div>
+          <div class="card-body">
+            <form method="post">
+              {% csrf_token %}
 
-        <!-- Dropdown for existing loan types -->
-        <div class="mb-3">
-          <label class="form-label">Select Loan Type to Update</label>
-          <select id="loanTypeSelect" class="form-select">
-            <option value="" selected>-- New Loan Type --</option>
-            {% for loan in loan_types %}
-              <option 
-                value="{{ loan.id }}"
-                data-name="{{ loan.name }}"
-                data-interest="{{ loan.interest_rate }}"
-                data-amount="{{ loan.amount_limit }}"
-                data-status="{{ loan.is_active }}"
-                data-description="{{ loan.description }}"
-              >
-                {{ loan.name }}
-              </option>
-            {% endfor %}
-          </select>
+              <!-- Dropdown for existing loan types -->
+              <div class="mb-3">
+                <label class="form-label">Select Loan Type to Update</label>
+                <select id="loanTypeSelect" class="form-select">
+                  <option value="" selected>-- New Loan Type --</option>
+                  {% for loan in loan_types %}
+                  <option value="{{ loan.id }}" data-name="{{ loan.name }}" data-interest="{{ loan.interest_rate }}"
+                    data-amount="{{ loan.amount_limit }}" data-status="{{ loan.is_active }}"
+                    data-documents="{{ loan.documents_json }}" data-description="{{ loan.description }}">
+                    {{ loan.name }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="row g-3">
+                <!-- Loan Name -->
+                <div class="col-md-6">
+                  <input type="hidden" name="loan_id" id="loanId">
+                  <label class="form-label">Loan Name</label>
+                  <input type="text" name="name" id="loanName" class="form-control" required />
+                </div>
+
+                <!-- Interest Rate -->
+                <div class="col-md-3">
+                  <label class="form-label">Interest Rate (%)</label>
+                  <input type="number" step="0.01" name="interest_rate" id="interestRate" class="form-control"
+                    required />
+                </div>
+                <!-- Maximum Loan Amount -->
+                <div class="col-md-6">
+                  <label class="form-label">Maximum Loan Amount</label>
+                  <input type="number" step="0.01" name="amount_limit" id="amountLimit" class="form-control" required />
+                </div>
+
+                <!-- Status -->
+                <div class="col-md-6">
+                  <label class="form-label">Status</label>
+                  <select name="is_active" id="statusSelect" class="form-select">
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                  </select>
+                </div>
+
+                <!-- Required Documents -->
+                <div class="col-12 mt-3">
+                  <label class="form-label fw-bold">Required Documents</label>
+
+                  <div id="documentCheckboxes" class="row">
+                    {% for value,label in document_choices %}
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <input class="form-check-input document-checkbox" type="checkbox" name="required_documents"
+                          value="{{ value }}" id="doc_{{ value }}">
+                        <label class="form-check-label" for="doc_{{ value }}">
+                          {{ label }}
+                        </label>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+
+
+                <!-- Description -->
+                <div class="col-12">
+                  <label class="form-label">Description</label>
+                  <textarea name="description" id="descriptionField" class="form-control" rows="3"></textarea>
+                </div>
+              </div>
+
+              <hr class="mt-4" />
+              <div class="d-flex justify-content-end gap-2">
+                <button type="reset" class="btn btn-outline-secondary">Reset</button>
+                <button type="submit" class="btn btn-success" name="loan_types_save">Save Loan Type</button>
+              </div>
+            </form>
+          </div>
         </div>
-
-        <div class="row g-3">
-          <!-- Loan Name -->
-          <div class="col-md-6">
-            <label class="form-label">Loan Name</label>
-            <input type="text" name="name" id="loanName" class="form-control" required />
-          </div>
-
-          <!-- Interest Rate -->
-          <div class="col-md-3">
-            <label class="form-label">Interest Rate (%)</label>
-            <input type="number" step="0.01" name="interest_rate" id="interestRate" class="form-control" required />
-          </div>
-          <!-- Maximum Loan Amount -->
-          <div class="col-md-6">
-            <label class="form-label">Maximum Loan Amount</label>
-            <input type="number" step="0.01" name="amount_limit" id="amountLimit" class="form-control" required />
-          </div>
-
-          <!-- Status -->
-          <div class="col-md-6">
-            <label class="form-label">Status</label>
-            <select name="is_active" id="statusSelect" class="form-select">
-              <option value="true">Active</option>
-              <option value="false">Inactive</option>
-            </select>
-          </div>
-
-          <!-- Description -->
-          <div class="col-12">
-            <label class="form-label">Description</label>
-            <textarea name="description" id="descriptionField" class="form-control" rows="3"></textarea>
-          </div>
-        </div>
-
-        <hr class="mt-4" />
-        <div class="d-flex justify-content-end gap-2">
-          <button type="reset" class="btn btn-outline-secondary">Reset</button>
-          <button type="submit" class="btn btn-success">Save Loan Type</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+      </div>
       <!-- Income Percent Page -->
       <div id="incomePercent" class="settings-page d-none">
         <h4 class="mt-4">Income Percent Setup</h4>
         <div class="card shadow-sm mt-3">
-   <div class="card-body">
-     <form action="" method="post">
-       {% csrf_token %}
-       {% if allowed_precent %}
-    <div class="mb-3">
-      Allowed Percent :
-      <input type="text" id="allowedPercent" name="allowed_percent" class="form-control" placeholder="e.g. 60" value="{{ allowed_precent.allowed_income_percent|default:'' }}" required>
-    </div>
-    {% endif %}
-    <div class="d-flex justify-content-end gap-2">
-      <button type="submit" class="btn btn-success">Save</button>
-    </div>
-  </form>
-</div>
+          <div class="card-body">
+            <form action="" method="post">
+              {% csrf_token %}
+
+              <div class="mb-3">
+                Allowed Percent :
+                <input type="text" id="allowedPercent" name="allowed_percent" class="form-control" placeholder="e.g. 60"
+                  value="{{ allowed_precent.allowed_income_percent|default:'' }}" required>
+              </div>
+
+              <div class="d-flex justify-content-end gap-2">
+                <button type="submit" class="btn btn-success" name="allowed_percent_save">Save</button>
+              </div>
+            </form>
+          </div>
 
         </div>
       </div>
@@ -156,34 +199,74 @@
 
 <!-- JS to toggle pages -->
 <script>
-function showPage(pageId) {
-  // Hide all pages
-  document.querySelectorAll('.settings-page').forEach(function(el){
-    el.classList.add('d-none');
-  });
+  function showPage(pageId) {
+    // Hide all pages
+    document.querySelectorAll('.settings-page').forEach(function (el) {
+      el.classList.add('d-none');
+    });
 
-  // Show selected page
-  document.getElementById(pageId).classList.remove('d-none');
-}
+    // Show selected page
+    document.getElementById(pageId).classList.remove('d-none');
+  }
   const loanSelect = document.getElementById('loanTypeSelect');
-  loanSelect.addEventListener('change', function() {
+  const checkboxes = document.querySelectorAll('.document-checkbox');
+
+  loanSelect.addEventListener('change', function () {
     const selected = loanSelect.selectedOptions[0];
-    if(selected.value === "") {
-      // Clear fields for new loan
-      document.getElementById('loanName').value = '';
-      document.getElementById('interestRate').value = '';
-      document.getElementById('amountLimit').value = '';
-      document.getElementById('statusSelect').value = 'true';
-      document.getElementById('descriptionField').value = '';
-    } else {
-      // Fill fields with selected loan data
+
+    // reset all fields
+    document.getElementById('loanName').value = '';
+    document.getElementById('interestRate').value = '';
+    document.getElementById('amountLimit').value = '';
+    document.getElementById('statusSelect').value = 'true';
+    document.getElementById('descriptionField').value = '';
+    document.getElementById('loanId').value = '';
+
+
+
+    checkboxes.forEach(cb => cb.checked = false);
+
+    if (selected.value !== "") {
       document.getElementById('loanName').value = selected.dataset.name;
       document.getElementById('interestRate').value = selected.dataset.interest;
       document.getElementById('amountLimit').value = selected.dataset.amount;
       document.getElementById('statusSelect').value = selected.dataset.status === "True" ? 'true' : 'false';
       document.getElementById('descriptionField').value = selected.dataset.description;
+      document.getElementById('loanId').value = selected.value;
+
+
+      // ✅ Required documents auto-check
+      try {
+
+        const docs = JSON.parse(selected.dataset.documents || "[]");
+
+        checkboxes.forEach(cb => {
+          if (docs.includes(cb.value)) {
+            cb.checked = true;
+          }
+        });
+      } catch (e) {
+        console.log("No documents found");
+      }
     }
   });
+
+  function showPage(pageId, link) {
+    // Hide all pages
+    document.querySelectorAll('.settings-page').forEach(function (el) {
+      el.classList.add('d-none');
+    });
+
+    // Show the selected page
+    document.getElementById(pageId).classList.remove('d-none');
+
+    // Remove active-link from all sidebar links
+    document.querySelectorAll('.sidebar-link').forEach(function (el) {
+      el.classList.remove('active-link');
+    });
+
+    // Add active-link to the clicked link
+    link.classList.add('active-link');
+  }
 </script>
 {% endblock %}
-
