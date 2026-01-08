@@ -3,30 +3,31 @@
 
 {% block content %}
 
-<!-- Sticky notes of system test -->
-<!-- <div class="row justify-content-end"> -->
-<div class="row justify-content-center ">
-    <!-- Left side sticky note -->
-    <div class="col-md-3">
-        <div class="card sticky-top" id="stickyNote"
-            style="cursor: grab; position: absolute; top: 150px; left: 20px; z-index: 1000;">
-            <div class="card-header bg-warning text-center">
-                <h5>Admin Login Info</h5>
-            </div>
-            <div class="card-body">
-                <p><strong>Email:</strong> admin@gmail.com</p>
-                <p><strong>Password:</strong> admin</p>
-                <ul class="text-muted mb-0" style="padding-left: 20px;">
-                    <li>Use this only for testing/demo purposes.</li>
-                    <li>For user access, please create an account or login with Google.</li>
-                    <li>For officer access, please create account inside the settings.</li>
-                </ul>
-            </div>
+<!-- Sticky notes of system for testing admin -->
+<div class="col-md-3">
+    <div class="card sticky-top" id="stickyNote"
+        style="cursor: grab; position: absolute; top: 150px; left: 20px; z-index: 1000;">
 
+        <div class="card-header bg-warning d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Admin Login Info</h5>
+            <button type="button" class="btn-close" aria-label="Close"
+                onclick="this.closest('.card').style.display='none';"></button>
         </div>
+        <div class="card-body">
+            <p><strong>Email:</strong> admin@gmail.com</p>
+            <p><strong>Password:</strong> admin</p>
+            <ul class="text-muted mb-0" style="padding-left: 20px;">
+                <li>Use this only for testing/demo purposes.</li>
+                <li>For user access, please create an account or login with Google.</li>
+                <li>For officer access, please create account inside the settings.</li>
+            </ul>
+        </div>
+
     </div>
+</div>
 
 
+<div class="row justify-content-center ">
     <div class="col-md-6">
         <div class="card">
             <div class="card-header">
