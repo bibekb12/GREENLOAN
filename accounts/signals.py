@@ -16,3 +16,17 @@ def send_thankyou_message(sender, instance, created, **kwargs):
             recipient_list=[instance.email],
             fail_silently=True,
         )
+
+def create_default_admin(sender, **kwargs):
+    if not User.objects.filter(email='admin@gmail.com').exists():
+        User.objects.create_user(
+            email='admin@gmail.com',
+            password='admin',
+            full_name='admin sir',
+            first_name='admin',
+            last_name='sir',
+            phone='9999999999',
+            role='admin',
+            is_staff=True,
+            is_superuser=True
+        )

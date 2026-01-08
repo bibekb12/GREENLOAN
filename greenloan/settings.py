@@ -31,7 +31,7 @@ SECRET_KEY = "django-insecure-fj^!sv%ypkg#ww)^(*08b6hy!1!7w5r-o1f5bxl=c4h#m+s%+p
 DEBUG = env("DEBUG")
 # DEBUG = False
 
-ALLOWED_HOSTS = ["bibekb12.pythonanywhere.com", "*"]
+ALLOWED_HOSTS = ["bibekb12.pythonanywhere.com", "127.0.0.1"]
 
 
 # Application definition
@@ -57,6 +57,12 @@ INSTALLED_APPS = [
     # third party apps for css
     "crispy_bootstrap5",
     "crispy_forms",
+
+    #google login credential
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 MIDDLEWARE = [
@@ -72,9 +78,16 @@ MIDDLEWARE = [
     'simple_history.middleware.HistoryRequestMiddleware', # for the history records
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'allauth.account.middleware.AccountMiddleware', # google login middleware
 ]
 
 ROOT_URLCONF = "greenloan.urls"
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
 
 TEMPLATES = [
     {
@@ -189,5 +202,12 @@ DEFAULT_FROM_EMAIL = "GreenLoan <no-reply@gmail.com>"
 
 SITE_ID = 1
 DEFAULT_DOMAIN = "bibekb12.pythonanywhere.com"
+
+SOCIALACCOUNT_AUTO_SIGNUP = True
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_LOGIN_METHODS = {'email'}
+SOCIALACCOUNT_ADAPTER = 'accounts.adapter.CustomSocialAccountAdapter'
+
 
 CORS_ALLOW_ALL_ORIGINS = False #CORS testing

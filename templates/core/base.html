@@ -22,32 +22,19 @@
     <div class="container">
       <div class="d-flex align-items-center">
         <a href="{% url 'core:index'%}" class="navbar-brand d-flex align-items-center text-decoration-none">
-          <div class="logo-icon me-3" style="width: 3rem; height: 3rem;
-                background: linear-gradient(
-                  135deg,
-                  var(--primary-color),
-                  var(--secondary-color),
-                  var(--accent-color)
-                );
-                border-radius: 0.75rem;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 4px 12px
-                  rgba(var(--primary-color-rgb, 85, 107, 47), 0.3);
-              ">
-            <i class="fas fa-mountain" style="color: white; font-size: 1.25rem"></i>
+          <div class="logo-icon me-3" style="width: 3rem; height: 3rem;">
+            <img src="{% static '/customSVG/logo.png' %}" alt="logo" class="img-fluid" style="width: 100%; height: 100%; object-fit: contain;"></img>
           </div>
           <div class="fw-bold" style="color: var(--primary-color); font-size: 1.1rem">
             GreenLoan
           </div>
-          <div style="color: var(--secondary-color); font-size: 0.6rem">
+          <span style="color: var(--secondary-color); font-size: 0.6rem">
             Digital Loan service
-          </div>
+          </span>
         </a>
       </div>
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        style="color: #556b2f">
+        style="color: var(--primary-dark)">
         <span class="navbar-toggler-icon"></span>
       </button>
 
@@ -56,7 +43,8 @@
           {% if user.is_authenticated%}
           {% if user.role != "customer" %}
           <li class="nav-item">
-            <a href="{% url 'loans:landing' %}" class="nav-link border border-success rounded px-3 mx-1"
+            <a href="{% url 'loans:landing' %}" class="nav-link border border-success rounded px-3 mx-1 
+            {% if request.resolver_match.view_name == 'loans:landing' %}active-link{% endif %}"
               style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
               onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
               onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">
@@ -64,7 +52,8 @@
           </li>
           {% endif %}
           <li class="nav-item">
-            <a href="{% url 'accounts:dashboard' %}" class="nav-link border border-success rounded px-3 mx-1"
+            <a href="{% url 'accounts:dashboard' %}" class="nav-link border border-success rounded px-3 mx-1
+            {% if request.resolver_match.view_name == 'accounts:dashboard' %}active-link{% endif %}"
               style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
               onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
               onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">
@@ -73,7 +62,8 @@
           {% if user.role == 'customer' %}
           <li class="nav-item">
             
-            <a href="{% url 'loans:apply_loan'%}" class="nav-link border border-success rounded px-3 mx-1"
+            <a href="{% url 'loans:apply_loan'%}" class="nav-link border border-success rounded px-3 mx-1
+            {% if request.resolver_match.view_name == 'loans:apply_loan' %}active-link{% endif %} "
               style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
               onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
               onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">Apply
@@ -81,13 +71,15 @@
               </a>
           </li>
           <li class="nav-item">
-            <a href="{% url 'accounts:profile'%}" class="nav-link border border-success rounded px-3 mx-1"
+            <a href="{% url 'accounts:profile'%}" class="nav-link border border-success rounded px-3 mx-1
+            {% if request.resolver_match.view_name == 'accounts:profile' %}active-link{% endif %} "
               style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
               onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
               onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">Profile</a>
           </li>
           <li class="nav-item">
-            <a href="{% url 'loans:repayment_list' %}" class="nav-link border border-success rounded px-3 mx-1"
+            <a href="{% url 'loans:repayment_list' %}" class="nav-link border border-success rounded px-3 mx-1
+            {% if request.resolver_match.view_name == 'loans:repayment_list' %}active-link{% endif %} "
               style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
               onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
               onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">
@@ -96,7 +88,8 @@
           {% endif %}
           {% if user.role != 'customer' %}
           <li class="nav-item">
-            <a href="{% url 'accounts:kycapplication'%}" class="nav-link border border-success rounded px-3 mx-1"
+            <a href="{% url 'accounts:kycapplication'%}" class="nav-link border border-success rounded px-3 mx-1
+            {% if request.resolver_match.view_name == 'accounts:kycapplication' %}active-link{% endif %} "
               style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
               onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
               onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">KYC
@@ -105,7 +98,8 @@
           {% endif %}
           {% if user.role == 'admin' %}
           <li class="nav-item">
-            <a href="{% url 'core:settings'%}" class="nav-link border border-success rounded px-3 mx-1"
+            <a href="{% url 'core:settings'%}" class="nav-link border border-success rounded px-3 mx-1
+            {% if request.resolver_match.view_name == 'core:settings' %}active-link{% endif %} "
               style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
               onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
               onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">Settings</a>
@@ -115,7 +109,8 @@
         </ul>
         <ul class="navbar-nav">
          <li class="nav-item">
-              <a href="{% url 'core:contact'%}" class="nav-link border border-success rounded px-3 mx-1"
+              <a href="{% url 'core:contact'%}" class="nav-link border border-success rounded px-3 mx-1
+              {% if request.resolver_match.view_name == 'core:contact' %}active-link{% endif %} "
               style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
               onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
               onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">Contact US</a>

@@ -2,83 +2,52 @@
 {% load static %}
 
 {% block content %}
-<style>
-.nav-link {
-  color: var(--primary-color);
-  font-weight: 500;
-  background-color: var(--primary-light);
-  border-color: var(--primary-dark);
-  transition: all 0.2s ease; /* smooth transitions */
-}
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: var(--primary-light);">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="">Settings</a>
 
-/* Hover effect */
-.nav-link:hover {
-  background-color: var(--primary-color);
-  color: var(--primary-light);
-  border-color: var(--primary-dark);
-  transform: scale(1.02); /* slight grow on hover */
-}
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span
+        class="navbar-toggler-icon"></span></button>
 
-/* Permanent highlight for active link */
-.nav-link.active-link {
-  background-color: var(--primary-color);
-  color: var(--primary-light) !important;
-  border-color: var(--primary-dark);
-  box-shadow: 0 0 8px rgba(0,0,0,0.15); /* subtle glow to show it’s active */
-  transform: scale(1.03); /* slightly bigger for clicked effect */
-}
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav jusify-content-betweeen">
+        <li class="nav-item">
+          <a class="nav-link border border-success rounded px-3 mx-1
+                   {% if request.resolver_match.url_name == 'site_settings' %}active-link{% endif %}"
+            href="{% url 'core:site_settings' %}">
+            Site Setting
+          </a>
+        </li>
 
+        <li class="nav-item">
+          <a class="nav-link border border-success rounded px-3 mx-1
+                   {% if request.resolver_match.url_name == 'user_list' %}active-link{% endif %}" href="{% url 'core:user_list' %}">
+            User Setup
+          </a>
+        </li>
 
-</style>
-  <!-- SETTINGS NAVBAR -->
-  <nav class="navbar navbar-expand-lg navbar-light" style="background-color: var(--primary-light);">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="">Settings</a>
+        <li class="nav-item">
+          <a class="nav-link border border-success rounded px-3 mx-1
+                  {% if request.resolver_match.url_name == 'admin_list' %}active-link{% endif %}"
+            href="{% url 'core:admin_list' %}">
+            Admin Settings
+          </a>
+        </li>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+        <li class="nav-item">
+          <a class="nav-link disabled border border-success rounded px-3 mx-1" href="/admin/">
+            Super Admin
+          </a>
+        </li>
 
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav jusify-content-betweeen">
-          <li class="nav-item">
-  <a class="nav-link border border-success rounded px-3 mx-1
-     {% if request.resolver_match.url_name == 'site_settings' %}active-link{% endif %}"
-     href="{% url 'core:site_settings' %}">
-    Site Setting
-  </a>
-</li>
-
-<li class="nav-item">
-  <a class="nav-link border border-success rounded px-3 mx-1
-     {% if request.resolver_match.url_name == 'user_list' %}active-link{% endif %}"
-     href="{% url 'core:user_list' %}">
-    User Setup
-  </a>
-</li>
-
-<li class="nav-item">
-  <a class="nav-link border border-success rounded px-3 mx-1
-     {% if request.resolver_match.url_name == 'admin_list' %}active-link{% endif %}"
-     href="{% url 'core:admin_list' %}">
-    Admin Settings
-  </a>
-</li>
-
-<li class="nav-item">
-  <a class="nav-link disabled border border-success rounded px-3 mx-1"
-     href="/admin/">
-    Super Admin
-  </a>
-</li>
-
-        </ul>
-      </div>
+      </ul>
     </div>
-  </nav>
-
-  <!-- PAGE CONTENT WILL BE INJECTED HERE -->
-  <div class="container mt-3">
-    {% block settings_content %}
-
-    {% endblock %}
   </div>
+</nav>
+<div class="container mt-3">
+  {% block settings_content %}
+
+  {% endblock %}
+</div>
 {% endblock %}
