@@ -21,9 +21,6 @@ from greenloan import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 
-from tourplan.api_views import PdfLinkAPI
-
-
 urlpatterns = [
     path(
         "password-reset/",
@@ -67,7 +64,7 @@ urlpatterns = [
     path("", include("core.urls")),
     path("app/", include("accounts.urls")),
     path("app/", include("loans.urls")),
-    path('api/pdf/demo.pdf', PdfLinkAPI.as_view(), name='pdf-api'),
+    path('accounts/', include('allauth.urls')),
 ]
 
 
