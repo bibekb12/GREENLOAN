@@ -3,7 +3,7 @@
 
 {% block settings_content %}
 <style>
-  .nav-link {
+  #sidebarMenu .nav-link {
     color: var(--primary-color);
     font-weight: 500;
     background-color: var(--primary-light);
@@ -11,14 +11,14 @@
     transition: all 0.3s;
   }
 
-  .nav-link:hover {
+  #sidebarMenu .nav-link:hover {
     background-color: var(--primary-color);
     color: var(--primary-light);
     border-color: var(--primary-dark);
   }
 
   /* Active link stays highlighted */
-  .nav-link.active-link {
+  #sidebarMenu .nav-link.active-link {
     background-color: var(--primary-color);
     color: var(--primary-light) !important;
     border-color: var(--primary-dark);
@@ -36,7 +36,7 @@
       <div class="position-relative pt-3">
 
         <h6 class="sidebar-heading px-3 mt-4 mb-3 text-muted" >
-          Settings
+          Site Settings
         </h6>
         <ul class="nav flex-column">
           <li class="nav-item mb-2">
@@ -72,9 +72,7 @@
         <div class="card shadow-sm mt-3">
           <div class="card-body">
             <p>This color configuration arko release ma la.</p>
-            <!-- Add color picker or form here -->
             <form action="">
-
             </form>
           </div>
         </div>
@@ -152,7 +150,6 @@
                     {% endfor %}
                   </div>
                 </div>
-
 
                 <!-- Description -->
                 <div class="col-12">

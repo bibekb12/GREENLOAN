@@ -9,7 +9,7 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
 
         # Google provides 'given_name' and 'family_name'
         if sociallogin.account.provider == 'google':
-            user.first_name = data.get('given_name', '')
-            user.last_name = data.get('family_name', '')
+            user.first_name = data.get('first_name')
+            user.last_name = data.get('last_name')
             user.full_name = f"{user.first_name} {user.last_name}"
         return user
