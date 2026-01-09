@@ -17,31 +17,27 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg bg-transparent"
-    style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);border-bottom: 1px solid rgba(85, 107, 47, 0.2);box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); z-index: 9999;position: sticky; top: 0;">
+  <nav class="navbar navbar-expand-lg bg-transparent" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);border-bottom: 1px solid rgba(85, 107, 47, 0.2);box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+     z-index: 9999;position: sticky; top: 0;">
     <div class="container">
-      <div class="d-flex align-items-center">
+      <div class="d-flex align-items-center ">
         <a href="{% url 'core:index'%}" class="navbar-brand d-flex align-items-center text-decoration-none">
-          <div class="logo-icon me-3" style="width: 3rem; height: 3rem;">
-            <img src="{% static '/customSVG/logo.png' %}" alt="logo" class="img-fluid" style="width: 100%; height: 100%; object-fit: contain;"></img>
+          <div class="logo-icon me-3">
+            <img src="{% static '/customSVG/GREENLOAN.png' %}" alt="logo" class="img-fluid"
+              style="width: 160px; height: 70px;"></img>
           </div>
-          <div class="fw-bold" style="color: var(--primary-color); font-size: 1.1rem">
-            GreenLoan
-          </div>
-          <span style="color: var(--secondary-color); font-size: 0.6rem">
-            Digital Loan service
-          </span>
         </a>
       </div>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        style="color: var(--primary-dark)">
-        <span class="navbar-toggler-icon"></span>
+      <button class="navbar-toggler border-0 navbar-light text-end" type="button" data-bs-toggle="collapse"
+        data-bs-target="#navbarNav" style="color: var(--primary-dark)">
+        <span class="navbar-toggler-icon "></span>
       </button>
 
       <div class="collapse navbar-collapse border-warning" id="navbarNav">
         <ul class="navbar-nav me-auto">
           {% if user.is_authenticated%}
           {% if user.role != "customer" %}
+          <li class="nav-item dropdown text-end">
           <li class="nav-item">
             <a href="{% url 'loans:landing' %}" class="nav-link border border-success rounded px-3 mx-1 
             {% if request.resolver_match.view_name == 'loans:landing' %}active-link{% endif %}"
@@ -57,18 +53,18 @@
               style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
               onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
               onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">
-               Loan DashBoard</a>
+              Loan DashBoard</a>
           </li>
           {% if user.role == 'customer' %}
           <li class="nav-item">
-            
+
             <a href="{% url 'loans:apply_loan'%}" class="nav-link border border-success rounded px-3 mx-1
             {% if request.resolver_match.view_name == 'loans:apply_loan' %}active-link{% endif %} "
               style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
               onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
               onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">Apply
               for loan
-              </a>
+            </a>
           </li>
           <li class="nav-item">
             <a href="{% url 'accounts:profile'%}" class="nav-link border border-success rounded px-3 mx-1
@@ -108,109 +104,114 @@
           {% endif %}
         </ul>
         <ul class="navbar-nav">
-         <li class="nav-item">
-              <a href="{% url 'core:contact'%}" class="nav-link border border-success rounded px-3 mx-1
-              {% if request.resolver_match.view_name == 'core:contact' %}active-link{% endif %} "
-              style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
-              onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
-              onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">Contact US</a>
-            </li>
-            </ul>
-      </div>
-      <ul class="navbar-nav">
-        {% if user.is_authenticated %}
-        <li class="nav-item dropdown">
-          <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" id="navbarDropDown" role="button"
-            data-bs-toggle="dropdown" style="
+          <li class="nav-item">
+            <a href="{% url 'core:contact'%}" class="nav-link">
+              <button class=" btn btn-ghost border-success rounded px-3 mx-1
+              {% if request.resolver_match.view_name == 'core:contact' %}active-link{% endif %}"
+                style="color: var(--primary-color); font-weight: 500; transition: all 0.3s ease;"
+                onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
+                onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">Contact
+                US
+              </button>
+            </a>
+          </li>
+        </ul>
+
+        <ul class="navbar-nav ms-auto">
+          {% if user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" id="navbarDropDown" role="button"
+              data-bs-toggle="dropdown" style="
               color: var(--primary-color);
               font-weight: 500;
               position: relative;
               z-index: 100;
             ">
-  {% if user.kyc_status == "pending" and user.role == "customer" %}
-    <div class="mb-1">
-      <span class="badge bg-danger"
-            style="font-size: 0.75rem;">
-        Pending KYC
-      </span>
-    </div>
-  {% elif user.kyc_status == "submitted" and user.role == "customer" %}
-    <div class="mb-1">
-      <span class="badge bg-danger"
-            style="font-size: 0.75rem;">
-        Submitted KYC
-      </span>
-    </div>
-  {% endif %}
-            <div class="user-avatar me-2">
-              {{ user.first_name|first|default:user.username|first|upper }}
-            </div>
-            {{ user.get_full_name|default:user.username }}
-          </a>
+              {% if user.kyc_status == "pending" and user.role == "customer" %}
+              <div class="mb-1">
+                <span class="badge bg-danger" style="font-size: 0.75rem;">
+                  Pending KYC
+                </span>
+              </div>
+              {% elif user.kyc_status == "submitted" and user.role == "customer" %}
+              <div class="mb-1">
+                <span class="badge bg-danger" style="font-size: 0.75rem;">
+                  Submitted KYC
+                </span>
+              </div>
+              {% endif %}
+              <div class="user-avatar me-2">
+                {{ user.first_name|first|default:user.username|first|upper }}
+              </div>
+              {{ user.get_full_name|default:user.username }}
+            </a>
 
-          <ul class="dropdown-menu shadow">
-            {% if user.role == "customer"  %}
-            <li>
-              <a href="{% url 'accounts:profile' %}" class="dropdown-item">
-                <i class="fas fa-user me-2"></i>Profile
-              </a>
-            </li>
-            {% endif %}
-            <li>
-              <a href="{% url 'accounts:changepassword' %}" class="dropdown-item">
-                <i class="fas fa-user me-2"></i>Change Password
-              </a>
-            </li>
-            <li>
-              <hr class="dropdown-divider" />
-            </li>
-            <li>
-              <form action="{% url 'accounts:logout' %}" method="post">
-                {%csrf_token%}
-                <button class="dropdown-item" type="submit">
-                  <i class="fas fa-sign-out-alt me-2"></i>Logout
-                </button>
-              </form>
-            </li>
-          </ul>
-        </li>
-        {%else%}
-        <li class="nav-item">
-          <a href="{% url 'accounts:login' %}">
-            <button class="btn btn-ghost me-2 border border-success rounded px-3 mx-1" style="
+            <ul class="dropdown-menu shadow">
+              {% if user.role == "customer" %}
+              <li>
+                <a href="{% url 'accounts:profile' %}" class="dropdown-item">
+                  <i class="fas fa-user me-2"></i>Profile
+                </a>
+              </li>
+              {% endif %}
+              <li>
+                <a href="{% url 'accounts:changepassword' %}" class="dropdown-item">
+                  <i class="fas fa-user me-2"></i>Change Password
+                </a>
+              </li>
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+              <li>
+                <form action="{% url 'accounts:logout' %}" method="post">
+                  {%csrf_token%}
+                  <button class="dropdown-item" type="submit">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </li>
+          {%else%}
+          <li class="nav-item">
+            <a href="{% url 'accounts:login' %}" class="nav-link">
+              <button
+                class="btn btn-ghost border border-success rounded px-3 mx-1 {% if request.resolver_match.view_name == 'accounts:login' %}active-link{% endif %}"
+                style="
                 color: var(--primary-color);
                 font-weight: 500;
                 background: transparent;
-              "
-              onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
-              onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">
-              Login
-            </button>
-          </a>
-        </li>
-        <li class=" nav-item">
-          <a href="{% url 'accounts:signup' %}">
-            <button class="btn border border-success rounded px-3 mx-1" style="
+              " onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
+                onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">
+                Login
+              </button>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'accounts:signup' %}" class="nav-link">
+              <button
+                class="btn border border-success rounded px-3 mx-1 {% if request.resolver_match.view_name == 'accounts:signup' %}active-link{% endif %}"
+                style="
                 color: var(--primary-color);
                 font-weight: 500;
                 background: transparent;
-              "
-              onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
-              onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">
-              Get Started
-            </button>
-          </a>
-        </li>
-        {% endif %}
-      </ul>
+              " onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.color='var(--primary-light)'; this.style.borderColor='var(--primary-dark)';"
+                onmouseout="this.style.backgroundColor='var(--primary-light)'; this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-dark)';">
+                Get Started
+              </button>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
   </nav>
 
 
-<main class="flex-grow-1">
-  <div class="container my-4">
-  {% if messages %}
-    {% for message in messages %}
- <div class="alert 
+  <main class="flex-grow-1">
+    <div class="container my-4">
+      {% if messages %}
+      {% for message in messages %}
+      <div class="alert 
       {% if 'error' in message.tags %}alert-danger
       {% elif 'success' in message.tags %}alert-success
       {% else %}alert-info{% endif %}
@@ -221,11 +222,11 @@
         {% endif %}
       </div>
 
-  
-  {% block content %}
-  {% endblock %}
-  </div>
-</main>
+
+      {% block content %}
+      {% endblock %}
+    </div>
+  </main>
 
   <footer class="text-center text-lg-start mt-2" style="background-color: var(--primary-color)">
     <div class="container d-flex justify-content-center py-5">
