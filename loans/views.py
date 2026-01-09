@@ -8,11 +8,12 @@ from django.contrib import messages
 from django.utils import timezone
 from loans.utils import create_repayments, update_credit_score
 from loans.signals import loan_approved_signal
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from calendar import monthrange
 from django.db.models import Count, Sum, Q
 from django.db.models import Case, When, Value, IntegerField
 from django.contrib.auth import get_user_model
+from calendar import month_name, monthrange
 
 User = get_user_model()
 
@@ -482,7 +483,19 @@ class LandingPageView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             for row in loan_qs
             if row["status"] in loan_map
         ]
-
+        # ---------------- Revenue Trend ----------------
+        revenue_trend = []
+        current_day = start_date
+        while current_day <= end_date:
+            day_total = Repayment.objects.filter(
+                status="paid",
+                paid_date=current_day
+            ).aggregate(total=Sum("amount_paid")).get("total") or 0
+            revenue_trend.append({
+                "date": current_day.strftime("%Y-%m-%d"),
+                "amount": day_total
+            })
+            current_day += timedelta(days=1)
         # ---------------- Context ----------------
         context["staticdata"] = {
             "total_users": total_users,
@@ -492,6 +505,7 @@ class LandingPageView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             "application_status": application_status,
             "kyc": kyc,
             "loan_health": loan_health,
+            "revenue_trend": revenue_trend
         }
 
         context["filters"] = {
