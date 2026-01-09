@@ -211,3 +211,4 @@ SOCIALACCOUNT_ADAPTER = 'accounts.adapter.CustomSocialAccountAdapter'
 
 
 CORS_ALLOW_ALL_ORIGINS = False #CORS testing
+X_FRAME_OPTIONS = 'SAMEORIGIN'  
