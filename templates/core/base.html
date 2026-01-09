@@ -18,22 +18,20 @@
 
 <body>
   <style>
-    
-body::before {
-    content: "www.bibekbhandari.com.np";
-    position: fixed;
-    inset: 0;                 
-    
-    background-image: url("{% static 'customSVG/GreenLoan.png' %}");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: clamp(280px, 60vw, 900px);
+    body::before {
+      content: "www.bibekbhandari.com.np";
+      position: fixed;
+      inset: 0;
 
-    opacity: 0.08;
-    pointer-events: none;
-    z-index: 2;
-}
+      background-image: url("{% static 'customSVG/GreenLoan.png' %}");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: clamp(280px, 60vw, 900px);
 
+      opacity: 0.08;
+      pointer-events: none;
+      z-index: 0;
+    }
   </style>
   <nav class="navbar navbar-expand-lg bg-transparent" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);border-bottom: 1px solid rgba(85, 107, 47, 0.2);box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
      z-index: 9999;position: sticky; top: 0;">
@@ -236,20 +234,20 @@ body::before {
   <footer class="text-center text-lg-start mt-2" style="background-color: var(--primary-color)">
     <div class="container d-flex justify-content-center py-5">
       <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;"
-      onclick="window.open('https://www.facebook.com/bibek33012','_blank')">
+        onclick="window.open('https://www.facebook.com/bibek33012','_blank')">
         <i class="fab fa-facebook-f">
         </i>
       </button>
       <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;"
-      onclick="window.open('https://www.youtube.com/@bhandaribibek27','_blank')">
+        onclick="window.open('https://www.youtube.com/@bhandaribibek27','_blank')">
         <i class="fab fa-youtube"></i>
       </button>
       <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;"
-      onclick="window.open('https://www.linkedin.com/in/bibek-bhandari-81542b304','_blank')">
+        onclick="window.open('https://www.linkedin.com/in/bibek-bhandari-81542b304','_blank')">
         <i class="fab fa-linkedin"></i>
       </button>
       <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;"
-      onclick="window.open('https://www.bibekbhandari.com.np','_blank')">
+        onclick="window.open('https://www.bibekbhandari.com.np','_blank')">
         <i class="fab fa-twitter"></i>
       </button>
     </div>
@@ -263,6 +261,7 @@ body::before {
 
 
   <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
   <script src="{% static 'Customjs/base.js' %}"></script>
 </body>
 

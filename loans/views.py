@@ -14,6 +14,7 @@ from django.db.models import Count, Sum, Q
 from django.db.models import Case, When, Value, IntegerField
 from django.contrib.auth import get_user_model
 from calendar import month_name, monthrange
+from django.utils.text import capfirst
 
 User = get_user_model()
 
@@ -121,10 +122,16 @@ class ApplicationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
         return context
 
 
-class UploadDocumentsView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+class UploadDocumentsView(LoginRequiredMixin, UserPassesTestMixin, View):
     model = Document
     form_class = DocumentUploadForm
     template_name = "loans/upload_documents.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.application = get_object_or_404(
+            Application, pk=kwargs["pk"], applicant=request.user
+        )
+        return super().dispatch(request, *args, **kwargs)
 
     def test_func(self):
         application = get_object_or_404(Application, pk=self.kwargs["pk"])
@@ -133,6 +140,17 @@ class UploadDocumentsView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def handle_no_permission(self):
         messages.error(self.request, "You do not have permission to upload documents.")
         return redirect("accounts:dashboard")
+    
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        required_docs = self.application.loan_type.required_documents
+
+        form.fields["document_type"].choices = [
+            choice
+            for choice in Document.DOCUMENT_TYPES
+            if choice[0] in required_docs
+        ]
+        return form
 
     def get_context_data(self, **kwargs):
         """
@@ -140,32 +158,140 @@ class UploadDocumentsView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         \"Back to application\" can resolve correctly.
         """
         context = super().get_context_data(**kwargs)
+      
         context["application"] = get_object_or_404(Application, pk=self.kwargs["pk"])
+
+        required_docs = self.application.loan_type.required_documents
+        uploaded_docs = self.application.documents.values_list("document_type", flat=True)
+
+        documents = []
+        for key in required_docs:
+            documents.append({
+                "key": key,
+                "label": capfirst(key.replace("_", " ")),
+                "uploaded": key in uploaded_docs,
+            })
+
+        context["documents"] = documents
+
         return context
 
-    def form_valid(self, form):
-        application = get_object_or_404(Application, pk=self.kwargs["pk"])
-        form.instance.application = application
+    # def form_valid(self, form):
+    #     application = get_object_or_404(Application, pk=self.kwargs["pk"])
+    #     form.instance.application = application
 
-        # Handle file upload
-        uploaded_file = self.request.FILES["file"]
-        file_name = (
-            f"{application.id}_{form.instance.document_type}_{uploaded_file.name}"
+    #     for key in self.application.loan_type.required_documents:
+    #         uploaded_file = self.request.FILES.get(key)
+    #         if not uploaded_file:
+    #             continue  # skip if not uploaded
+
+    #         document = Document.objects.create(
+    #             application=self.application,
+    #             document_type=key
+    #         )
+    #     # Handle file upload
+    #     uploaded_file = self.request.FILES["file"]
+    #     file_name = (
+    #         f"{application.id}_{form.instance.document_type}_{uploaded_file.name}"
+    #     )
+    #     form.instance.file.save(file_name, uploaded_file)
+    #     form.save()
+
+    #     if application.status == "info_requested":
+    #         application.status = "info_provided"
+    #         application.add_status_history(
+    #             "info_provided",
+    #             self.request.user,
+    #             "Applicant uploaded additional documents",
+    #         )
+    #         application.save(update_fields=["status"])
+
+    #     messages.success(self.request, "Document uploaded successfully!")
+    #     return redirect("loans:application_detail", pk=application.pk)
+# ########################################################################################################
+
+    # def form_valid(self, form):
+    #     application = self.application
+
+    #     for key in application.loan_type.required_documents:
+    #         uploaded_file = self.request.FILES.get(key)
+    #         if not uploaded_file:
+    #             continue
+
+    #         document = Document.objects.create(
+    #             application=application,
+    #             document_type=key
+    #         )
+
+    #         file_name = f"{application.id}_{key}_{uploaded_file.name}"
+    #         document.file.save(file_name, uploaded_file)
+    #         document.save()
+    #     # Update application status
+    #     if application.status == "info_requested":
+    #         application.status = "info_provided"
+    #         application.add_status_history(
+    #             "info_provided",
+    #             self.request.user,
+    #             "Applicant uploaded required documents",
+    #         )
+    #         application.save(update_fields=["status"])
+
+    #     messages.success(self.request, "All documents uploaded successfully!")
+    #     return redirect("loans:application_detail", pk=application.pk)
+
+    ####################################################################################
+    def get(self, request, *args, **kwargs):
+        application = get_object_or_404(
+            Application, pk=kwargs["pk"], applicant=request.user
         )
-        form.instance.file.save(file_name, uploaded_file)
 
-        form.save()
+        required_docs = application.loan_type.required_documents
+        uploaded_docs = application.documents.values_list("document_type", flat=True)
+
+        documents = [
+            {
+                "key": key,
+                "label": capfirst(key.replace("_", " ")),
+                "uploaded": key in uploaded_docs,
+            }
+            for key in required_docs
+        ]
+
+        return render(request, self.template_name, {
+            "application": application,
+            "documents": documents
+        })
+
+    def post(self, request, *args, **kwargs):
+        application = get_object_or_404(
+            Application, pk=kwargs["pk"], applicant=request.user
+        )
+
+        for key in application.loan_type.required_documents:
+            uploaded_file = request.FILES.get(key)
+            if not uploaded_file:
+                continue
+
+            document = Document.objects.create(
+                application=application,
+                document_type=key
+            )
+
+            file_name = f"{application.id}_{key}_{uploaded_file.name}"
+            document.file.save(file_name, uploaded_file)
+
         if application.status == "info_requested":
             application.status = "info_provided"
             application.add_status_history(
                 "info_provided",
-                self.request.user,
-                "Applicant uploaded additional documents",
+                request.user,
+                "Applicant uploaded required documents"
             )
             application.save(update_fields=["status"])
 
-        messages.success(self.request, "Document uploaded successfully!")
+        messages.success(request, "Documents uploaded successfully!")
         return redirect("loans:application_detail", pk=application.pk)
+
 
 
 class DocumentApproveReject(LoginRequiredMixin, UserPassesTestMixin, View):
