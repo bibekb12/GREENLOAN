@@ -1,20 +1,5 @@
 @import url('colorRoot.css');
 
-body::before {
-    content: "www.bibekbhandari.com.np";
-    position: fixed;          /* VERY IMPORTANT */
-    inset: 0;                 /* full screen */
-    
-    background-image: url("/static/customSVG/GreenLoan.png");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 900px;
-
-    opacity: 0.08;
-    pointer-events: none;
-    z-index: 2;
-}
-
 body > * {
     position: relative;
     z-index: 1;
