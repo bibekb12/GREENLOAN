@@ -31,7 +31,7 @@ SECRET_KEY = "django-insecure-fj^!sv%ypkg#ww)^(*08b6hy!1!7w5r-o1f5bxl=c4h#m+s%+p
 DEBUG = env("DEBUG")
 # DEBUG = False
 
-ALLOWED_HOSTS = ["bibekb12.pythonanywhere.com", "127.0.0.1"]
+ALLOWED_HOSTS = ["bibekb12.pythonanywhere.com", "127.0.0.1","192.168.1.91"]
 
 
 # Application definition
@@ -211,3 +211,4 @@ SOCIALACCOUNT_ADAPTER = 'accounts.adapter.CustomSocialAccountAdapter'
 
 
 CORS_ALLOW_ALL_ORIGINS = False #CORS testing
+X_FRAME_OPTIONS = 'SAMEORIGIN'  

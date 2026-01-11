@@ -28,6 +28,11 @@
                 Verified
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link {% if status == 'rejected' %}active{% endif %}" href="?status=rejected">
+                Rejected
+            </a>
+        </li>
     </ul>
 
     <!-- Table -->
@@ -85,43 +90,28 @@
                     </td>
 
                     <td>
-                        <button class="btn btn-sm btn-secondary" data-bs-toggle="modal"
-                            data-bs-target="#profileModal{{ app.id }}">
-                            Preview
-                        </button>
-
-                        {% if app.kyc_status == 'submitted' %}
-                        <button type="submit" class="btn btn-sm btn-success">
-                            Verify
-                        </button>
-                        {% else %}
-                        <button type="button" class="btn btn-sm btn-success" disabled>
-                            Verify
-                        </button>
+                        <form action="{% url 'accounts:verify_kyc' app.id %}" method="post">
+                            {%csrf_token%}
+                            {% if app.kyc_status == 'submitted' %}
+                            <button type="submit" class="btn btn-sm btn-success" name="verify">
+                                Verify
+                            </button>
+                            <button type="submit" class="btn btn-sm btn-danger" name="reject">
+                                Reject
+                            </button>
+                            {% elif app.kyc_status == 'rejected' %}
+                            <button type="submit" class="btn btn-sm btn-warning" name="reverify">
+                                Re-Verify
+                            </button>
+                            {% else %}
+                            <button type="button" class="btn btn-sm btn-success" disabled>
+                                Verify
+                            </button>
+                        </form>
                         {% endif %}
 
                     </td>
                 </tr>
-
-                <!-- Modal -->
-                <div class="modal fade" id="profileModal{{ app.id }}" tabindex="-1">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">KYC Profile</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <p><strong>Name:</strong> {{ app.full_name }}</p>
-                                <p><strong>Email:</strong> {{ app.email }}</p>
-                                <p><strong>Phone:</strong> {{ app.phone }}</p>
-                                <p><strong>Status:</strong> {{ app.kyc_status|title }}</p>
-                                <hr>
-                                <iframe src="{{ app.citizenship_front_url }}" width="100%" height="300"></iframe>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 {% empty %}
                 <tr>

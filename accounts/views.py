@@ -191,8 +191,13 @@ class VerifyKYCView(View):
 
     def post(self, request, pk):
         user = get_object_or_404(User, pk=pk)
-        user.kyc_status = "verified"
-        user.kyc_verified_at = timezone.now()
-        user.kyc_verified_by = request.user
+        if "verify" in request.POST:
+            user.kyc_status = "verified"
+            user.kyc_verified_at = timezone.now()
+            user.kyc_verified_by = request.user
+        elif "reject" in request.POST:
+            user.kyc_status = "rejected"
+        elif "reverify" in request.POST:
+            user.kyc_status = "submitted"
         user.save()
-        return redirect("accounts:kycapplication")
+        return redirect(f"{reverse('accounts:kycapplication')}?status=submitted")

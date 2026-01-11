@@ -145,6 +145,9 @@ class Document(models.Model):
 
     history = HistoricalRecords()
 
+    class Meta:
+        unique_together = ("application","document_type")
+
 class ApprovedLoans(models.Model):
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     principle = models.DecimalField(max_digits=12, decimal_places=2)

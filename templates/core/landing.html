@@ -214,10 +214,18 @@ new Chart(document.getElementById('loanHealthChart'), {
 new Chart(document.getElementById('revenueChart'), {
     type: 'line',
     data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: [
+            {% for r in staticdata.revenue_trend %}
+                '{{ r.date }}'{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        ],
         datasets: [{
             label: 'Revenue',
-            data: [12000, 15000, 14000, 18000, 21000, {{ staticdata.total_revenue }}],
+            data: [
+                {% for r in staticdata.revenue_trend %}
+                    {{ r.amount }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            ],
             borderColor: css.getPropertyValue('--primary-color'),
             backgroundColor: css.getPropertyValue('--primary-light'),
             fill: true,
@@ -226,5 +234,6 @@ new Chart(document.getElementById('revenueChart'), {
     },
     options: chartOptions
 });
+
 </script>
 {% endblock content %}
