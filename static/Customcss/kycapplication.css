@@ -58,3 +58,11 @@
 .modal-header {
     background-color: var(--primary-light);
 }
+
+.modal {
+    z-index: 1100;
+}
+
+.modal-backdrop {
+    z-index: 1040;
+}
