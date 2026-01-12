@@ -14,7 +14,7 @@
   </div>
 </div>
 
-{% if user.role == 'officer' or user.role == 'senior_officer' or role == 'admin' %}
+{% if user.role == 'officer' or user.role == 'senior_officer' or user.role == 'admin' %}
 <div class="row mb-3">
   <div class="col-12 d-flex flex-wrap gap-2">
     <form method="post" action="{% url 'loans:application_status_update' application.id %}">

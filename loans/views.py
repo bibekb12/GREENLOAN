@@ -283,6 +283,10 @@ class ApplicationStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, View)
 
     def test_func(self):
         return self.request.user.role in ["officer", "senior_officer"]
+    
+    def handle_no_permission(self):
+        messages.error(self.request,"Only loan proccessing officer can use these menu")
+        return redirect("loans:application_detail", pk = self.kwargs["pk"])
 
     def post(self, request, *args, **kwargs):
         application_id = kwargs.get("pk")
