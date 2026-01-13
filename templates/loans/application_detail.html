@@ -1,145 +1,151 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<div class="row">
-  <div class="col-12">
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="{% url 'accounts:dashboard' %}">Dashboard</a>
-        </li>
-        <li class="breadcrumb-item active">Application #{{ application.id }}</li>
-      </ol>
-    </nav>
-  </div>
-</div>
-
-{% if user.role == 'officer' or user.role == 'senior_officer' %}
-<div class="row mb-3">
-  <div class="col-12 d-flex flex-wrap gap-2">
-    <form method="post" action="{% url 'loans:application_status_update' application.id %}">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="final_review" />
-      <button type="submit" class="btn btn-success">Final Review</button>
-    </form>
-
-    <form method="post" action="{% url 'loans:application_status_update' application.id %}">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="reject" />
-      <button type="submit" class="btn btn-danger">Reject</button>
-    </form>
-
-    <form method="post" action="{% url 'loans:application_status_update' application.id %}">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="approve" />
-      <button type="submit" class="btn btn-primary">Approve</button>
-    </form>
-
-    <form method="post" action="{% url 'loans:application_status_update' application.id %}">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="request_info" />
-      <button type="submit" class="btn btn-warning">Request Info</button>
-    </form>
-  </div>
-</div>
-{% endif %}
-
-<div class="row">
-  <div class="col-md-8">
-    <div class="card">
-      <div class="card-header">
-        <h3>Application Details</h3>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <p>
-              <strong>Application ID:</strong> {{ application.id }}
-            </p>
-            <p>
-              <strong>Applicant:</strong> {{ application.applicant.full_name }}
-            </p>
-            <p>
-              <strong>Applicant Email:</strong> {{ application.applicant.email }}
-            </p>
-            <p>
-              <strong>Applicant Phone:</strong> {{ application.applicant.phone }}
-            </p>
-            <p>
-              <strong>Loan Type:</strong> {{ application.loan_type.name }}
-            </p>
-            <p>
-              <strong>Amount:</strong> NPR {{ application.amount|floatformat:0 }}
-            </p>
-          </div>
-
-          <div class="col-md-6">
-            <p>
-              <strong>Duration:</strong> {{ application.duration_months }} months
-            </p>
-            <p>
-              <strong>Monthly Income:</strong> NPR {{ application.monthly_income|floatformat:0 }}
-            </p>
-            <p>
-              <strong>Status:</strong>
-              <span class="badge status-{{ application.status }}">{{ application.get_status_display }}</span>
-            </p>
-          </div>
-        </div>
-
-        <div class="mt-3">
-          <p>
-            <strong>Purpose:</strong>
-          </p>
-          <p>{{ application.purpose }}</p>
-        </div>
-
-        <div class="mt-3">
-          <p>
-            <strong>Address:</strong>
-          </p>
-          <p>{{ application.address }}</p>
-        </div>
-      </div>
+<div class="container my-4">
+  <div class="row">
+    <div class="col-12 position-relative">
+    <button type="button"
+            onclick="window.history.back()"
+            class="btn btn-outline-dark btn-sm position-absolute end-0 top-0 mt-1 me-1">
+      ← Back 
+    </button>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{% url 'accounts:dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active">Application #{{ application.id }}</li>
+        </ol>
+      </nav>
     </div>
   </div>
 
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-header">
-        <h5>Actions</h5>
-      </div>
-      <div class="card-body">
-        {% if can_upload_docs %}
-        <a href="{% url 'loans:upload_documents' application.id %}" class="btn btn-primary mb-2 w-100">Upload
-          Documents</a>
-        {% endif %}
+  {% if user.role == 'officer' or user.role == 'senior_officer' or user.role == 'admin' %}
+  <div class="row mb-3">
+    <div class="col-12 d-flex flex-wrap gap-2">
+      <form method="post" action="{% url 'loans:application_status_update' application.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="final_review" />
+        <button type="submit" class="btn btn-success">Final Review</button>
+      </form>
 
-        {% if user == application.officer and application.status == 'under_review' %}
-        <a href="{% url 'loans:review_application' application.id %}" class="btn btn-warning mb-2 w-100">Review
-          Application</a>
-        {% endif %}
+      <form method="post" action="{% url 'loans:application_status_update' application.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="reject" />
+        <button type="submit" class="btn btn-danger">Reject</button>
+      </form>
 
-        <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary w-100">Back to Dashboard</a>
+      <form method="post" action="{% url 'loans:application_status_update' application.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="approve" />
+        <button type="submit" class="btn btn-primary">Approve</button>
+      </form>
+
+      <form method="post" action="{% url 'loans:application_status_update' application.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="request_info" />
+        <button type="submit" class="btn btn-warning">Request Info</button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h3>Application Details</h3>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <p>
+                <strong>Application ID:</strong> {{ application.id }}
+              </p>
+              <p>
+                <strong>Applicant:</strong> {{ application.applicant.full_name }}
+              </p>
+              <p>
+                <strong>Applicant Email:</strong> {{ application.applicant.email }}
+              </p>
+              <p>
+                <strong>Applicant Phone:</strong> {{ application.applicant.phone }}
+              </p>
+              <p>
+                <strong>Loan Type:</strong> {{ application.loan_type.name }}
+              </p>
+              <p>
+                <strong>Amount:</strong> NPR {{ application.amount|floatformat:0 }}
+              </p>
+            </div>
+
+            <div class="col-md-6">
+              <p>
+                <strong>Duration:</strong> {{ application.duration_months }} months
+              </p>
+              <p>
+                <strong>Monthly Income:</strong> NPR {{ application.monthly_income|floatformat:0 }}
+              </p>
+              <p>
+                <strong>Status:</strong>
+                <span class="badge status-{{ application.status }}">{{ application.get_status_display }}</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <p>
+              <strong>Purpose:</strong>
+            </p>
+            <p>{{ application.purpose }}</p>
+          </div>
+
+          <div class="mt-3">
+            <p>
+              <strong>Address:</strong>
+            </p>
+            <p>{{ application.address }}</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- DOCUMENT LIST -->
-    {% if documents %}
-    <div class="card mt-3">
-      <div class="card-header">
-        <h5>Documents ({{ documents|length }})</h5>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h5>Actions</h5>
+        </div>
+        <div class="card-body">
+          {% if can_upload_docs %}
+          <a href="{% url 'loans:upload_documents' application.id %}" class="btn btn-primary mb-2 w-100">Upload
+            Documents</a>
+          {% endif %}
+
+          {% if user == application.officer and application.status == 'under_review' %}
+          <a href="{% url 'loans:review_application' application.id %}" class="btn btn-warning mb-2 w-100">Review
+            Application</a>
+          {% endif %}
+
+          <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary w-100">Back to Dashboard</a>
+        </div>
       </div>
-      <div class="card-body">
-        <ul class="list-group">
-          {% for document in documents %}
-          <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-            <div>
-              {% if document.uploaded_at %}
-              <span class="badge bg-secondary">{{ document.uploaded_at|date:'M d, Y' }}</span>
-              {% endif %}
-              <strong>{{ document.get_document_type_display }}</strong>
-              <span class="badge {% if document.verification_status == 'verified' %} bg-success
+
+      <!-- DOCUMENT LIST -->
+      {% if documents %}
+      <div class="card mt-3">
+        <div class="card-header">
+          <h5>Documents ({{ documents|length }})</h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-group">
+            {% for document in documents %}
+            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+              <div>
+                {% if document.uploaded_at %}
+                <span class="badge bg-secondary">{{ document.uploaded_at|date:'M d, Y' }}</span>
+                {% endif %}
+                <strong>{{ document.get_document_type_display }}</strong>
+                <span class="badge {% if document.verification_status == 'verified' %} bg-success
                       {% elif document.verification_status == 'pending' %}
                         bg-warning
                       {% elif document.verification_status == 'rejected' %}
@@ -147,54 +153,55 @@
                       {% else %}
                         bg-secondary
                       {% endif %}">
-                {{ document.get_verification_status_display }}
-              </span>
-            </div>
+                  {{ document.get_verification_status_display }}
+                </span>
+              </div>
 
-            <div class="btn-group mt-2 mt-md-0">
-              {% if document.file %}
-              <button type="button" class="btn btn-sm btn-outline-primary"
-                onclick="openDocumentInModal('{{ document.file.url }}', '{{ document.id }}')">Preview</button>
-              {% endif %}
-            </div>
-          </li>
-          {% empty %}
-          <li class="list-group-item">No documents uploaded.</li>
-          {% endfor %}
-        </ul>
+              <div class="btn-group mt-2 mt-md-0">
+                {% if document.file %}
+                <button type="button" class="btn btn-sm btn-outline-primary"
+                  onclick="openDocumentInModal('{{ document.file.url }}', '{{ document.id }}')">Preview</button>
+                {% endif %}
+              </div>
+            </li>
+            {% empty %}
+            <li class="list-group-item">No documents uploaded.</li>
+            {% endfor %}
+          </ul>
+        </div>
       </div>
+      {% else %}
+      <div class="alert alert-info mt-3">No documents uploaded.</div>
+      {% endif %}
     </div>
-    {% else %}
-    <div class="alert alert-info mt-3">No documents uploaded.</div>
-    {% endif %}
   </div>
-</div>
 
-<!-- DOCUMENT PREVIEW MODAL -->
-<div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Document Preview</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body text-center">
-        <!-- Image preview -->
-        <img id="documentImage" src="" alt="Document" class="img-fluid"
-          style="display:none; max-height:75vh; width:auto;" />
-        <!-- PDF preview -->
-        <iframe id="documentFrame" src="" style="width:100%; height:75vh; display:none;" frameborder="0"></iframe>
-      </div>
-      <div class="modal-footer">
-        {% if user.role == 'officer' or user.role == 'senior_officer' %}
-        <form method="post" action="{% url 'loans:document_approve_reject' application.id %}" class="d-inline">
-          {% csrf_token %}
-          <input type="hidden" name="document_id" id="modalDocumentId" />
-          <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
-          <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
-        </form>
-        {% endif %}
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+  <!-- DOCUMENT PREVIEW MODAL -->
+  <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Document Preview</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <!-- Image preview -->
+          <img id="documentImage" src="" alt="Document" class="img-fluid"
+            style="display:none; max-height:75vh; width:auto;" />
+          <!-- PDF preview -->
+          <iframe id="documentFrame" src="" style="width:100%; height:75vh; display:none;" frameborder="0"></iframe>
+        </div>
+        <div class="modal-footer">
+          {% if user.role == 'officer' or user.role == 'senior_officer' or user.role == 'admin' %}
+          <form method="post" action="{% url 'loans:document_approve_reject' application.id %}" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="document_id" id="modalDocumentId" />
+            <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
+            <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+          </form>
+          {% endif %}
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
       </div>
     </div>
   </div>
@@ -203,38 +210,38 @@
 <script>
 
   function openDocumentInModal(fileUrl, documentId) {
-  const iframe = document.getElementById('documentFrame');
-  const img = document.getElementById('documentImage');
-  const hiddenInput = document.getElementById('modalDocumentId');
+    const iframe = document.getElementById('documentFrame');
+    const img = document.getElementById('documentImage');
+    const hiddenInput = document.getElementById('modalDocumentId');
 
-  iframe.style.display = "none";
-  img.style.display = "none";
+    iframe.style.display = "none";
+    img.style.display = "none";
 
-  const fileExtension = fileUrl.split('.').pop().toLowerCase();
+    const fileExtension = fileUrl.split('.').pop().toLowerCase();
 
-  if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
-    img.src = fileUrl;
-    img.style.display = 'block';
+    if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+      img.src = fileUrl;
+      img.style.display = 'block';
+    }
+    else if (fileExtension === 'pdf') {
+      iframe.src = fileUrl;
+      iframe.style.display = 'block';
+    }
+    else {
+      alert('Preview not available for this file type.');
+      return;
+    }
+
+
+    if (hiddenInput) {
+      hiddenInput.value = documentId;
+    }
+
+    const modal = new bootstrap.Modal(
+      document.getElementById('documentModal')
+    );
+    modal.show();
   }
-  else if (fileExtension === 'pdf') {
-    iframe.src = fileUrl;
-    iframe.style.display = 'block';
-  }
-  else {
-    alert('Preview not available for this file type.');
-    return;
-  }
-
-  
-  if (hiddenInput) {
-    hiddenInput.value = documentId;
-  }
-
-  const modal = new bootstrap.Modal(
-    document.getElementById('documentModal')
-  );
-  modal.show();
-}
 
 </script>
 {% endblock %}

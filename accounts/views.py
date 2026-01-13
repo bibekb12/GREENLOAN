@@ -87,15 +87,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                     "users": User.objects.all()[:10],
                     "total_applications": Application.objects.count(),
                     "pending_applications": Application.objects.filter(status="submitted").count(),
-                }
-            )
-        elif user.role in ["loan_officer", "senior_officer"]:
-            context.update(
-                {
-                    "applications": Application.objects.filter(officer=user),
-                    "pending_reviews": Application.objects.filter(
-                        officer=user, status="under_review"
-                    ).count(),
+                    "pending_reviews": Application.objects.exclude(status="approved").count()
                 }
             )
         else:

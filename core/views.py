@@ -1,5 +1,6 @@
+from email import message
 import json
-from django.views.generic import ListView, CreateView, UpdateView, TemplateView
+from django.views.generic import ListView, CreateView, View, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth import get_user_model
 from django.contrib import messages
@@ -9,7 +10,11 @@ from accounts.forms import SimpleUserCreationForm
 from core.models import SitePage
 from core.forms import SimpleAdminCreationForm
 from greenloan import settings
-from loans.models import LoanTypes, Document
+from loans.models import LoanTypes, Document, Application
+from django.shortcuts import get_object_or_404
+from django.apps import apps
+from django.http import HttpResponseForbidden
+
 
 User = get_user_model()
 
@@ -247,3 +252,101 @@ class SitePageSettingsView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
 
         return super().post(request, *args, **kwargs)
+    
+class AuditModelListView(LoginRequiredMixin, TemplateView):
+    template_name = "audit_logs/audit_models.html"
+
+    def get_context_data(self, **kwargs):
+        return {
+            "models": [
+                {"name": "Application", "slug": "application","app":"loans"},
+                {"name": "Loan", "slug": "loan","app":"loans"},
+                {"name": "User", "slug": "user","app":"accounts"},
+            ]
+        }
+        
+class AuditLogView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    template_name = "audit_logs/audit_log.html"
+    context_object_name = "rows"
+
+    def test_func(self):
+        return self.request.user.role == "admin"
+
+    def get_queryset(self):
+        model = self.kwargs["model"]
+        model_app_map = {
+        "application": "loans",
+        "user": "accounts", 
+        "loantypes": "loans",
+        "loan": "loans"
+        }
+        app_name = model_app_map.get(model, "loans")
+        model_cls = apps.get_model(app_name, model.capitalize())
+        if not app_name:
+            return messages.error(f"No app found for model '{model}'")
+        return model_cls.history.select_related("history_user")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        model = self.kwargs["model"]
+        model_app_map = {
+            "application": "loans",
+            "user": "accounts", 
+            "loantypes": "loans"
+        }
+        app_name = model_app_map.get(model, "loans")
+        model_cls = apps.get_model(app_name, model)
+
+        rows = []
+        for h in context["rows"]:
+            changes = []
+
+            if h.prev_record:
+                for field in model_cls._meta.fields:
+                    name = field.name
+                    old = getattr(h.prev_record, name, None)
+                    new = getattr(h, name, None)
+                    if old != new:
+                        changes.append({
+                            "field": name,
+                            "old": old,
+                            "new": new,
+                        })
+
+            rows.append({
+                "history": h,
+                "changes": changes,
+                "model": model,
+            })
+
+        context["rows"] = rows
+        context["model_name"] = model_cls.__name__
+        return context
+    
+class RollbackView(LoginRequiredMixin, View):
+    def post(self, request, model, history_id):
+        if request.user.role != "admin":
+            return HttpResponseForbidden()
+        
+        # Add app mapping here
+        model_app_map = {
+            "application": "loans",
+            "user": "accounts", 
+            "loantypes": "loans"
+        }
+        app_name = model_app_map.get(model, "loans")
+        model_cls = apps.get_model(app_name, model.capitalize())
+        
+        # Get the specific historical record
+        try:
+            history_record = model_cls.history.get(history_id=history_id)
+            # Restore the instance to this historical state
+            history_record.instance.save()
+        except model_cls.history.model.DoesNotExist:
+            return HttpResponseForbidden("Historical record not found")
+        
+        messages.success(
+            request,
+            f"{model_cls.__name__} rolled back successfully"
+        )
+        return redirect(request.META.get("HTTP_REFERER", "/"))

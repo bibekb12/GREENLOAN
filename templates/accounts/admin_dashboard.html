@@ -1,92 +1,99 @@
 {% extends "core/base.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h2>Admin Dashboard</h2>
-        <p class="text-muted">System Administration</p>
+<div class="container my-4">
+    <div class="row ">
+        <div class="col-12">
+            <h2>Admin Dashboard</h2>
+            <p class="text-muted">Administration</p>
+        </div>
     </div>
-</div>
 
-<div class="row mt-4">
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body text-center">
-                <h5 class="card-title">{{ total_applications }}</h5>
-                <p class="card-text">Total Applications</p>
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">{{ total_applications }}</h5>
+                    <p class="card-text">Total Applications</p>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body text-center">
-                <h5 class="card-title">{{ pending_applications }}</h5>
-                <p class="card-text">Pending Applications</p>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">{{ pending_applications }}</h5>
+                    <p class="card-text">Pending Applications</p>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body text-center">
-                <h5 class="card-title">{{ users|length }}</h5>
-                <p class="card-text">Total Users</p>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">{{ users|length }}</h5>
+                    <p class="card-text">Total Users</p>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body text-center">
-                <h5 class="card-title">{{ applications|length }}</h5>
-                <p class="card-text">Recent Applications</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5>Recent Applications</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Applicant</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for application in applications %}
-                            <tr>
-                                <td>{{ application.id }}</td>
-                                <td>{{ application.applicant.full_name }}</td>
-                                <td>
-                                    <span class="badge status-{{ application.status }}">{{ application.get_status_display }}</span>
-                                </td>
-                                <td>
-                                    <a href="{% url 'loans:application_detail' application.id %}" class="btn btn-sm btn-outline-primary">View</a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">{{ applications|length }}</h5>
+                    <p class="card-text">Recent Applications</p>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5>System Management</h5>
+
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Applications</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive-md">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Application Date</th>
+                                    <th>Applicant</th>
+                                    <th>Email Address</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for application in applications %}
+                                <tr>
+                                    <td>{{ application.id }}</td>
+                                    <td>{{ application.created_at }}</td>
+                                    <td>{{ application.applicant.full_name }}</td>
+                                    <td>{{ application.applicant.email }}</td>
+                                    <td>
+                                        <span class="badge status-{{ application.status }}">{{application.get_status_display }}</span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'loans:application_detail' application.id %}"
+                                            class="btn btn-sm btn-outline-primary">View</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <p class="text-muted">Configure system settings and preferences</p>
-                <a href="{% url 'core:settings' %}" class="btn btn-primary w-100">Go to Settings</a>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>System Management</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Configure system settings and preferences</p>
+                    <a href="{% url 'core:settings' %}" class="btn btn-primary w-100">Go to Settings</a>
+                </div>
             </div>
         </div>
     </div>

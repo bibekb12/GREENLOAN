@@ -1,7 +1,7 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block extra_css %}
+{% block content %}
 <style>
 body {
     background-color: white;
@@ -42,10 +42,8 @@ body {
 @media (max-width: 992px) { .chart-wrapper { height: 260px; } }
 @media (max-width: 576px) { .chart-wrapper { height: 220px; } }
 </style>
-{% endblock extra_css %}
 
-{% block content %}
-<div class="container-fluid py-4">
+<div class="container my-4">
 
     <!-- FILTER FORM -->
     <form method="get" class="row g-2 mb-4 align-items-end">
