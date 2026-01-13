@@ -1,3 +1,4 @@
+from email import message
 import json
 from django.views.generic import ListView, CreateView, View, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -276,10 +277,13 @@ class AuditLogView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         model_app_map = {
         "application": "loans",
         "user": "accounts", 
-        "loantypes": "loans"
+        "loantypes": "loans",
+        "loan": "loans"
         }
         app_name = model_app_map.get(model, "loans")
-        model_cls = apps.get_model(app_name, model)
+        model_cls = apps.get_model(app_name, model.capitalize())
+        if not app_name:
+            return messages.error(f"No app found for model '{model}'")
         return model_cls.history.select_related("history_user")
 
     def get_context_data(self, **kwargs):
@@ -331,7 +335,7 @@ class RollbackView(LoginRequiredMixin, View):
             "loantypes": "loans"
         }
         app_name = model_app_map.get(model, "loans")
-        model_cls = apps.get_model(app_name, model)
+        model_cls = apps.get_model(app_name, model.capitalize())
         
         # Get the specific historical record
         try:

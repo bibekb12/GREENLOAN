@@ -3,7 +3,12 @@
 {% block content %}
 <div class="container my-4">
   <div class="row">
-    <div class="col-12">
+    <div class="col-12 position-relative">
+    <button type="button"
+            onclick="window.history.back()"
+            class="btn btn-outline-dark btn-sm position-absolute end-0 top-0 mt-1 me-1">
+      ← Back 
+    </button>
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item">
