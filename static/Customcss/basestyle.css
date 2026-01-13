@@ -1,15 +1,28 @@
 @import url('colorRoot.css');
 
-/* body > *:not(.modal):not(.modal-backdrop) {
-    position: relative;
-    z-index: 1;
-} */
-
-main {
+/* body>*:not(.modal):not(.modal-backdrop) {
     position: relative;
     z-index: 1;
 }
 
+main {
+    position: relative;
+    z-index: 1;
+} */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+html {
+
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+}
 
 .user-avatar {
     width: 32px;
@@ -25,46 +38,10 @@ main {
 
 }
 
-/* added from here */
-.logo {
-    border-radius: 50%;
-}
-
-.nav-container {
-    font-weight: bold;
-    font-size: 1.2rem;
-}
-
 .active-link {
     background-color: var(--primary-color) !important;
     color: white !important;
     border-color: var(--primary-dark) !important;
-}
-
-
-.footer-content-services,
-.footer-content-legal,
-.footer-content-company {
-    text-align: center;
-
-    p {
-        font-weight: bold;
-    }
-}
-
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-html {
-    
-    overflow-x: hidden;
-     width: 100%;
-    max-width: 100%;
 }
 
 
