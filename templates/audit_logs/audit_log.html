@@ -1,0 +1,84 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+  <div class="card">
+<div class="card-header text-white position-relative" style="background:var(--primary-dark)">
+
+  <!-- Back button (left) -->
+  <button type="button"
+          onclick="window.history.back()"
+          class="btn btn-outline-light btn-sm position-absolute start-0 ms-2">
+    ← Back
+  </button>
+
+  <!-- Center title -->
+  <div class="text-center fw-bold">
+    {{ model_name }} Audit Log
+  </div>
+
+</div>
+
+    <div class="table-responsive">
+      <table class="table table-sm table-striped">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Changes</th>
+            <th>Rollback</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td>{{ row.history.history_date }}</td>
+            <td>{{ row.history.history_user|default:"System" }}</td>
+
+            <td>
+              {% if row.history.history_type == "+" %}
+              <span class="badge bg-success">Created</span>
+              {% elif row.history.history_type == "~" %}
+              <span class="badge bg-warning">Updated</span>
+              {% else %}
+              <span class="badge bg-danger">Deleted</span>
+              {% endif %}
+            </td>
+
+            <td>
+              {% if row.changes %}
+              <ul class="small">
+                {% for c in row.changes %}
+                <li>
+                  <strong>{{ c.field }}</strong> :
+                  <span class="text-danger">{{ c.old }}</span>
+                  →
+                  <span class="text-success">{{ c.new }}</span>
+                </li>
+                {% endfor %}
+              </ul>
+              {% else %}
+              No changes
+              {% endif %}
+            </td>
+
+            <td>
+              {% if row.history.history_type != "-" %}
+              <form method="post" action="{% url 'core:rollback' row.model row.history.id %}">
+                {% csrf_token %}
+                <button class="btn btn-outline-warning btn-sm bg-warning text-dark">
+                  Rollback
+                </button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
