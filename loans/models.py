@@ -142,6 +142,7 @@ class Document(models.Model):
         max_length=10, choices=VERIFICATION_STATUS, default="pending"
     )
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    is_additional = models.BooleanField(default=False)
 
     history = HistoricalRecords()
 

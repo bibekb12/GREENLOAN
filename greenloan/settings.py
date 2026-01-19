@@ -212,5 +212,5 @@ ACCOUNT_LOGIN_METHODS = {'email'}
 SOCIALACCOUNT_ADAPTER = 'accounts.adapter.CustomSocialAccountAdapter'
 
 
-CORS_ALLOW_ALL_ORIGINS = False #CORS testing
+CORS_ALLOW_ALL_ORIGINS = False
 X_FRAME_OPTIONS = 'SAMEORIGIN'  

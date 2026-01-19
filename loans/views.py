@@ -81,7 +81,12 @@ class ApplicationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
         application = self.get_object()
         user = self.request.user
 
-        context["documents"] = application.documents.all()
+        context["documents"] = application.documents.exclude( Q(verification_status='') | Q(verification_status__isnull=True) )
+        
+        context["additional_docs"] = application.documents.filter(
+            Q(is_additional=True, file__isnull=True) 
+        )
+
 
         context["can_upload_docs"] = (
             self.request.user == application.applicant
@@ -93,6 +98,8 @@ class ApplicationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
             or self.request.user == application.officer
             or self.request.user.role in ["customer", "officer", "senior_officer"]
         )
+        context["all_document_types"] = Document.DOCUMENT_TYPES
+
 
         # Applicant allowed actions
         applicant_actions = []
@@ -141,62 +148,46 @@ class UploadDocumentsView(LoginRequiredMixin, UserPassesTestMixin, View):
         messages.error(self.request, "You do not have permission to upload documents.")
         return redirect("accounts:dashboard")
     
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        required_docs = self.application.loan_type.required_documents
+    # def get_form(self, form_class=None):
+    #     form = super().get_form(form_class)
+    #     required_docs = self.application.loan_type.required_documents
 
-        form.fields["document_type"].choices = [
-            choice
-            for choice in Document.DOCUMENT_TYPES
-            if choice[0] in required_docs
-        ]
-        return form
+    #     form.fields["document_type"].choices = [
+    #         choice
+    #         for choice in Document.DOCUMENT_TYPES
+    #         if choice[0] in required_docs
+    #     ]
+    #     return form
 
-    def get_context_data(self, **kwargs):
-        """
-        Provide the related application to the template so links like
-        \"Back to application\" can resolve correctly.
-        """
-        context = super().get_context_data(**kwargs)
-      
-        context["application"] = get_object_or_404(Application, pk=self.kwargs["pk"])
-
-        required_docs = self.application.loan_type.required_documents
-        uploaded_docs = self.application.documents.values_list("document_type", flat=True)
-
-        documents = []
-        for key in required_docs:
-            documents.append({
-                "key": key,
-                "label": capfirst(key.replace("_", " ")),
-                "uploaded": key in uploaded_docs,
-            })
-
-        context["documents"] = documents
-
-        return context
-
+    
     def get(self, request, *args, **kwargs):
         application = get_object_or_404(
             Application, pk=kwargs["pk"], applicant=request.user
         )
 
         required_docs = application.loan_type.required_documents
-        uploaded_docs = application.documents.values_list("document_type", flat=True)
+        
+        
+        additional_docs = application.documents.filter(
+            is_additional=True
+        )
 
-        documents = [
-            {
+        documents = []
+        for key in required_docs:
+            doc_obj = application.documents.filter(document_type=key).first()
+            documents.append({
                 "key": key,
                 "label": capfirst(key.replace("_", " ")),
-                "uploaded": key in uploaded_docs,
-            }
-            for key in required_docs
-        ]
+                "uploaded": bool(doc_obj),
+                "status": doc_obj.verification_status if doc_obj else "Not uploaded"
+            })
 
         return render(request, self.template_name, {
             "application": application,
-            "documents": documents
+            "documents": documents,
+            "additional_docs": additional_docs
         })
+    
 
     def post(self, request, *args, **kwargs):
         application = get_object_or_404(
@@ -204,17 +195,37 @@ class UploadDocumentsView(LoginRequiredMixin, UserPassesTestMixin, View):
         )
 
         for key in application.loan_type.required_documents:
-            uploaded_file = request.FILES.get(key)
+            uploaded_file = request.FILES.getlist(key)
             if not uploaded_file:
                 continue
+             
+            uploaded_file = uploaded_file[-1]
 
-            document = Document.objects.create(
-                application=application,
-                document_type=key
+            document, created = Document.objects.get_or_create(
+                    application=application,
+                    document_type=key,
+                    defaults={
+                        "verification_status":"pending",
+                        "is_additional": False
+                    }
             )
-
+            
             file_name = f"{application.id}_{key}_{uploaded_file.name}"
-            document.file.save(file_name, uploaded_file)
+            document.file.save(file_name, uploaded_file, save=True)
+            
+        additional_docs = application.documents.filter(is_additional=True, file__isnull=True)
+        for doc in additional_docs:
+            additional_uploaded_files = request.FILES.getlist(doc.document_type)
+            if not additional_uploaded_files:
+                continue
+            
+            uploaded_file = uploaded_file[-1]
+
+            file_name = f"{application.id}_{doc.document_type}_{uploaded_file.name}"
+            doc.file.save(file_name, uploaded_file, save=True)
+            doc.verification_status = "pending"
+            doc.save(update_fields=["file", "verification_status"])
+
 
         if application.status == "info_requested":
             application.status = "info_provided"
@@ -289,15 +300,38 @@ class ApplicationStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, View)
         return redirect("loans:application_detail", pk = self.kwargs["pk"])
 
     def post(self, request, *args, **kwargs):
-        application_id = kwargs.get("pk")
+        application_id = kwargs.get('pk')
         application = get_object_or_404(Application, pk=application_id)
         action = request.POST.get("action")
 
         if not action:
             messages.error(request, "No action provided.")
-            return redirect(
-                request.META.get("HTTP_REFERER", reverse("accounts:dashboard"))
-            )
+            return redirect( request.META.get("HTTP_REFERER", reverse("accounts:dashboard")))
+
+        if action == "request_info":
+            additional_docs = request.POST.getlist("additional_docs")
+            
+            # Loop over requested docs
+            for doc_type in additional_docs:
+                # Create Document if it doesn't exist yet
+                doc, created = Document.objects.get_or_create(
+                    application=application,
+                    document_type=doc_type,
+                    verification_status="",
+                    defaults={"is_additional": True}
+                )
+                if additional_docs:
+                    application.status = "info_requested"
+                    application.add_status_history(
+                        status="info_requested",
+                        user=request.user,
+                        note="Officer requested additional documents"
+                    )
+                    application.save(update_fields=["status"])
+            
+            messages.success(request, "Additional document request sent.")
+            return redirect("loans:application_detail", pk=application_id)
+
 
         # Map actions to status
         status_map = {

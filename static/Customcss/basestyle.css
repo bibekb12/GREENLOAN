@@ -88,7 +88,7 @@ html {
 
 .status-submitted {
     background-color: #fef3c7;
-    color: #92400e;
+    color: var(--primary-dark);
 }
 
 .status-under_review {
@@ -107,8 +107,8 @@ html {
 }
 
 .status-info_requested {
-    background-color: #fef3c7;
-    color: #92400e;
+    background-color: var(--info-color);
+    color: var(--primary-light);
 }
 
 .status-documents_verified {
@@ -133,5 +133,5 @@ html {
 
 .status-info_provided {
     background-color: #fef3c7;
-    color: #92400e;
+    color: var(--primary-color);
 }

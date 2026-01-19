@@ -14,26 +14,50 @@
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
 
+
+
+                    <!-- Required documents -->
                     {% for doc in documents %}
                     <div class="mb-3">
-                        <label class="form-label fw-semibold" for="id_{{ doc.key }}">
-                            <i class="bi bi-file-earmark-text me-1 text-primary"></i>{{ doc.label }}
-                        </label>
-
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-semibold mb-0" for="id_{{ doc.key }}">
+                                <i class="bi bi-file-earmark-text me-1 text-primary"></i>
+                                {{ doc.label }}
+                            </label>
+                            <span class="badge 
+            {% if doc.status == 'verified' %}bg-success
+            {% elif doc.status == 'rejected' %}bg-danger
+            {% elif doc.status == 'not_uploaded' %}bg-secondary
+            {% else %}bg-warning{% endif %}">
+                                {{ doc.status|capfirst }}
+                            </span>
+                        </div>
                         {% if doc.uploaded %}
-                            <div class="alert alert-success p-2 d-flex align-items-center">
-                                <i class="bi bi-check-circle me-1"></i> Already uploaded
-                            </div>
+                        <div class="alert alert-success p-2 mb-0 d-flex align-items-center">
+                            <i class="bi bi-check-circle me-1"></i>
+                            Already uploaded
+                        </div>
                         {% else %}
-                            <input
-                                type="file"
-                                class="form-control"
-                                id="id_{{ doc.key }}"
-                                name="{{ doc.key }}"
-                            >
+                        <input type="file" class="form-control" id="id_{{ doc.key }}" name="{{ doc.key }}">
                         {% endif %}
                     </div>
                     {% endfor %}
+
+                    <!-- Additional documents -->
+                    {% for doc in additional_docs %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-semibold mb-0" for="id_{{ doc.document_type }}">
+                                <i class="bi bi-file-earmark-text me-1 text-primary"></i>
+                                {{ doc.get_document_type_display }}
+                            </label>
+                        </div>
+                        <input type="file" class="form-control" id="id_{{ doc.document_type }}"
+                            name="{{ doc.document_type }}">
+                    </div>
+                    {% endfor %}
+
+
 
                     <button type="submit" class="btn btn-success">
                         <i class="bi bi-upload me-1"></i> Upload Documents
