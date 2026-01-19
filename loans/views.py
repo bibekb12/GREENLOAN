@@ -81,16 +81,17 @@ class ApplicationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
         application = self.get_object()
         user = self.request.user
 
-        context["documents"] = application.documents.exclude( Q(verification_status='') | Q(verification_status__isnull=True) )
+        context["documents"] = application.documents.filter( file__isnull=False)
         
         context["additional_docs"] = application.documents.filter(
-            Q(is_additional=True, file__isnull=True) 
+            Q(is_additional=True) 
         )
 
+        has_missing_document = application.documents.all().filter(Q(file__isnull=True) | Q(file='')).exists()
 
         context["can_upload_docs"] = (
             self.request.user == application.applicant
-            and application.status in ["submitted", "info_requested"]
+            and ( application.status == "info_requested" or has_missing_document )
         )
 
         context["can_view_docs"] = (
@@ -104,7 +105,8 @@ class ApplicationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
         # Applicant allowed actions
         applicant_actions = []
         if user == application.applicant:
-            if application.status in ["info_requested"]:
+
+            if application.status == "info_requested":
                 applicant_actions.append("upload_documents")
 
         # Officer allowed actions
@@ -147,19 +149,7 @@ class UploadDocumentsView(LoginRequiredMixin, UserPassesTestMixin, View):
     def handle_no_permission(self):
         messages.error(self.request, "You do not have permission to upload documents.")
         return redirect("accounts:dashboard")
-    
-    # def get_form(self, form_class=None):
-    #     form = super().get_form(form_class)
-    #     required_docs = self.application.loan_type.required_documents
 
-    #     form.fields["document_type"].choices = [
-    #         choice
-    #         for choice in Document.DOCUMENT_TYPES
-    #         if choice[0] in required_docs
-    #     ]
-    #     return form
-
-    
     def get(self, request, *args, **kwargs):
         application = get_object_or_404(
             Application, pk=kwargs["pk"], applicant=request.user
@@ -201,31 +191,49 @@ class UploadDocumentsView(LoginRequiredMixin, UserPassesTestMixin, View):
              
             uploaded_file = uploaded_file[-1]
 
-            document, created = Document.objects.get_or_create(
-                    application=application,
-                    document_type=key,
-                    defaults={
-                        "verification_status":"pending",
-                        "is_additional": False
-                    }
+            document = application.documents.filter(
+            document_type=key,
+            is_additional=False).first()
+
+            if not document:
+                document = Document.objects.create(
+                        application=application,
+                        document_type=key,
+                        defaults={
+                            "verification_status":"pending",
+                            "is_additional": False
+                        }
             )
             
             file_name = f"{application.id}_{key}_{uploaded_file.name}"
             document.file.save(file_name, uploaded_file, save=True)
-            
-        additional_docs = application.documents.filter(is_additional=True, file__isnull=True)
-        for doc in additional_docs:
-            additional_uploaded_files = request.FILES.getlist(doc.document_type)
-            if not additional_uploaded_files:
+
+        additional_docs = application.documents.filter(is_additional=True)
+
+        for doc_type in set(doc.document_type for doc in additional_docs):
+            uploaded_files = request.FILES.getlist(doc_type)
+            if not uploaded_files:
                 continue
-            
-            uploaded_file = uploaded_file[-1]
 
-            file_name = f"{application.id}_{doc.document_type}_{uploaded_file.name}"
-            doc.file.save(file_name, uploaded_file, save=True)
-            doc.verification_status = "pending"
-            doc.save(update_fields=["file", "verification_status"])
+            existing_docs = list(application.documents.filter(document_type=doc_type, is_additional=True).order_by("id"))
 
+            for i, uploaded_file in enumerate(uploaded_files):
+                file_name = f"{application.id}_{doc_type}_{i}_{uploaded_file.name}"
+
+                if i < len(existing_docs):
+                    # Update existing document
+                    existing_docs[i].file.save(file_name, uploaded_file, save=True)
+                    existing_docs[i].verification_status = "pending"
+                    existing_docs[i].save(update_fields=["verification_status", "file"])
+                else:
+                    # Create new additional document if more files uploaded than existing
+                    new_doc = Document.objects.create(
+                        application=application,
+                        document_type=doc_type,
+                        verification_status="pending",
+                        is_additional=True
+                    )
+                    new_doc.file.save(file_name, uploaded_file, save=True)
 
         if application.status == "info_requested":
             application.status = "info_provided"
@@ -311,9 +319,7 @@ class ApplicationStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, View)
         if action == "request_info":
             additional_docs = request.POST.getlist("additional_docs")
             
-            # Loop over requested docs
             for doc_type in additional_docs:
-                # Create Document if it doesn't exist yet
                 doc, created = Document.objects.get_or_create(
                     application=application,
                     document_type=doc_type,

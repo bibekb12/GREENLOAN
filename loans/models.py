@@ -147,7 +147,7 @@ class Document(models.Model):
     history = HistoricalRecords()
 
     class Meta:
-        unique_together = ("application","document_type")
+        unique_together = ("application","document_type","verification_status")
 
 class ApprovedLoans(models.Model):
     application = models.ForeignKey(Application, on_delete=models.CASCADE)

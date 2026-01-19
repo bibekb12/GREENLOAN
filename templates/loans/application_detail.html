@@ -165,11 +165,6 @@
             Documents</a>
           {% endif %}
 
-          {% if user == application.officer and application.status == 'under_review' %}
-          <a href="{% url 'loans:review_application' application.id %}" class="btn btn-warning mb-2 w-100">Review
-            Application</a>
-          {% endif %}
-
           <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary w-100">Back to Dashboard</a>
         </div>
       </div>
