@@ -22,10 +22,16 @@
   {% if user.role == 'officer' or user.role == 'senior_officer' or user.role == 'admin' %}
   <div class="row mb-3">
     <div class="col-12 d-flex flex-wrap gap-2">
+             {% if not all_doc_verified %}
+        <!-- Show warning if documents are not all verified -->
+        <div class="alert alert-warning py-1 px-2 mb-2 w-100">
+            ⚠ All required documents must be verified before you can Final Review or Approve.
+        </div>
+        {% endif %}
       <form method="post" action="{% url 'loans:application_status_update' application.id %}">
         {% csrf_token %}
         <input type="hidden" name="action" value="final_review" />
-        <button type="submit" class="btn btn-success">Final Review</button>
+        <button type="submit" class="btn btn-success" {% if not all_doc_verified %}disabled {% endif %}>Final Review</button>
       </form>
 
       <form method="post" action="{% url 'loans:application_status_update' application.id %}">
@@ -37,7 +43,7 @@
       <form method="post" action="{% url 'loans:application_status_update' application.id %}">
         {% csrf_token %}
         <input type="hidden" name="action" value="approve" />
-        <button type="submit" class="btn btn-primary">Approve</button>
+        <button type="submit" class="btn btn-primary" {% if not all_doc_verified %}disabled {% endif %}>Approve</button>
       </form>
 
       <form method="post" action="{% url 'loans:application_status_update' application.id %}">

@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig', #this is for the email signal
     'simple_history', # for the history records
     'tourplan',
+    'payments', # for payment mode
 
 
     # third party apps for css
@@ -214,3 +215,9 @@ SOCIALACCOUNT_ADAPTER = 'accounts.adapter.CustomSocialAccountAdapter'
 
 CORS_ALLOW_ALL_ORIGINS = False
 X_FRAME_OPTIONS = 'SAMEORIGIN'  
+
+#esewa payment 
+ESEWA_PAYMENT_URL = "https://uat.esewa.com.np/epay/main"
+ESEWA_MERCHANT_CODE = "EPAYTEST"
+ESEWA_SUCCESS_URL = "https://localhost:8000/payment/esewa/success/"
+ESEWA_FAILURE_URL = "https://localhost:8000/payment/esewa/failure/"

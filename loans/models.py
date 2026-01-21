@@ -171,12 +171,13 @@ class Repayment(models.Model):
     loan = models.ForeignKey(ApprovedLoans, on_delete=models.CASCADE, related_name="repayments")
     due_date = models.DateField()
     paid_date = models.DateField(null=True, blank=True)
+    amount_paid = models.DecimalField(max_digits=16, decimal_places=2, default=0)
     amount_due = models.DecimalField(max_digits=12, decimal_places=2)
-    amount_paid = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     status = models.CharField(
         max_length=20,
         choices=[
             ("pending", "Pending"),
+            ("partial", "Partial"),
             ("paid", "Paid"),
             ("late", "Late"),
         ],
@@ -185,6 +186,23 @@ class Repayment(models.Model):
 
     def is_late(self):
         return self.paid_date and self.paid_date > self.due_date
+    def total_paid(self):
+        return sum(p.amount for p in self.payments.all())
+
+    def remaining_amount(self):
+        return self.amount_due - self.total_paid()
+
+    def update_status(self):
+        paid = self.total_paid()
+
+        if paid == 0:
+            self.status = "pending"
+        elif paid < self.amount_due:
+            self.status = "partial"
+        else:
+            self.status = "paid"
+
+        self.save(update_fields=["status"])
     
     history = HistoricalRecords()
 

@@ -64,6 +64,7 @@ urlpatterns = [
     path("", include("core.urls")),
     path("app/", include("accounts.urls")),
     path("app/", include("loans.urls")),
+    path("payments/", include("payments.urls")),
     path('accounts/', include('allauth.urls')),
 ]
 
