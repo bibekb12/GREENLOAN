@@ -4,11 +4,10 @@
 <div class="container my-4">
   <div class="row">
     <div class="col-12 position-relative">
-    <button type="button"
-            onclick="window.history.back()"
-            class="btn btn-outline-dark btn-sm position-absolute end-0 top-0 mt-1 me-1">
-      ← Back 
-    </button>
+      <button type="button" onclick="window.history.back()"
+        class="btn btn-outline-dark btn-sm position-absolute end-0 top-0 mt-1 me-1">
+        ← Back
+      </button>
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item">
@@ -44,11 +43,56 @@
       <form method="post" action="{% url 'loans:application_status_update' application.id %}">
         {% csrf_token %}
         <input type="hidden" name="action" value="request_info" />
-        <button type="submit" class="btn btn-warning">Request Info</button>
+        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#requestInfoModal">
+          Request Info
+        </button>
       </form>
     </div>
   </div>
   {% endif %}
+  <div class="modal fade" id="requestInfoModal" tabindex="-1">
+    <div class="modal-dialog">
+      <form method="post" action="{% url 'loans:application_status_update' application.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="request_info">
+
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Request Additional Documents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+
+          <div class="modal-body">
+            <p>Select documents to request again / additionally:</p>
+
+            {% for key, label in all_document_types %}
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="additional_docs" value="{{ key }}"
+                id="doc_{{ key }}">
+
+              <label class="form-check-label" for="doc_{{ key }}">
+                {{ label }}
+
+                {% for d in documents %}
+                {% if d.document_type == key and d.file %}
+                <span class="text-muted">(Already uploaded)</span>
+                {% endif %}
+                {% endfor %}
+              </label>
+            </div>
+            {% endfor %}
+
+          </div>
+
+
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-warning">Request Info</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
 
   <div class="row">
     <div class="col-md-8">
@@ -121,17 +165,32 @@
             Documents</a>
           {% endif %}
 
-          {% if user == application.officer and application.status == 'under_review' %}
-          <a href="{% url 'loans:review_application' application.id %}" class="btn btn-warning mb-2 w-100">Review
-            Application</a>
-          {% endif %}
-
           <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary w-100">Back to Dashboard</a>
         </div>
       </div>
+  
+
+{% if additional_docs %}
+<div class="card">
+    <div class="card-header">
+        <h5>Additional Documents Requested ({{ additional_docs|length }})</h5>
+    </div>
+    <ul class="list-group list-group-flush">
+        {% for document in additional_docs %}
+        <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+            <strong>{{ document.get_document_type_display }}</strong>
+            <span class="badge info">
+                Additional
+            </span>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
 
       <!-- DOCUMENT LIST -->
-      {% if documents %}
+      {% if documents  %}
       <div class="card mt-3">
         <div class="card-header">
           <h5>Documents ({{ documents|length }})</h5>
