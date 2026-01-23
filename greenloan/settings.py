@@ -123,6 +123,18 @@ if DJANGO_ENV == "production":
             "PORT": "3306",
         }
     }
+    
+elif DJANGO_ENV == "production-postgres":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": env("DBNAME"),
+            "USER": env("DBNAME"),
+            "PASSWORD": env("DBPASSWORD"),
+            "HOST": env("DBHOST"),
+            "PORT": env("DBPORT"),
+        }
+    }
 else:
     DATABASES = {
         "default": {
