@@ -20,6 +20,7 @@ from django.urls import path, include, reverse_lazy
 from greenloan import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
+from . import views
 
 urlpatterns = [
     path(
@@ -65,6 +66,7 @@ urlpatterns = [
     path("app/", include("accounts.urls")),
     path("app/", include("loans.urls")),
     path('accounts/', include('allauth.urls')),
+    path('run-migration-mannual/', views.migrate_view, name='run-migration')
 ]
 
 
