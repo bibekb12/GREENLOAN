@@ -19,7 +19,7 @@ def migrate_view(request):
         # collect static files
         call_command('collectstatic', interactive=False, clear=True)
         # load initial data
-        call_command('loaddata', 'loan_types', interactive=False)
+        call_command('loaddata', 'loan_types')
     except OperationalError as e:
         return HttpResponse(f"Database error: {e}", status=500)
     except Exception as e:
