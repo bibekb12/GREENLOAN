@@ -8,6 +8,14 @@ https://docs.djangoproject.com/en/6.0/howto/deployment/wsgi/
 """
 
 import os
+import django
+from django.core.management import call_command
+
+try:
+    call_command('migrate', interactive=False)
+    call_command('collectstatic', interactive=False, clear=True)
+except Exception as e:
+    print("Migration failed:", e)
 
 from django.core.wsgi import get_wsgi_application
 
