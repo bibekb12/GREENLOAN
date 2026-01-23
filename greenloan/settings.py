@@ -123,7 +123,7 @@ if DATABASE_URL:
         )
     }
 
-if DJANGO_ENV == "production":
+elif  DJANGO_ENV == "production":
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.mysql",
