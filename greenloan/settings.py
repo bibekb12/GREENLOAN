@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import dj_database_url
 import environ
 import os
 
@@ -111,6 +112,16 @@ AUTH_USER_MODEL = "accounts.User"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#
 DJANGO_ENV = os.getenv("DJANGO_ENV", "development")
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
 
 if DJANGO_ENV == "production":
     DATABASES = {
@@ -121,18 +132,6 @@ if DJANGO_ENV == "production":
             "PASSWORD": "@greenloan",
             "HOST": "bibekb12.mysql.pythonanywhere-services.com",
             "PORT": "3306",
-        }
-    }
-    
-elif DJANGO_ENV == "production-postgres":
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": env("DBNAME"),
-            "USER": env("DBNAME"),
-            "PASSWORD": env("DBPASSWORD"),
-            "HOST": env("DBHOST"),
-            "PORT": env("DBPORT"),
         }
     }
 else:
