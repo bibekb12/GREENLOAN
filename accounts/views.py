@@ -1,10 +1,10 @@
 from django.utils import timezone
 from django.shortcuts import redirect, render
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
-from django.contrib.auth import update_session_auth_hash 
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView, TemplateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from requests import request
 from accounts.models import User
 from loans.models import Application
 from .forms import (
@@ -15,7 +15,16 @@ from .forms import (
 )
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
+from django.contrib.auth import login
 from django.shortcuts import get_object_or_404
+
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils.http import urlsafe_base64_decode
+
 
 """this is class based view for the users """
 
@@ -27,9 +36,17 @@ class CustomLoginView(LoginView):
 
     def get_success_url(self):
         return reverse("loans:landing")
+    
+    def form_valid(self, form):
+        user = form.get_user()
+        if user is not None and not user.email_verified:
+                return render(self.request, "accounts/emailverify.html", {"email": user.email})
+        login(self.request, user)
+        return super().form_valid(form)
 
     def form_invalid(self, form):
-        return super().form_invalid(form)
+        messages.error(self.request, "Incorrect email or password")
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class CustomLogoutView(LogoutView):
@@ -46,6 +63,7 @@ class SignupView(CreateView):
         user = form.save(commit=False)
         user.role = "customer"
         user.phone = self.request.POST.get("phone", "")
+        user.is_active = True
         user.save()
 
         # added the directly login after signup
@@ -60,8 +78,66 @@ class ChangePasswordView(PasswordChangeView):
     
     form_class = PasswordChangeForm
     template_name = 'resetpassword/change_password.html'
-    success_url = reverse_lazy("accounts:dashboard")    
+    success_url = reverse_lazy("accounts:dashboard")
 
+class EmailAddrVerify(View):
+    def get(self, request, uidb64, token):
+        try:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user and default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.email_verified = True
+            user.save()
+            messages.success(request, "Your email has been verified successfully!")
+        else:
+            messages.error(request, "Invalid or expired verification link.")
+
+        return redirect("accounts:login")
+
+    @staticmethod
+    def send_verification_email(request, user):
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        verification_url = request.build_absolute_uri({reverse("accounts:email-verify", kwargs={'uidb64': uid, 'token': token})})
+
+        subject = "Verify Your Email Address"
+        message = f"""
+        Hello {user.get_full_name()},
+
+        Please verify your email by clicking the link below:
+
+        {verification_url}
+
+        Thank you!
+        """
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False
+        )    
+
+class ResendEmailAddrVerify(View):
+    def get(self, request):
+        email = request.GET.get("email")
+        if not email:
+            messages.error(request,"No email address provided.")
+            return redirect("accounts:login")
+        try:
+            user = User.objects.get(email=email)
+            if user.email_verified:
+                messages.info(request,"Your email is already verified")
+            else:
+                EmailAddrVerify.send_verification_email(request, user)
+                messages.success(request,"Verification email sent successfully.")
+        except User.DoesNotExist:
+            messages.error(request,"No accounts found with this email")
+        return redirect("accounts:login")
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
