@@ -19,7 +19,13 @@
         <tr>
           <td>{{ admin.full_name }}</td>
           <td>{{ admin.role }}</td>
-          <td>{{ admin.email }}</td>
+          <td>{{ admin.email }}
+              {% if admin.email_verified%}
+              <span class="badge bg-success">Verified email</span>
+              {% else %}  
+              <span class="badge bg-warning text-dark">Unverified email</span>
+              {% endif %}
+          </td>
         </tr>
       {% endfor %}
     </tbody>
