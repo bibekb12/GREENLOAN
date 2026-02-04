@@ -262,7 +262,7 @@
     </div>
 
     <div class="text-center text-white p-3" style="background-color: var(--primary-dark);">
-      © 2025 Copyright:
+      © <span id="current-year"></span> Copyright:
       <a class="text-white" href="https://bibekbhandari.com.np">www.bibekbhandari.com.np</a>
     </div>
 
@@ -271,6 +271,9 @@
 
   <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
   <script src="{% static 'Customjs/base.js' %}"></script>
+  <script>
+    document.getElementById("current-year").textContent = new Date().getFullYear()
+  </script>
 </body>
 
 </html>

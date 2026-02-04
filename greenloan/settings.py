@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig', #this is for the email signal
     'simple_history', # for the history records
     'tourplan',
+    'payments', # for payment mode
 
 
     # third party apps for css
@@ -68,6 +69,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -75,7 +77,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # added middleware
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     'simple_history.middleware.HistoryRequestMiddleware', # for the history records
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -225,3 +226,9 @@ SOCIALACCOUNT_ADAPTER = 'accounts.adapter.CustomSocialAccountAdapter'
 
 CORS_ALLOW_ALL_ORIGINS = False
 X_FRAME_OPTIONS = 'SAMEORIGIN'  
+
+#esewa payment 
+ESEWA_PAYMENT_URL = "https://uat.esewa.com.np/epay/main"
+ESEWA_MERCHANT_CODE = "EPAYTEST"
+ESEWA_SUCCESS_URL = "https://localhost:8000/payment/esewa/success/"
+ESEWA_FAILURE_URL = "https://localhost:8000/payment/esewa/failure/"

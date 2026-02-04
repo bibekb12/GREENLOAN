@@ -1,6 +1,8 @@
 {% extends "core/base.html" %}
-{% block content %}
 
+{% load static %}
+
+{% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -11,30 +13,124 @@
                 </div>
 
                 <div class="card-body">
-                    <p><strong>Due Date:</strong> {{ object.due_date }}</p>
-                    <p><strong>Amount:</strong> Rs. {{ object.amount_due }}</p>
-
-                    {% if object.due_date < today %} <div class="alert alert-warning">
-                        This payment is overdue. Late payment may reduce your credit score.
-                </div>
-                {% endif %}
-
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="d-flex justify-content-between">
-                        <a href="{% url 'loans:repayment_list' %}" class="btn btn-secondary">
-                            Cancel
-                        </a>
-                        <button type="submit" class="btn btn-success">
-                            Confirm Payment
-                        </button>
+                    <!-- Payment Info -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <p class="mb-1 fw-semibold"><strong>Amount:</strong>
+                        </div>
+                        <div>
+                            <span class="badge bg-success fs-5 px-3 py-2">
+                                Rs. 
+                                {% if total_amount %}
+                                    {{ total_amount }}
+                                {% elif object %}
+                                    {{ object.amount_due }}
+                                {% endif %}
+                            </span>
+                        </div>
                     </div>
-                </form>
+
+                    <!-- Payment Method -->
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Select Payment Method</label>
+                            <div class="d-flex gap-3 flex-wrap">
+                                <!-- eSewa -->
+                                <div class="card payment-card text-center" data-value="esewa">
+                                    <div class="card-body p-3">
+                                        <img src="{% static 'assets/esewa.png' %}" alt="esewa", class="image-fluid mb-2" style="height: 40px ; align-items: center;">
+                                        <p class="mb-0 fw-semibold">eSewa</p>
+                                    </div>
+                                </div>
+                                <!-- khalti -->
+                                <div class="card payment-card text-center" data-value="khalti">
+                                    <div class="card-body p-3">
+                                        <img src="{% static 'assets/khalti.png' %}" alt="khalti", class="image-fluid mb-2" style="height: 40px ;">
+                                        <p class="mb-0 fw-semibold">khalti</p>
+                                    </div>
+                                </div>
+                                <!-- Bank -->
+                                <div class="card payment-card text-center" data-value="bank">
+                                    <div class="card-body p-3">
+                                        <i class="bi bi-bank2 fs-2 mb-2"></i>
+                                        <p class="mb-0 fw-semibold">Bank Transfer</p>
+                                    </div>
+                                </div>
+                                <!-- Card -->
+                                <div class="card payment-card text-center" data-value="card">
+                                    <div class="card-body p-3">
+                                        <i class="bi bi-credit-card fs-2 mb-2"></i>
+                                        <p class="mb-0 fw-semibold">Debit/Credit Card</p>
+                                    </div>
+                                </div>
+                                <!-- QR Payment -->
+                                <div class="card payment-card text-center" data-value="qr">
+                                    <div class="card-body p-3">
+                                        <i class="bi bi-qr-code-scan fs-2 mb-2"></i>
+                                        <p class="mb-0 fw-semibold">QR Payment</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Hidden Input -->
+                            <input type="hidden" name="payment_method" id="payment_method" required>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'loans:repayment_list' %}" class="btn btn-secondary">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                Pay Now
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
             </div>
         </div>
-
     </div>
 </div>
-</div>
+
+<!-- JS: Highlight selected card -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const cards = document.querySelectorAll(".payment-card");
+    const input = document.getElementById("payment_method");
+
+    cards.forEach(card => {
+        card.addEventListener("click", function () {
+            // Remove previous highlight
+            cards.forEach(c => c.classList.remove("border-primary", "shadow", "bg-light"));
+            
+            // Highlight selected
+            card.classList.add("border-primary", "shadow", "bg-light");
+
+            // Set hidden input
+            input.value = card.dataset.value;
+        });
+    });
+});
+</script>
+
+<style>
+.payment-card {
+    cursor: pointer;
+    transition: 0.3s;
+    flex: 1 1 45%; /* responsive, 2 per row on small screens */
+    border: 2px solid #dee2e6;
+    background-color: var(--primary-hover);
+}
+.payment-card:hover {
+    transform: scale(1.05);
+}
+.payment-card.border-primary {
+    border-color: #0d6efd !important;
+}
+.payment-card.bg-light {
+    background-color: #e7f1ff !important;
+}
+</style>
 
 {% endblock %}

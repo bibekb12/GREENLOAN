@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.urls import reverse, reverse_lazy
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -7,7 +8,7 @@ from loans.models import Application, ApprovedLoans, Document, Repayment
 from django.contrib import messages
 from django.utils import timezone
 from loans.utils import create_repayments, update_credit_score
-from loans.signals import loan_approved_signal
+from loans.signals import loan_approved_signal, loan_reject_signal
 from datetime import date, datetime, timedelta
 from calendar import monthrange
 from django.db.models import Count, Sum, Q
@@ -15,6 +16,8 @@ from django.db.models import Case, When, Value, IntegerField
 from django.contrib.auth import get_user_model
 from calendar import month_name, monthrange
 from django.utils.text import capfirst
+
+from payments.models import Payment
 
 User = get_user_model()
 
@@ -100,6 +103,10 @@ class ApplicationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
             or self.request.user.role in ["customer", "officer", "senior_officer"]
         )
         context["all_document_types"] = Document.DOCUMENT_TYPES
+
+        documents = application.documents.all()
+        all_document_verified = all(doc.verification_status == "verified" for doc in documents )
+        context["all_doc_verified"] = all_document_verified
 
 
         # Applicant allowed actions
@@ -199,10 +206,8 @@ class UploadDocumentsView(LoginRequiredMixin, UserPassesTestMixin, View):
                 document = Document.objects.create(
                         application=application,
                         document_type=key,
-                        defaults={
-                            "verification_status":"pending",
-                            "is_additional": False
-                        }
+                        verification_status="pending",
+                        is_additional= False
             )
             
             file_name = f"{application.id}_{key}_{uploaded_file.name}"
@@ -376,47 +381,18 @@ class ApplicationStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, View)
                 loan_type = application.loan_type.name,
                 to_user = application.applicant
             )
+        if new_status == "reject":
+            loan_reject_signal.send(
+                sender=None,
+                loan_type = application.loan_type.name,
+                to_user = application.applicant
+            )
 
             # generate repayments
             create_repayments(approved_loan)
 
         return redirect(request.META.get("HTTP_REFERER", reverse("accounts:dashboard")))
     
-
-class RepaymentPayView(LoginRequiredMixin, UpdateView):
-    model = Repayment
-    template_name = "loans/repayment_confirm.html"
-    fields = []  # no form fields
-    success_url = reverse_lazy("loans:repayment_list")
-
-    def get_queryset(self):
-        # Security: user can pay only own repayments
-        return Repayment.objects.filter(loan__application__applicant=self.request.user)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["today"] = timezone.now().date()
-        return context
-
-    def form_valid(self, form):
-        repayment = form.instance
-        today = timezone.now().date()
-
-        repayment.amount_paid = repayment.amount_due
-        repayment.paid_date = today
-
-        if today > repayment.due_date:
-            repayment.status = "late"
-        else:
-            repayment.status = "paid"
-
-        repayment.save()
-
-        # Update credit score
-        update_credit_score(self.request.user, repayment)
-
-        return super().form_valid(form)
-
 
 class RepaymentListView(ListView):
     model = Repayment
@@ -463,6 +439,58 @@ class RepaymentListView(ListView):
         context["loans"] = getattr(self, "loans", [])
         context["selected_loan"] = getattr(self, "selected_loan", None)
         return context
+    
+class BulkRepaymentPayView(LoginRequiredMixin, View):
+    def post(self, request):
+        repayment_ids = request.POST.getlist("repayment_ids")
+        amount = request.POST.get("amount")
+
+        if not repayment_ids:
+            messages.error(request, "Please select at least one repayment.")
+            return redirect("loans:repayment_list")
+
+        request.session['selected_repayments'] = repayment_ids
+        request.session['selected_amount'] = str(amount)
+
+        # Redirect to confirm page
+        return redirect('loans:repayment-confirm')
+
+class BulkRepaymentConfirmView(LoginRequiredMixin, TemplateView):
+    template_name = "loans/repayment_confirm.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        repayment_ids = self.request.session.get('selected_repayments', [])
+        context['repayments'] = Repayment.objects.filter(
+            id__in=repayment_ids,
+            loan__application__applicant=self.request.user
+        )
+        total_amount = self.request.session.get('selected_amount')
+        if total_amount:
+            context['total_amount'] = total_amount
+        else:
+            context['total_amount'] = sum([r.amount_due for r in context['repayments']])
+        return context
+
+    def post(self, request, *args, **kwargs):
+        repayment_ids = request.session.get('selected_repayments', [])
+        payment_method = request.POST.get("payment_method")
+
+        if not repayment_ids:
+            messages.error(request, "No repayments selected.")
+            return redirect("loans:repayment_list")
+        if not payment_method:
+            messages.error(request, "Please select a payment method.")
+            return redirect(request.path)
+        
+        request.session["payment_method"] = payment_method
+
+        if payment_method == "esewa":
+            return redirect("payments:esewa-pay")
+        elif payment_method == "khalti":
+            return redirect("payments:khalti-pay")
+        return redirect("payments:process")
+
 
 
 
