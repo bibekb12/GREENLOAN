@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     ApplyLoanView,
     BulkRepaymentPayView,
-    RepaymentConfirmView,
+    BulkRepaymentConfirmView,
     RepaymentListView,
     UploadDocumentsView,
     ApplicationDetailView,
@@ -37,7 +37,7 @@ urlpatterns = [
         name="application_status_update",
     ),
     path("repayments/", RepaymentListView.as_view(), name="repayment_list"),
-    path("repayments/confirm", RepaymentConfirmView.as_view(), name="repayment-confirm"),
+    path("repayments/confirm/", BulkRepaymentConfirmView.as_view(), name="repayment-confirm"),
     path("repayment/bulk-pay/", BulkRepaymentPayView.as_view(),name="bulk-repay",),
 
 ]

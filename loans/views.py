@@ -394,56 +394,6 @@ class ApplicationStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, View)
         return redirect(request.META.get("HTTP_REFERER", reverse("accounts:dashboard")))
     
 
-class RepaymentConfirmView(LoginRequiredMixin, TemplateView):
-    template_name = "loans/repayment_confirm.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        repayment_ids = self.request.session.get('selected_repayments', [])
-        context['repayments'] = Repayment.objects.filter(
-            id__in=repayment_ids,
-            loan__application__applicant=self.request.user
-        )
-        context['total_amount'] = sum([r.amount_due for r in context['repayments']])
-        return context
-
-    def post(self, request, *args, **kwargs):
-        repayment_ids = request.session.get('selected_repayments', [])
-        payment_method = request.POST.get("payment_method")
-
-        if not repayment_ids:
-            messages.error(request, "No repayments selected.")
-            return redirect("loans:repayment_list")
-        if not payment_method:
-            messages.error(request, "Please select a payment method.")
-            return redirect(request.path)
-
-        repayments = Repayment.objects.filter(
-            id__in=repayment_ids,
-            loan__application__applicant=self.request.user
-        ).order_by("due_date")
-
-        for r in repayments:
-            r.amount_paid = r.amount_due
-            r.paid_date = timezone.now().date()
-            r.status = "paid" if r.paid_date <= r.due_date else "late"
-            r.save(update_fields=["amount_paid", "paid_date", "status"])
-
-            Payment.objects.create(
-                repayment=r,
-                amount=r.amount_due,
-                method=payment_method,
-            )
-
-            update_credit_score(request.user, r)
-
-        # Clear session after processing
-        del request.session['selected_repayments']
-
-        messages.success(request, f"Payment successful via {payment_method}!")
-        return redirect("loans:repayment_list")
-
-
 class RepaymentListView(ListView):
     model = Repayment
     template_name = "loans/repayment_list.html"
@@ -506,7 +456,7 @@ class BulkRepaymentPayView(LoginRequiredMixin, View):
         return redirect('loans:repayment-confirm')
 
 class BulkRepaymentConfirmView(LoginRequiredMixin, TemplateView):
-    template_name = "loans/bulk_repayment_confirm.html"
+    template_name = "loans/repayment_confirm.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -532,31 +482,14 @@ class BulkRepaymentConfirmView(LoginRequiredMixin, TemplateView):
         if not payment_method:
             messages.error(request, "Please select a payment method.")
             return redirect(request.path)
+        
+        request.session["payment_method"] = payment_method
 
-        repayments = Repayment.objects.filter(
-            id__in=repayment_ids,
-            loan__application__applicant=self.request.user
-        ).order_by("due_date")
-
-        for r in repayments:
-            r.paid_date = timezone.now().date()
-            r.status = "paid" if r.paid_date <= r.due_date else "late"
-            r.save(update_fields=["amount_paid", "paid_date", "status"])
-
-            Payment.objects.create(
-                repayment=r,
-                amount=r.amount_due,
-                method=payment_method,
-            )
-
-            update_credit_score(request.user, r)
-
-        # Clear session
-        del request.session['selected_repayments']
-        del request.session['selected_amount']
-
-        messages.success(request, f"Payment successful via {payment_method}!")
-        return redirect("loans:repayment_list")
+        if payment_method == "esewa":
+            return redirect("payments:esewa-pay")
+        elif payment_method == "khalti":
+            return redirect("payments:khalti-pay")
+        return redirect("payments:process")
 
 
 

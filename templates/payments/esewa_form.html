@@ -16,17 +16,17 @@
                     <p class="text-muted">You will be redirected to eSewa payment gateway shortly.</p>
                     
                     <form id="esewaForm" method="POST" action="{{ esewa_url }}">
-                        <input type="hidden" name="amount" value="{{ amount }}">
-                        <input type="hidden" name="tax_amount" value="0">
-                        <input type="hidden" name="total_amount" value="{{ amount }}">
-                        <input type="hidden" name="transaction_uuid" value="{{ transaction_uuid }}">
-                        <input type="hidden" name="product_code" value="{{ product_code }}">
-                        <input type="hidden" name="product_service_charge" value="0">
-                        <input type="hidden" name="product_delivery_charge" value="0">
-                        <input type="hidden" name="success_url" value="{{ success_url }}">
-                        <input type="hidden" name="failure_url" value="{{ failure_url }}">
-                        <input type="hidden" name="signed_field_names" value="amount,total_amount,transaction_uuid,product_code">
-                        <input type="hidden" name="signature" value="{{ signature }}">
+                        <input type="hidden" name="amount" value="{{ amount }}" required>
+                        <input type="hidden" name="tax_amount" value="0" required>
+                        <input type="hidden" name="total_amount" value="{{ amount }}" required>
+                        <input type="hidden" name="transaction_uuid" value="{{ transaction_uuid }}" required>
+                        <input type="hidden" name="product_code" value="{{ product_code }}" required>
+                        <input type="hidden" name="product_service_charge" value="0" required>
+                        <input type="hidden" name="product_delivery_charge" value="0" required>
+                        <input type="hidden" name="success_url" value="{{ success_url }}" required>
+                        <input type="hidden" name="failure_url" value="{{ failure_url }}" required>
+                        <input type="hidden" name="signed_field_names" value="{{ signed_field_names }}">
+                        <input type="hidden" name="signature" value="{{ signature }}" required>
                     </form>
                     
                     <div class="mt-3">
