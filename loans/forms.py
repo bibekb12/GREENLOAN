@@ -23,7 +23,6 @@ class ApplicationForm(forms.ModelForm):
             "amount": forms.NumberInput(attrs={"class": "form-control"}),
             "duration_months": forms.NumberInput(attrs={"class": "form-control"}),
             "monthly_income": forms.NumberInput(attrs={"class": "form-control"}),
-            "citizenship_number": forms.TextInput(attrs={"class": "form-control"}),
         }
 
     def clean(self):
