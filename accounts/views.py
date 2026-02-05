@@ -4,7 +4,6 @@ from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView, TemplateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from requests import request
 from accounts.models import User
 from loans.models import Application
 from .forms import (
@@ -15,10 +14,9 @@ from .forms import (
 )
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
-from django.contrib.auth import login
 from django.shortcuts import get_object_or_404
 
-from django.contrib.auth.tokens import default_token_generator
+from accounts.tokens import email_verification_token
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
@@ -41,7 +39,6 @@ class CustomLoginView(LoginView):
         user = form.get_user()
         if user is not None and not user.email_verified:
                 return render(self.request, "accounts/emailverify.html", {"email": user.email})
-        login(self.request, user)
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -66,10 +63,8 @@ class SignupView(CreateView):
         user.is_active = True
         user.save()
 
-        # added the directly login after signup
-        from django.contrib.auth import login
-
-        login(self.request, user)
+        # sending verification email msg
+        EmailAddrVerify.send_verification_email(self.request, user)
 
         messages.success(self.request, "Account created succesfully.")
         return super().form_valid(form)
@@ -85,10 +80,12 @@ class EmailAddrVerify(View):
         try:
             uid = urlsafe_base64_decode(uidb64).decode()
             user = User.objects.get(pk=uid)
+            print("user")
+            print("uid")
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
 
-        if user and default_token_generator.check_token(user, token):
+        if user and email_verification_token.check_token(user, token):
             user.is_active = True
             user.email_verified = True
             user.save()
@@ -100,9 +97,9 @@ class EmailAddrVerify(View):
 
     @staticmethod
     def send_verification_email(request, user):
-        token = default_token_generator.make_token(user)
+        token = email_verification_token.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        verification_url = request.build_absolute_uri({reverse("accounts:email-verify", kwargs={'uidb64': uid, 'token': token})})
+        verification_url = request.build_absolute_uri(reverse("accounts:email-verify", kwargs={'uidb64': uid, 'token': token}))
 
         subject = "Verify Your Email Address"
         message = f"""

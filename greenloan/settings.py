@@ -206,8 +206,7 @@ LOGIN_REDIRECT_URL = "/app/dashboard/"
 
 #email accounts handle
 
-# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
@@ -231,7 +230,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 X_FRAME_OPTIONS = 'SAMEORIGIN'  
 
 #esewa payment 
-ESEWA_PAYMENT_URL = "https://uat.esewa.com.np/epay/main"
+# ESEWA_PAYMENT_URL = "https://uat.esewa.com.np/epay/main"
+ESEWA_PAYMENT_URL = "https://rc-epay.esewa.com.np/api/epay/main/v2/form"
 ESEWA_MERCHANT_CODE = "EPAYTEST"
-ESEWA_SUCCESS_URL = "https://localhost:8000/payment/esewa/success/"
-ESEWA_FAILURE_URL = "https://localhost:8000/payment/esewa/failure/"
+ESEWA_SECRET_CODE = "8gBm/:&EnhH.1/q"

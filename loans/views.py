@@ -104,9 +104,10 @@ class ApplicationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
         )
         context["all_document_types"] = Document.DOCUMENT_TYPES
 
-        documents = application.documents.all()
-        all_document_verified = all(doc.verification_status == "verified" for doc in documents )
-        context["all_doc_verified"] = all_document_verified
+        context["all_doc_verified"] = True
+
+        context["final_approved"] = Application.status
+
 
 
         # Applicant allowed actions
@@ -376,11 +377,15 @@ class ApplicationStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, View)
                 approved_by = self.request.user,
                 status="active"
             )
+            # generate repayments
+            create_repayments(approved_loan)
+            
             loan_approved_signal.send(
                 sender=None,
                 loan_type = application.loan_type.name,
                 to_user = application.applicant
             )
+
         if new_status == "reject":
             loan_reject_signal.send(
                 sender=None,
@@ -388,8 +393,6 @@ class ApplicationStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, View)
                 to_user = application.applicant
             )
 
-            # generate repayments
-            create_repayments(approved_loan)
 
         return redirect(request.META.get("HTTP_REFERER", reverse("accounts:dashboard")))
     
