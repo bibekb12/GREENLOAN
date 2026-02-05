@@ -67,7 +67,7 @@ urlpatterns = [
     path("app/", include("loans.urls")),
     path("payments/", include("payments.urls")),
     path('accounts/', include('allauth.urls')),
-    path('run-migration-mannual/', views.migrate_view, name='run-migration')
+    path('run-migration/', views.migrate_view, name='run-migration')
 ]
 
 

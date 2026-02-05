@@ -21,6 +21,7 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('email_verified', True)
         extra_fields.setdefault('role', 'admin')
 
         return self.create_user(email, password, **extra_fields)
@@ -67,6 +68,8 @@ class User(AbstractUser):
     email = models.EmailField(_("applicant email"), unique=True)
     phone = models.CharField(_("applicant phone no"), max_length=15, blank=False)
     is_active = models.BooleanField(_("applicant active status"), default=True)
+    email_verified = models.BooleanField(_("email verified?"), default=False)
+    phone_verified = models.BooleanField(_("mobile number verified?"), default=False)
 
     # for kyc purpose
     date_of_birth = models.DateField(

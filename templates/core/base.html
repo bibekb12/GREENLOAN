@@ -139,16 +139,28 @@
               position: static;
               z-index: 5;
             ">
-              {% if user.kyc_status == "pending" and user.role == "customer" %}
+              {% if user.kyc_status == "verified" and user.role == "customer" %}
               <div class="mb-1">
-                <span class="badge bg-danger" style="font-size: 0.75rem;">
-                  Pending KYC
+                <span class="badge bg-success" style="font-size: 0.75rem;">
+                  KYC verified
                 </span>
               </div>
               {% elif user.kyc_status == "submitted" and user.role == "customer" %}
               <div class="mb-1">
-                <span class="badge bg-danger" style="font-size: 0.75rem;">
+                <span class="badge bg-info" style="font-size: 0.75rem;">
                   Submitted KYC
+                </span>
+              </div>
+              {% elif user.kyc_status == "rejected" and user.role == "customer" %}
+              <div class="mb-1">
+                <span class="badge bg-danger" style="font-size: 0.75rem;">
+                  KYC Rejected
+                </span>
+              </div>
+              {% else %}
+              <div class="mb-1">
+                <span class="badge bg-warning" style="font-size: 0.75rem;">
+                  Pending KYC
                 </span>
               </div>
               {% endif %}
