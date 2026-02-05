@@ -1,0 +1,31 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="card shadow-sm text-center" style="max-width: 500px; width: 100%;">
+        <div class="card-body p-4">
+            <div class="mb-3">
+                <i class="bi bi-envelope-check text-warning fs-1"></i>
+            </div>
+
+            <h4 class="card-title mb-3">Email Verification Required</h4>
+
+            <p class="text-muted">
+                Hi <strong>{{ email }}</strong>, your account is not verified yet.
+            </p>
+
+            <div class="alert alert-info">
+                Please check your email and click the verification link to activate your account.
+            </div>
+
+            <p class="mb-3">
+                Didn’t receive the email?
+            </p>
+
+            <a href="{% url 'accounts:resend-verification-email' %}?email={{ email }}" class="btn btn-outline-primary">
+                Resend Verification Email
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

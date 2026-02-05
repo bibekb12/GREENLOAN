@@ -1,13 +1,3 @@
-# import django
-# from django.core.management import call_command
-# try:
-#     call_command('migrate', interactive=False)
-#     call_command('collectstatic', interactive=False, clear=True)
-#     call_command('loaddata loan_types', interactive=False)
-# except Exception as e:
-#     print("Migration failed:", e)
-
-
 from django.http import HttpResponse
 from django.core.management import call_command
 from django.db.utils import OperationalError

@@ -5,9 +5,9 @@
     <a href="{% url 'core:user_create' %}" class="btn btn-primary">Add New User</a>
   </div>
 
-  <table class="table table-bordered" style="">
+  <table class="table table-bordered">
     <thead style="background-color: var(--primary-dark); color: var(--primary-light);">
-      <tr style="">
+      <tr>
         <th>Full Name</th>
         <th>Role</th>
         <th>Email</th>
@@ -18,7 +18,13 @@
         <tr>
           <td>{{ user.full_name }}</td>
           <td>{{ user.role }}</td>
-          <td>{{ user.email }}</td>
+          <td>{{ user.email }} 
+              {% if user.email_verified%}
+              <span class="badge bg-success">Verified email</span>
+              {% else %}  
+              <span class="badge bg-warning text-dark">Unverified email</span>
+              {% endif %}
+          </td>
         </tr>
       {% endfor %}
     </tbody>

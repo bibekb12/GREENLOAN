@@ -10,6 +10,7 @@ from django.views.generic import ListView, View
 from django.contrib import messages
 from django.utils import timezone
 from django.conf import settings
+from greenloan import settings as appsettings
 import requests
 from loans.models import Repayment, ApprovedLoans
 from payments.models import EsewaPayment, Payment
@@ -95,7 +96,7 @@ class EsewaPaymentView(ListView):
     """Initiate eSewa payment"""
     
     def get(self, request):
-        product_code="EPAYTEST"
+        product_code=appsettings.ESEWA_MERCHANT_CODE
         # Handle direct access - check if there's session data
         repayment_ids = request.session.get('selected_repayments', [])
         total_amount = request.session.get('selected_amount')
@@ -131,9 +132,9 @@ class EsewaPaymentView(ListView):
         request.session['repayment_ids'] = repayment_ids
         
         # eSewa payment URL and parameters
-        esewa_url = "https://rc-epay.esewa.com.np/api/epay/main/v2/form"
+        esewa_url = appsettings.ESEWA_PAYMENT_URL
         
-        secret_key = "8gBm/:&EnhH.1/q" 
+        secret_key = appsettings.ESEWA_SECRET_CODE 
         amount_str = str(int(amount))
         signed_field_names = "amount,total_amount,transaction_uuid,product_code"
         string_to_sign = f"amount={amount_str},total_amount={amount_str},transaction_uuid={transaction_uuid},product_code={product_code}"
@@ -183,8 +184,6 @@ class EsewaSuccessView(View):
             messages.error(request, "Payment record not found.")
             return redirect("loans:repayment_list")
         
-        # Verify payment with eSewa API (for production)
-        # For now, we'll consider it successful
         esewa_payment.status = "SUCCESS"
         esewa_payment.ref_id = ref_id
         esewa_payment.save()
