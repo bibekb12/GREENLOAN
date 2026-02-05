@@ -164,9 +164,19 @@
                 </span>
               </div>
               {% endif %}
-              <div class="user-avatar me-2">
-                {{ user.first_name|first|default:user.username|first|upper }}
-              </div>
+     <div class="user-avatar me-2">
+  {% if user.passport_photo_url %}
+    <img src="{{ user.passport_photo_url.url }}"
+         alt="profile image"
+         class="rounded-circle"
+         style="width: 36px; height: 36px; object-fit: cover; border: 1px solid #ccc;">
+  {% else %}
+    <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center"
+         style="width: 36px; height: 36px; font-size: 14px; font-weight: 600;">
+      {{ user.first_name|default:user.username|first|upper }}
+    </div>
+  {% endif %}
+</div>
               {{ user.get_full_name|default:user.username }}
             </a>
 

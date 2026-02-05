@@ -135,7 +135,7 @@ class EsewaPaymentView(ListView):
         esewa_url = appsettings.ESEWA_PAYMENT_URL
         
         secret_key = appsettings.ESEWA_SECRET_CODE 
-        amount_str = str(int(amount))
+        amount_str = format(amount,".2f")
         signed_field_names = "amount,total_amount,transaction_uuid,product_code"
         string_to_sign = f"amount={amount_str},total_amount={amount_str},transaction_uuid={transaction_uuid},product_code={product_code}"
         hmac_sha256 = hmac.new(
@@ -165,28 +165,29 @@ class EsewaSuccessView(View):
     """Handle eSewa success callback"""
     
     def get(self, request):
-        transaction_uuid = request.GET.get('transaction_uuid')
-        product_code = request.GET.get('product_code')
-        total_amount = request.GET.get('total_amount')
-        ref_id = request.GET.get('ref_id')
-        
-        if not all([transaction_uuid, product_code, total_amount, ref_id]):
+        data = request.GET.get("data")
+
+        if not data:
             messages.error(request, "Invalid eSewa response.")
             return redirect("loans:repayment_list")
         
-        # Get eSewa payment record
         try:
-            esewa_payment = EsewaPayment.objects.get(
-                transaction_uuid=transaction_uuid,
-                user=request.user
-            )
-        except EsewaPayment.DoesNotExist:
-            messages.error(request, "Payment record not found.")
+            decoded_data = base64.b64decode(data).decode("utf-8")
+            esewa_response = json.loads(decoded_data)
+        except Exception:
+            messages.error(request, "Failed to decode the data")
             return redirect("loans:repayment_list")
         
-        esewa_payment.status = "SUCCESS"
-        esewa_payment.ref_id = ref_id
-        esewa_payment.save()
+        # Get eSewa payment record
+
+        transaction_uuid = esewa_response.get('transaction_uuid')
+        product_code = esewa_response.get('product_code')
+        total_amount = esewa_response.get('total_amount')
+        ref_id = esewa_response.get('ref_id')
+        status = esewa_response.get('status')
+        
+        if status != "COMPLETE":
+            messages.error(request, "eSewa payment not completed")
         
         # Process repayments
         repayment_ids = request.session.get('repayment_ids', [])
