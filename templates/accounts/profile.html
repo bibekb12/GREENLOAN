@@ -27,7 +27,24 @@
                     </div>
 
                     <!-- Basic Profile Information -->
-                    <h4 class="mb-3">Basic Information</h4>
+<h4 class="mb-3 text-center fw-bold">Basic Information</h4>
+
+
+<div class="d-flex justify-content-end mb-3">
+    {% if user.passport_photo_url %}
+    <div class="text-center">
+        <small class="text-muted fw-bold d-block mb-1">
+            Profile Image
+        </small>
+        <img src="{{ user.passport_photo_url.url }}"
+             alt="profile image"
+             class="img-thumbnail shadow-sm"
+             style="width: 150px; height: 150px; object-fit: cover;">
+    </div>
+    {% endif %}
+</div>
+
+
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <input type="hidden" name="update_profile" value="1">
@@ -84,7 +101,7 @@
                                 <label class="form-label">Citizenship Front</label>
                                 <input type="file" name="citizenship_front" class="form-control" accept="image/*">
                                 {% if user.citizenship_front_url %}
-                                <a class="btn-outline-primary" href="{{user.citizenship_back_url.url}}" target="_blank">View doc</a>
+                                <a class="btn-outline-primary" href="{{user.citizenship_front_url.url}}" target="_blank">View doc</a>
                                 {% endif %}
                             </div>
                             <div class="col-md-4">
