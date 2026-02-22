@@ -115,41 +115,52 @@ AUTH_USER_MODEL = "accounts.User"
 DJANGO_ENV = os.getenv("DJANGO_ENV", "development")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-if DATABASE_URL:
-    DATABASES = {
-        "default": dj_database_url.parse(
-            DATABASE_URL,
-            conn_max_age=600,
-            ssl_require=True
-        )
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "greenloan",
+        "USER": "postgres",
+        "PASSWORD": "1234",
+        "HOST": "127.0.0.1",
+        "PORT": "5432",
     }
+}
 
-elif  DJANGO_ENV == "production":
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.mysql",
-            "NAME": "bibekb12$greenloan",
-            "USER": "bibekb12",
-            "PASSWORD": "@greenloan",
-            "HOST": "bibekb12.mysql.pythonanywhere-services.com",
-            "PORT": "3306",
-        }
-    }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": env("DBENGINE"),
-            "NAME": env("DBNAME"),
-            "USER": env("DBUSERNAME"),
-            "PASSWORD": env("DBPASSWORD"),
-            "PORT": env("DBPORT"),
-            "HOST": "localhost",
-            # "HOST": "host.docker.internal",
-            "OPTIONS": {
-                "driver": "ODBC Driver 17 for SQL Server",
-            },
-        }
-    }
+# if DATABASE_URL:
+#     DATABASES = {
+#         "default": dj_database_url.parse(
+#             DATABASE_URL,
+#             conn_max_age=600,
+#             ssl_require=True
+#         )
+#     }
+
+# elif  DJANGO_ENV == "production":
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.mysql",
+#             "NAME": "bibekb12$greenloan",
+#             "USER": "bibekb12",
+#             "PASSWORD": "@greenloan",
+#             "HOST": "bibekb12.mysql.pythonanywhere-services.com",
+#             "PORT": "3306",
+#         }
+#     }
+# else:
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": env("DBENGINE"),
+#             "NAME": env("DBNAME"),
+#             "USER": env("DBUSERNAME"),
+#             "PASSWORD": env("DBPASSWORD"),
+#             "PORT": env("DBPORT"),
+#             "HOST": "localhost",
+#             # "HOST": "host.docker.internal",
+#             "OPTIONS": {
+#                 "driver": "ODBC Driver 17 for SQL Server",
+#             },
+#         }
+#     }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
