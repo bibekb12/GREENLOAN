@@ -35,11 +35,19 @@
           </a>
         </li>
 
+        {% if user.is_superuser%}
+        <li class="nav-item">
+          <a class="nav-link border border-success rounded px-3 mx-1" href="/admin/">
+            Super Admin
+          </a>
+        </li>
+        {% else %}
         <li class="nav-item">
           <a class="nav-link disabled border border-success rounded px-3 mx-1" href="/admin/">
             Super Admin
           </a>
         </li>
+        {% endif%}
 
       </ul>
     </div>
