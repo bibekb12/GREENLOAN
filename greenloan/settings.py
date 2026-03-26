@@ -32,7 +32,7 @@ SECRET_KEY = "django-insecure-fj^!sv%ypkg#ww)^(*08b6hy!1!7w5r-o1f5bxl=c4h#m+s%+p
 DEBUG = env("DEBUG")
 # DEBUG = False
 
-ALLOWED_HOSTS = ["bibekb12.pythonanywhere.com", "127.0.0.1","greenloan.bibekbhandari.com.np","greenloan.onrender.com"]
+ALLOWED_HOSTS = ["greenloan.pythonanywhere.com", "127.0.0.1","greenloan.bibekbhandari.com.np"]
 
 
 # Application definition
