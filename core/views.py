@@ -260,7 +260,7 @@ class AuditModelListView(LoginRequiredMixin, TemplateView):
         return {
             "models": [
                 {"name": "Application", "slug": "application","app":"loans"},
-                {"name": "Loan", "slug": "loan","app":"loans"},
+                # {"name": "Loan", "slug": "loan","app":"loans"},
                 {"name": "User", "slug": "user","app":"accounts"},
             ]
         }
