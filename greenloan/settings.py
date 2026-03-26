@@ -115,11 +115,13 @@ AUTH_USER_MODEL = "accounts.User"
 DJANGO_ENV = os.getenv("DJANGO_ENV", "development")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+
 DATABASES = {
-      "default": {
+    "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "SQLITEgreenloan",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
+}
 
     # "default": {
     #     "ENGINE": "django.db.backends.postgresql",
@@ -129,7 +131,7 @@ DATABASES = {
     #     "HOST": "127.0.0.1",
     #     "PORT": "5432",
     # }
-}
+# }
 
 
 # Password validation
