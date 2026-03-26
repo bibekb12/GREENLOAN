@@ -116,14 +116,19 @@ DJANGO_ENV = os.getenv("DJANGO_ENV", "development")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "greenloan",
-        "USER": "postgres",
-        "PASSWORD": "1234",
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
+      "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "SQLITEgreenloan",
     }
+
+    # "default": {
+    #     "ENGINE": "django.db.backends.postgresql",
+    #     "NAME": "greenloan",
+    #     "USER": "postgres",
+    #     "PASSWORD": "1234",
+    #     "HOST": "127.0.0.1",
+    #     "PORT": "5432",
+    # }
 }
 
 # if DATABASE_URL:
