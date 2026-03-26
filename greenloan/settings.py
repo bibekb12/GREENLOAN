@@ -31,7 +31,7 @@ SECRET_KEY = "django-insecure-fj^!sv%ypkg#ww)^(*08b6hy!1!7w5r-o1f5bxl=c4h#m+s%+p
 DEBUG = env("DEBUG")
 # DEBUG = False
 
-ALLOWED_HOSTS = ["greenloan.pythonanywhere.com", "127.0.0.1","greenloan.bibekbhandari.com.np"]
+ALLOWED_HOSTS = ["greenloan.pythonanywhere.com", "greenloan.bibekbhandari.com.np", "127.0.0.1","greenloan.bibekbhandari.com.np"]
 
 
 # Application definition
@@ -207,6 +207,9 @@ ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_LOGIN_METHODS = {'email'}
 SOCIALACCOUNT_ADAPTER = 'accounts.adapter.CustomSocialAccountAdapter'
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://greenloan.bibekbhandari.com.np"
+]
 
 CORS_ALLOW_ALL_ORIGINS = False
 X_FRAME_OPTIONS = 'SAMEORIGIN'  
