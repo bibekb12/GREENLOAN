@@ -172,8 +172,9 @@
          style="width: 36px; height: 36px; object-fit: cover; border: 1px solid #ccc;">
   {% else %}
     <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center"
-         style="width: 36px; height: 36px; font-size: 14px; font-weight: 600;">
-      {{ user.first_name|default:user.username|first|upper }}
+         style="width: 36px; height: 36px; font-size: 14px; font-weight: 600;"> 
+         {# {{ user.first_name|default:user.username|first|upper }} #}
+         {{ user.first_name|default_if_none:user.username|default:""|first|upper }}
     </div>
   {% endif %}
 </div>
