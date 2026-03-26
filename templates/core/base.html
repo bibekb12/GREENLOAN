@@ -158,11 +158,13 @@
                 </span>
               </div>
               {% else %}
+              {% if user.role == "customer" %}
               <div class="mb-1">
                 <span class="badge bg-warning" style="font-size: 0.75rem;">
                   Pending KYC
                 </span>
               </div>
+              {% endif %}
               {% endif %}
      <div class="user-avatar me-2">
   {% if user.passport_photo_url %}
