@@ -211,3 +211,6 @@ media
 
 #ignoring collected staticfiles
 staticfiles
+
+# ignore db
+SQLITEgreenloan
