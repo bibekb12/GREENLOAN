@@ -213,4 +213,4 @@ media
 staticfiles
 
 # ignore db
-db.sqlite3
+db.sqlite3db.sqlite3
