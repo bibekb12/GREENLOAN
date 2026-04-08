@@ -1,25 +1,19 @@
-FROM python:3.12-slim
+FROM python:3.10
 
-ENV DEBIAN_FRONTEND=noninteractive
+# Prevents Python from writing pyc files
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Keeps logs visible
 ENV PYTHONUNBUFFERED=1
-
-# System dependencies for pyodbc + Django
-RUN apt-get update && apt-get install -y \
-    gcc \
-    unixodbc \
-    unixodbc-dev \
-    pkg-config \
-    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY requirements.txt /app/
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+# Copy project
+COPY . .
 
-COPY . /app/
-
-EXPOSE 8000
-
+# Run server
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

@@ -1,13 +1,8 @@
-version: "3.9"
+version: '3.8'
 
 services:
   web:
     build: .
+    container_name: django-app
     ports:
       - "8000:8000"
-    volumes:
-      - .:/app
-    environment:
-      - DEBUG=1
-    stdin_open: true
-    tty: true

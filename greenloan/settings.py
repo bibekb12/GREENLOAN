@@ -31,7 +31,7 @@ SECRET_KEY = "django-insecure-fj^!sv%ypkg#ww)^(*08b6hy!1!7w5r-o1f5bxl=c4h#m+s%+p
 DEBUG = env("DEBUG")
 # DEBUG = False
 
-ALLOWED_HOSTS = ["greenloan.pythonanywhere.com", "greenloan.bibekbhandari.com.np", "127.0.0.1","greenloan.bibekbhandari.com.np"]
+ALLOWED_HOSTS = ["greenloan.pythonanywhere.com", "greenloan.bibekbhandari.com.np", "127.0.0.1","greenloan.bibekbhandari.com.np","*"]
 
 
 # Application definition
@@ -122,14 +122,14 @@ DATABASES = {
     }
 }
 
-    # "default": {
-    #     "ENGINE": "django.db.backends.postgresql",
-    #     "NAME": "greenloan",
-    #     "USER": "postgres",
-    #     "PASSWORD": "1234",
-    #     "HOST": "127.0.0.1",
-    #     "PORT": "5432",
-    # }
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": "greenloan",
+#         "USER": "postgres",
+#         "PASSWORD": "1234",
+#         "HOST": "127.0.0.1",
+#         "PORT": "5432",
+#     }
 # }
 
 

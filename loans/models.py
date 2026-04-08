@@ -84,7 +84,7 @@ class Application(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"Application {self.id} - {self.applicant.username}"
+        return f"Application {self.id} - {self.applicant.email}"
 
     def clean(self):
         """Validate application data"""
@@ -163,7 +163,7 @@ class ApprovedLoans(models.Model):
     ])
 
     def __str__(self):
-        return f"Loan #{self.id}- {self.user.full_name}"
+        return f"Loan #{self.id}- {self.application.applicant.full_name}"
     
     history = HistoricalRecords()
     
