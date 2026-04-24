@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check screts
+        run: |
+          echo "Docker username is set: ${{ secrets.DOCKER_USERNAME != '' "
+      
       - name: Checkout code
         uses: actions/checkout@v4
 
