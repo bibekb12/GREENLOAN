@@ -3,16 +3,16 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - main   # main मा push हुँदा run हुन्छ
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check screts
+      - name: Check secrets
         run: |
-          echo "Docker username is set: ${{ secrets.DOCKER_USERNAME != '' "
+          echo "Docker username is set: ${{ secrets.DOCKER_USERNAME != '' }}"
       
       - name: Checkout code
         uses: actions/checkout@v4
