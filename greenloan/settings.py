@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig', #this is for the email signal
     'simple_history', # for the history records
     'payments', # for payment mode
-
+    'kyc', # for kyc verification
 
     # third party apps for css
     "crispy_bootstrap5",
