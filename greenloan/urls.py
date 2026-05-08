@@ -67,6 +67,7 @@ urlpatterns = [
     path("app/", include("loans.urls")),
     path("payments/", include("payments.urls")),
     path('accounts/', include('allauth.urls')),
+    path('selfverify/', include("kyc.urls")),
     path('run-migration/', views.migrate_view, name='run-migration')
 ]
 
