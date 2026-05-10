@@ -1,64 +1,358 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face Verification KYC</title>
+{% extends "core/base.html" %}
+{% load static %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+{% block content %}
 
-<body class="bg-light">
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 
-<div class="container mt-5">
-
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-
-            <div class="card shadow-lg">
-                <div class="card-body">
-
-                    <h2 class="text-center mb-4">
-                        Face Recognition KYC
-                    </h2>
-
-                    {% if error %}
-                        <div class="alert alert-danger">
-                            {{ error }}
-                        </div>
-                    {% endif %}
-
-                    <form method="POST" enctype="multipart/form-data">
-
-                        {% csrf_token %}
-
-                        <div class="mb-3">
-                            <label class="form-label">
-                                Citizenship Image
-                            </label>
-                            {{ form.citizenship }}
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">
-                                Selfie Image
-                            </label>
-                            {{ form.selfie }}
-                        </div>
-
-                        <button class="btn btn-primary w-100">
-                            Verify Face
-                        </button>
-
-                    </form>
-
-                </div>
-            </div>
-
-        </div>
-    </div>
-
+<div id="loadingOverlay" style="display:none;
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+            background:rgba(0,0,0,0.6);
+            justify-content:center;
+            align-items:center;
+            z-index:9999;">
+    <div class="spinner-border text-light" style="width:4rem;height:4rem;"></div>
 </div>
 
-</body>
-</html>
+<style>
+    .verification-wrapper {
+        min-height: 100vh;
+        background: #f5f7fb;
+        padding: 40px 0;
+    }
+
+    .verification-card {
+        border: none;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+    }
+
+    .camera-box {
+        border-radius: 20px;
+        overflow: hidden;
+        background: #000;
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    video {
+        width: 100%;
+        display: block;
+        transform: scaleX(-1);
+    }
+
+    canvas {
+        display: none;
+    }
+
+    .scan-status {
+        background: #111827;
+        color: #fff;
+        padding: 18px;
+        border-radius: 15px;
+        text-align: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        padding: 0 20px;
+    }
+
+    .step {
+        text-align: center;
+        flex: 1;
+        position: relative;
+    }
+
+    .step::after {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: 50%;
+        width: 100%;
+        height: 2px;
+        background: #e5e7eb;
+        z-index: 1;
+    }
+
+    .step:last-child::after {
+        display: none;
+    }
+
+    .step-icon {
+        width: 32px;
+        height: 32px;
+        background: #fff;
+        border: 2px solid #e5e7eb;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 8px;
+        font-weight: 700;
+        position: relative;
+        z-index: 2;
+    }
+
+    .step.active .step-icon {
+        background: #0284c7;
+        border-color: #0284c7;
+        color: #fff;
+    }
+
+    .step.completed .step-icon {
+        background: #22c55e;
+        border-color: #22c55e;
+        color: #fff;
+    }
+
+    .step-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6b7280;
+    }
+
+    .camera-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 260px;
+        height: 320px;
+        border: 4px solid rgba(255, 255, 255, 0.4);
+        border-radius: 30px;
+        pointer-events: none;
+        box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.3);
+    }
+
+    .instruction-overlay {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
+        color: #fff;
+        padding: 15px;
+        border-radius: 12px;
+        text-align: center;
+        font-weight: 600;
+    }
+</style>
+
+<div class="verification-wrapper">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card verification-card">
+                    <div class="card-body p-4 p-md-5">
+                        <h3 class="text-center mb-4">Identity Verification</h3>
+
+                        <div class="step-indicator">
+                            <div class="step active" id="step1">
+                                <div class="step-icon">1</div>
+                                <div class="step-label">Position</div>
+                            </div>
+                            <div class="step" id="step2">
+                                <div class="step-icon">2</div>
+                                <div class="step-label">Blink</div>
+                            </div>
+                            <div class="step" id="step3">
+                                <div class="step-icon">3</div>
+                                <div class="step-label">Left Turn</div>
+                            </div>
+                            <div class="step" id="step4">
+                                <div class="step-icon">4</div>
+                                <div class="step-label">Right Turn</div>
+                            </div>
+                        </div>
+
+                        <div class="scan-status" id="scanStatus">Initializing System...</div>
+
+                        <div class="camera-box">
+                            <video id="video" autoplay muted playsinline></video>
+                            <div class="camera-overlay"></div>
+                            <div class="instruction-overlay" id="liveInstruction">Please wait...</div>
+                        </div>
+
+                        <canvas id="canvas"></canvas>
+
+                        <form method="POST" id="kycForm">
+                            {% csrf_token %}
+                            {{ form.live_capture }}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.addEventListener("load", async function () {
+        const video = document.getElementById("video");
+        const canvas = document.getElementById("canvas");
+        const hiddenInput = document.getElementById("id_live_capture");
+        const form = document.getElementById("kycForm");
+        const scanStatus = document.getElementById("scanStatus");
+        const liveInstruction = document.getElementById("liveInstruction");
+
+        let currentStep = 'position';
+        let verificationDone = false;
+
+        let blinkFrames = 0;
+        let blinkVerified = false;
+
+        function updateUI(statusText, instructionText, stepId) {
+            scanStatus.innerHTML = statusText;
+            liveInstruction.innerHTML = instructionText;
+            if (stepId) {
+                document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+                const el = document.getElementById(stepId);
+                el.classList.add('active');
+                const steps = ['step1', 'step2', 'step3', 'step4'];
+                const idx = steps.indexOf(stepId);
+                steps.forEach((id, i) => { if (i < idx) document.getElementById(id).classList.add('completed'); });
+            }
+        }
+
+        async function loadModels() {
+            try {
+                updateUI("Loading AI...", "Calibrating sensors...", "step1");
+                const MODEL_URL = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/";
+                // Switching to SSD MobileNet for much higher accuracy
+                await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+                await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+                updateUI("System Ready", "Starting camera...", "step1");
+                await startCamera();
+            } catch (error) {
+                console.error(error);
+                updateUI("Error", "Check internet connection.", "step1");
+            }
+        }
+
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: 640, height: 480, facingMode: "user" }
+                });
+                video.srcObject = stream;
+                video.onloadedmetadata = async () => {
+                    await video.play();
+                    updateUI("Face Scan Active", "Step 1: Align your face in center", "step1");
+                    detectFaceMovement();
+                };
+            } catch (error) {
+                updateUI("Camera Error", "Check permissions.", "step1");
+            }
+        }
+
+        function calculateEAR(eye) {
+            const v1 = Math.hypot(eye[1].x - eye[5].x, eye[1].y - eye[5].y);
+            const v2 = Math.hypot(eye[2].x - eye[4].x, eye[2].y - eye[4].y);
+            const h = Math.hypot(eye[0].x - eye[3].x, eye[0].y - eye[3].y);
+            return (v1 + v2) / (2.0 * h);
+        }
+
+        async function detectFaceMovement() {
+            if (verificationDone) return;
+
+            // Using SSD Mobilenet options for better detection
+            const detection = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+                .withFaceLandmarks();
+
+            if (!detection) {
+                updateUI("Face Lost", "Please look directly at camera", null);
+                requestAnimationFrame(detectFaceMovement);
+                return;
+            }
+
+            const landmarks = detection.landmarks;
+            const nose = landmarks.getNose();
+            const jaw = landmarks.getJawOutline();
+            const leftEye = landmarks.getLeftEye();
+            const rightEye = landmarks.getRightEye();
+
+            if (currentStep === 'position') {
+                updateUI("Face Locked", "Step 2: Please BLINK now", "step2");
+                currentStep = 'blink';
+            }
+            // else if (currentStep === 'blink') {
+            //     const avgEAR = (calculateEAR(leftEye) + calculateEAR(rightEye)) / 2;
+            //     // Higher threshold (0.24) and clearer instruction
+            //     if (avgEAR < 0.24) {
+            //         updateUI("Blink Verified!", "Step 3: Turn your head LEFT", "step3");
+            //         currentStep = 'left';
+            //         setTimeout(() => requestAnimationFrame(detectFaceMovement), 800);
+            //         return;
+            //     }
+            // }
+            else if (currentStep === 'blink') {
+                const avgEAR = (calculateEAR(leftEye) + calculateEAR(rightEye)) / 2;
+
+                if (avgEAR < 0.30) {
+                    blinkFrames++;
+                    updateUI("Blink in progress...", "Keep blinking naturally", "step2");
+                } else {
+                    if (blinkFrames >= 1 && !blinkVerified) {
+                        blinkVerified = true;
+                        updateUI("Blink Verified!", "Step 3: Slowly turn your head LEFT", "step3");
+                        currentStep = 'left';
+                        setTimeout(() => requestAnimationFrame(detectFaceMovement), 800);
+                        return;
+                    }
+                    blinkFrames = 0;
+                }
+            }
+            else if (currentStep === 'left') {
+                const noseX = nose[3].x;
+                const center = (jaw[0].x + jaw[16].x) / 2;
+                if (noseX < center - 25) {
+                    updateUI("Left Verified!", "Step 4: Finally, turn head RIGHT", "step4");
+                    currentStep = 'right';
+                    setTimeout(() => requestAnimationFrame(detectFaceMovement), 800);
+                    return;
+                }
+            }
+            else if (currentStep === 'right') {
+                const noseX = nose[3].x;
+                const center = (jaw[0].x + jaw[16].x) / 2;
+                if (noseX > center + 25) {
+                    verificationDone = true;
+                    updateUI("Verified!", "Stay still for capture...", null);
+                    captureImage();
+                    setTimeout(() => {
+                        document.getElementById("loadingOverlay").style.display = "flex";
+                        form.submit();
+                    }, 1500);
+                    return;
+                }
+            }
+
+            requestAnimationFrame(detectFaceMovement);
+        }
+
+        function captureImage() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext("2d");
+            ctx.translate(canvas.width, 0); ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            hiddenInput.value = canvas.toDataURL("image/png");
+        }
+
+        loadModels();
+    });
+</script>
+{% endblock %}
