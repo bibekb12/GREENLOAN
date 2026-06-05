@@ -154,3 +154,4 @@ greenloan/
 │── static/          # CSS / JS / Images
 │── media/           # Uploaded files
 │── greenloan/       # Main settings
+│── kyc/             # kyc self verify
