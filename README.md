@@ -155,3 +155,13 @@ greenloan/
 │── media/           # Uploaded files
 │── greenloan/       # Main settings
 │── kyc/             # kyc self verify
+
+```
+# Documentation
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Database](docs/Database.md)
+- [API](docs/API.md)
+
+# Remember for new release
+- [GIT](docs/GIT.md)
