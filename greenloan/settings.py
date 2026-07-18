@@ -123,21 +123,14 @@ DJANGO_ENV = os.getenv("DJANGO_ENV", "development")
 DB_PATH = env("DB_PATH", default=str(BASE_DIR / "db.sqlite3"))
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": DB_PATH,
-    }
+    "default": env.db(
+        "DATABASE_URL",
+        default=f"sqlite:///{DB_PATH}",
+    )
 }
 
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": "greenloan",
-#         "USER": "postgres",
-#         "PASSWORD": "1234",
-#         "HOST": "127.0.0.1",
-#         "PORT": "5432",
-#     }
-# }
+# Example PostgreSQL configuration:
+# DATABASE_URL=postgres://user:password@host:5432/dbname
 
 
 # Password validation
