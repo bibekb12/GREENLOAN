@@ -25,13 +25,24 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-fj^!sv%ypkg#ww)^(*08b6hy!1!7w5r-o1f5bxl=c4h#m+s%+p"
+SECRET_KEY = env(
+    "SECRET_KEY",
+    default="django-insecure-fj^!sv%ypkg#ww)^(*08b6hy!1!7w5r-o1f5bxl=c4h#m+s%+p",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DEBUG")
-# DEBUG = False
+DEBUG = env("DEBUG", default=False)
 
-ALLOWED_HOSTS = ["greenloan.pythonanywhere.com", "greenloan.bibekbhandari.com.np", "127.0.0.1","greenloan.bibekbhandari.com.np","*"]
+ALLOWED_HOSTS = env.list(
+    "ALLOWED_HOSTS",
+    default=[
+        "127.0.0.1",
+        "localhost",
+        ".vercel.app",
+        ".now.sh",
+        "greenloan.bibekbhandari.com.np",
+    ],
+)
 
 
 # Application definition
@@ -46,23 +57,21 @@ INSTALLED_APPS = [
     # custom app installed
     "core",
     "rest_framework",
-    'corsheaders',
+    "corsheaders",
     # "accounts",
     "loans",
-    'accounts.apps.AccountsConfig', #this is for the email signal
-    'simple_history', # for the history records
-    'payments', # for payment mode
-    'kyc', # for kyc verification
-
+    "accounts.apps.AccountsConfig",  # this is for the email signal
+    "simple_history",  # for the history records
+    "payments",  # for payment mode
+    "kyc",  # for kyc verification
     # third party apps for css
     "crispy_bootstrap5",
     "crispy_forms",
-
-    #google login credential
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
+    # google login credential
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
 ]
 
 MIDDLEWARE = [
@@ -75,17 +84,17 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # added middleware
-    'simple_history.middleware.HistoryRequestMiddleware', # for the history records
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'allauth.account.middleware.AccountMiddleware', # google login middleware
+    "simple_history.middleware.HistoryRequestMiddleware",  # for the history records
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "allauth.account.middleware.AccountMiddleware",  # google login middleware
 ]
 
 ROOT_URLCONF = "greenloan.urls"
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
 
@@ -111,13 +120,12 @@ AUTH_USER_MODEL = "accounts.User"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#
 DJANGO_ENV = os.getenv("DJANGO_ENV", "development")
-DATABASE_URL = os.getenv("DATABASE_URL")
-
+DB_PATH = env("DB_PATH", default=str(BASE_DIR / "db.sqlite3"))
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": DB_PATH,
     }
 }
 
@@ -137,10 +145,10 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     # {
-        # "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    # "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     # },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     }
     # , {
     #     'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -185,7 +193,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 LOGIN_URL = "/app/login/"
 LOGIN_REDIRECT_URL = "/app/dashboard/"
 
-#email accounts handle
+# email accounts handle
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
@@ -193,27 +201,35 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 
-EMAIL_HOST_USER = env("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 DEFAULT_FROM_EMAIL = "GreenLoan <no-reply@gmail.com>"
 
 SITE_ID = 1
-DEFAULT_DOMAIN = "greenloan.pythonanywhere.com"
+DEFAULT_DOMAIN = env(
+    "DEFAULT_DOMAIN", default=["localhost", "greenloan.bibekbhandari.com.np"]
+)
 
 SOCIALACCOUNT_AUTO_SIGNUP = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
-ACCOUNT_LOGIN_METHODS = {'email'}
-SOCIALACCOUNT_ADAPTER = 'accounts.adapter.CustomSocialAccountAdapter'
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
+ACCOUNT_LOGIN_METHODS = {"email"}
+SOCIALACCOUNT_ADAPTER = "accounts.adapter.CustomSocialAccountAdapter"
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://greenloan.bibekbhandari.com.np"
-]
+CSRF_TRUSTED_ORIGINS = env.list(
+    "CSRF_TRUSTED_ORIGINS",
+    default=[
+        "https://*.vercel.app",
+        "http://localhost:8000",
+        "https://greenloan.bibekbhandari.com.np",
+    ],
+)
 
-CORS_ALLOW_ALL_ORIGINS = False
-X_FRAME_OPTIONS = 'SAMEORIGIN'  
+CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS", default=True)
+X_FRAME_OPTIONS = "SAMEORIGIN"
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-#esewa payment 
+# esewa payment
 # ESEWA_PAYMENT_URL = "https://uat.esewa.com.np/epay/main"
 ESEWA_PAYMENT_URL = "https://rc-epay.esewa.com.np/api/epay/main/v2/form"
 ESEWA_MERCHANT_CODE = "EPAYTEST"

@@ -9,8 +9,6 @@ from django.views import View
 from django.views.generic.edit import FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from deepface import DeepFace
-
 from .forms import LiveKYCForm
 from .models import KYCVerification
 
@@ -76,6 +74,15 @@ class KYCVerificationView(LoginRequiredMixin, FormView):
             selfie_path = (
                 kyc.selfie_image.path
             )
+
+            try:
+                from deepface import DeepFace
+            except ImportError:
+                messages.error(
+                    self.request,
+                    "Face verification is currently unavailable in this deployment."
+                )
+                return redirect("kyc:kyc_verify")
 
             result = DeepFace.verify(
                 img1_path=passport_path,
