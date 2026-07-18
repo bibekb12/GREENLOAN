@@ -12,14 +12,6 @@ import django
 
 django.setup()
 
-# Run migrations silently on cold start (best-effort for SQLite on /tmp)
-try:
-    from django.core.management import call_command
-
-    call_command("migrate", interactive=False, verbosity=0)
-except Exception:
-    pass
-
 from greenloan.wsgi import application
 
 app = application
