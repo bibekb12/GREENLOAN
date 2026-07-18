@@ -122,6 +122,9 @@ AUTH_USER_MODEL = "accounts.User"
 DJANGO_ENV = os.getenv("DJANGO_ENV", "development")
 DB_PATH = env("DB_PATH", default=str(BASE_DIR / "db.sqlite3"))
 
+if os.getenv("VERCEL"):
+    DB_PATH = "/tmp/db.sqlite3"
+
 DATABASES = {
     "default": env.db(
         "DATABASE_URL",
