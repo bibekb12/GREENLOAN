@@ -19,7 +19,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(DEBUG=(bool, False))
 
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+# Only read .env file if it exists (it won't exist on Vercel)
+env_file = os.path.join(BASE_DIR, ".env")
+if os.path.isfile(env_file):
+    environ.Env.read_env(env_file)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -54,6 +57,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",  # required by django-allauth
     # custom app installed
     "core",
     "rest_framework",

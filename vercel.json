@@ -5,12 +5,20 @@
       "src": "api/index.py",
       "use": "@vercel/python",
       "config": {
-        "maxLambdaSize": "15mb"
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.12"
       }
+    },
+    {
+      "src": "staticfiles/**",
+      "use": "@vercel/static"
     }
   ],
-  "buildCommand": "pip install -r requirements.txt && python manage.py collectstatic --noinput",
   "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/staticfiles/$1"
+    },
     {
       "src": "/(.*)",
       "dest": "api/index.py"
