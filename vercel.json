@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "GREENLOAN/wsgi.py",
+      "src": "greenloan/wsgi.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "GREENLOAN/wsgi.py"
+      "dest": "greenloan/wsgi.py"
     }
   ]
 }
